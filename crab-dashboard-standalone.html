@@ -519,7 +519,8 @@ tr.kw-row.selected td{background:var(--accent-soft)!important}
 .chrome-darkframe .sidenav .nav-item{color:#97A2B4}
 .chrome-darkframe .sidenav .nav-item:hover{background:#2E3745;color:#EDF1F7}
 .chrome-darkframe .sidenav .nav-item.active{background:rgba(253,33,44,.18);color:#FF8A90}
-.chrome-darkframe .main{background:var(--bg);border-radius:14px;margin:10px 14px 14px 2px;padding:16px 20px 40px;min-height:calc(100vh - 76px)}
+.chrome-darkframe .main{background:var(--bg);border-radius:14px 0 0 0;margin:0;padding:16px 20px 120px;min-height:calc(100vh - 52px)}
+#app.chrome-darkframe{padding-bottom:0}
 .page-crumbs{margin-bottom:6px}
 
 /* ============ рама Pipedrive (chrome-pd): тёмно-синий сайдбар с логотипом, белая шапка ============ */
@@ -691,6 +692,13 @@ const WORKSHEET = [
   }
  ]}
 ];
+/* дубли групп — для проверки sticky-элементов при длинной прокрутке */
+{
+  const proto = WORKSHEET[0].groups.slice(0,2);
+  for(let c=2;c<=4;c++){
+    proto.forEach(g=> WORKSHEET[0].groups.push({...g, name:`${g.name} · ${c}`}));
+  }
+}
 const GROUPS = WORKSHEET.flatMap(s=>s.groups);
 
 const SERP_TOP = [
