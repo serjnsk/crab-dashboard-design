@@ -70,7 +70,7 @@ input,select{font:inherit;color:inherit}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
 @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
 
-#app{min-height:100vh;padding-bottom:96px}
+#app{min-height:100vh}
 
 /* ============ TOPBAR ============ */
 .topbar{display:flex;align-items:center;gap:16px;height:52px;padding:0 20px;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:40}
@@ -86,6 +86,12 @@ input,select{font:inherit;color:inherit}
 .gsearch svg{flex:none}
 .gsearch .kbd{margin-left:auto;font-family:var(--mono);font-size:10.5px;border:1px solid var(--border-strong);border-radius:4px;padding:1px 5px;color:var(--text-3)}
 .avatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#3D5AFE,#00B0FF);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center}
+/* переключатель темы в шапке: системная / светлая / тёмная */
+.theme-seg{display:inline-flex;background:var(--bg);border:1px solid var(--border);border-radius:9px;padding:2px;gap:1px}
+.ts-btn{width:27px;height:24px;display:inline-flex;align-items:center;justify-content:center;border-radius:7px;color:var(--text-3)}
+.ts-btn:hover{color:var(--text)}
+.ts-btn.active{background:var(--surface);color:var(--text);box-shadow:var(--shadow)}
+.ts-btn svg{width:14px;height:14px}
 
 /* ============ SHELL / SIDENAV ============ */
 .shell{display:flex}
@@ -511,6 +517,10 @@ tr.kw-row.selected td{background:var(--accent-soft)!important}
 .chrome-darkframe .gsearch{background:#2E3745;border-color:#3B4655;color:#97A2B4}
 .chrome-darkframe .gsearch .kbd{border-color:#465263;color:#8B96A8}
 .chrome-darkframe .sidenav{background:#252D39}
+.chrome-darkframe .theme-seg{background:#2E3745;border-color:#3B4655}
+.chrome-darkframe .ts-btn{color:#7B8698}
+.chrome-darkframe .ts-btn:hover{color:#EDF1F7}
+.chrome-darkframe .ts-btn.active{background:#465364;color:#fff;box-shadow:none}
 .chrome-darkframe .sidenav .nav-item{color:#97A2B4}
 .chrome-darkframe .sidenav .nav-item:hover{background:#2E3745;color:#EDF1F7}
 .chrome-darkframe .sidenav .nav-item.active{background:rgba(253,33,44,.18);color:#FF8A90}
@@ -612,15 +622,6 @@ tr.flash td{animation:rowflash 1.4s ease}
 <div class="drawer-back" id="drawerBack"></div>
 <aside class="drawer" id="drawer" aria-label="Топ выдачи"></aside>
 
-<div class="switcher" role="toolbar" aria-label="Переключатель вариантов дизайна">
-  <div class="sw-info" id="swInfo"></div>
-  <div class="sw-row">
-    <div id="swPills" style="display:flex;gap:6px"></div>
-    <span class="sw-spacer"></span>
-    <span class="sw-hint">← → на клавиатуре</span>
-    <button class="sw-theme" id="themeBtn"></button>
-  </div>
-</div>
 
 <script>
 /* ================= DATA ================= */
@@ -743,6 +744,9 @@ function posDelta(pos,i){ /* улучшение позиции = положит�
 
 /* ================= ICONS ================= */
 const I = {
+  monitor:`<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1.5" y="2.5" width="13" height="9" rx="1.5"/><path d="M6 14h4M8 11.5V14"/></svg>`,
+  sun:`<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="3"/><path d="M8 1v1.8M8 13.2V15M1 8h1.8M13.2 8H15M2.9 2.9l1.3 1.3M11.8 11.8l1.3 1.3M13.1 2.9l-1.3 1.3M4.2 11.8l-1.3 1.3"/></svg>`,
+  moon:`<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13.5 9.5A6 6 0 0 1 6.5 2.5a6 6 0 1 0 7 7z"/></svg>`,
   ya:`<svg viewBox="0 0 19 20" fill="none" aria-label="Яндекс"><path d="M11.3736 2.65H9.60319C6.56694 2.65 5.04833 4.0963 5.04833 6.26481C5.04833 8.67407 6.06042 9.87963 8.33736 11.325L10.1088 12.5296L5.04833 20H1L5.80764 13.2528C3.02417 11.325 1.50653 9.63796 1.50653 6.50556C1.50653 2.65 4.28903 0 9.60319 0H14.9164V20H11.3736V2.65Z" fill="#FC3F1D"/></svg>`,
   crab:`<svg viewBox="0 0 64 64" aria-label="CRAB">
     <g stroke="#fff" stroke-width="3.6" stroke-linecap="round">
@@ -1068,19 +1072,26 @@ function renderDashboard(v){
   </div>`;
   /* единая логика рамы для всех вариантов: шапка = логотип+поиск+профиль,
      хлебные крошки — всегда рядом с H1 в контенте, сайдбар с flyout мониторингов */
+  const themeSeg = `
+    <span class="theme-seg" role="group" aria-label="Тема интерфейса">
+      <button class="ts-btn" data-mode="system" title="Как в системе">${I.monitor}</button>
+      <button class="ts-btn" data-mode="light" title="Светлая тема">${I.sun}</button>
+      <button class="ts-btn" data-mode="dark" title="Тёмная тема">${I.moon}</button>
+    </span>`;
   const topbarHtml = chrome==='pd' ? `
   <header class="topbar">
     <span class="spacer"></span>
     <span class="gsearch">${I.search} Поиск по проектам и мониторингам <span class="kbd">⌘K</span></span>
     <span class="spacer"></span>
     <button class="tb-ico" title="Помощь">?</button>
-    <button class="tb-ico" title="Что нового">✦</button>
+    ${themeSeg}
     <span class="avatar">DC</span>
   </header>` : `
   <header class="topbar">
     <span class="logo"><span class="mark">${I.crab}</span>CRAB</span>
     <span class="spacer"></span>
     <span class="gsearch">${I.search} Поиск по проектам и мониторингам <span class="kbd">⌘K</span></span>
+    ${themeSeg}
     <span class="avatar">DC</span>
   </header>`;
   const sidenavHtml = `
@@ -1223,25 +1234,7 @@ function applyTheme(){
   const t = effectiveTheme();
   if(t) document.documentElement.setAttribute('data-theme', t);
   else document.documentElement.removeAttribute('data-theme');
-  const now = t || (matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');
-  document.getElementById('themeBtn').innerHTML = now==='dark' ? '🌙 Тёмная' : '☀️ Светлая';
-}
-document.getElementById('themeBtn').onclick = ()=>{
-  const now = effectiveTheme() || (matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');
-  userTheme = now==='dark' ? 'light' : 'dark';
-  applyTheme();
-};
-
-function renderSwitcher(){
-  const single = VARIANTS.length===1;
-  document.getElementById('swPills').innerHTML = single ? '' : VARIANTS.map((v,i)=>
-    `<button class="sw-pill ${i===cur?'active':''}" data-v="${i}" title="${v.name}">${i+1}</button>`).join('');
-  document.getElementById('swInfo').innerHTML = single
-    ? `<b>${VARIANTS[0].name}</b><span>${VARIANTS[0].desc}</span>`
-    : `<b>Вариант ${cur+1}/${VARIANTS.length} · ${VARIANTS[cur].name}</b><span>${VARIANTS[cur].desc}</span>`;
-  const hint = document.querySelector('.sw-hint');
-  if(hint) hint.style.display = single ? 'none' : '';
-  document.querySelectorAll('.sw-pill').forEach(b=> b.onclick = ()=> show(+b.dataset.v));
+  document.querySelectorAll('.ts-btn').forEach(b=> b.classList.toggle('active', (userTheme||'system')===b.dataset.mode));
 }
 
 function show(i){
@@ -1250,7 +1243,11 @@ function show(i){
   app.className = `${v.id} cells-${v.cells} dens-${v.dens} sum-${v.summary} chrome-${v.chrome||'std'}${v.nowCol?' has-now':''}`;
   app.innerHTML = renderDashboard(v);
   applyTheme();
-  renderSwitcher();
+  /* переключатель темы в шапке: системная / светлая / тёмная */
+  app.querySelectorAll('.ts-btn').forEach(b=> b.onclick = ()=>{
+    userTheme = b.dataset.mode==='system' ? null : b.dataset.mode;
+    applyTheme();
+  });
   /* collapse groups */
   app.querySelectorAll('.group-row').forEach(gr=>{
     gr.style.cursor='pointer';
@@ -1335,12 +1332,6 @@ function show(i){
   }
   closeSerp();
 }
-
-document.addEventListener('keydown', e=>{
-  if(e.target.tagName==='INPUT') return;
-  if(e.key==='ArrowRight') show((cur+1)%VARIANTS.length);
-  if(e.key==='ArrowLeft') show((cur+VARIANTS.length-1)%VARIANTS.length);
-});
 
 show(0);
 </script>
