@@ -1243,6 +1243,9 @@ function show(i){
   app.className = `${v.id} cells-${v.cells} dens-${v.dens} sum-${v.summary} chrome-${v.chrome||'std'}${v.nowCol?' has-now':''}`;
   app.innerHTML = renderDashboard(v);
   applyTheme();
+  /* фактическая высота thead (меняется, если в датах есть время) — для отступа sticky-шапок групп */
+  const theadEl = app.querySelector('.grid thead');
+  if(theadEl) app.style.setProperty('--thead-h', Math.round(theadEl.getBoundingClientRect().height)+'px');
   /* переключатель темы в шапке: системная / светлая / тёмная */
   app.querySelectorAll('.ts-btn').forEach(b=> b.onclick = ()=>{
     userTheme = b.dataset.mode==='system' ? null : b.dataset.mode;
