@@ -237,7 +237,7 @@ table.grid{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums
 .grid thead th.date.last .d{color:var(--accent)}
 .grid td{padding:0 8px;height:var(--row-h,38px);border-bottom:1px solid var(--border);font-size:12.5px;vertical-align:middle}
 .grid tr.kw-row:hover td{background:var(--surface-2)}
-.grid td.kw{padding-left:14px;max-width:340px}
+.grid td.kw{padding-left:36px;max-width:340px}
 .kw-cell{display:flex;align-items:center;gap:8px;min-width:0}
 .kw-cell .eng{flex:none;width:16px;height:16px;border-radius:4px;font-size:9.5px;font-weight:800;display:flex;align-items:center;justify-content:center}
 .eng.ya{background:transparent}
@@ -256,9 +256,9 @@ table.grid{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums
 .grid td.pos.last{background:var(--accent-soft)}
 
 /* supergroup row */
-.grid tr.super-row td{background:var(--surface);height:48px;padding:0 14px;border-bottom:2px solid var(--border-strong)}
+.grid tr.super-row td{background:var(--bg);height:52px;padding:0 14px;border-bottom:none}
 .super-head{display:flex;align-items:center;gap:10px;white-space:nowrap;cursor:pointer}
-.super-head .sname{font-size:15px;font-weight:800;letter-spacing:-.01em}
+.super-head .sname{font-size:16px;font-weight:800;letter-spacing:-.01em}
 .super-head .scount{font-size:11.5px;color:var(--text-3);font-variant-numeric:tabular-nums}
 .super-row.collapsed .chev{transform:rotate(-90deg)}
 
@@ -267,7 +267,7 @@ table.grid{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums
 .grid tr.group-gap.big td{height:22px}
 
 /* group row — целостный блок: липкая шапка + акцентная кромка */
-.grid tr.group-row td{background:var(--surface-2);border-bottom:1px solid var(--border);border-top:1px solid var(--border);height:42px;padding:0 14px;box-shadow:inset 3px 0 0 var(--accent);position:sticky;top:calc(52px + var(--thead-h));z-index:5}
+.grid tr.group-row td{background:var(--surface-2);border-bottom:1px solid var(--border);border-top:1px solid var(--border);height:42px;padding:0 14px 0 24px;box-shadow:inset 3px 0 0 var(--accent);position:sticky;top:calc(52px + var(--thead-h));z-index:5}
 .grid tr.kw-row td.kw{box-shadow:inset 3px 0 0 var(--border)}
 .rel-url{display:block;font-size:10.5px;color:var(--t20-fg);margin:1px 0 3px 24px;max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:550}
 .rel-url:hover{text-decoration:underline}
@@ -565,7 +565,8 @@ tr.kw-row.selected td{background:var(--accent-soft)!important}
 .grid td.kw{position:sticky;left:0;z-index:2;background:var(--surface)}
 .grid td.sum-label{position:sticky;left:0;z-index:2;background:var(--surface)}
 .grid tr.sum-row.hero td.sum-label{background:var(--surface-2)}
-.group-head,.super-head{position:sticky;left:14px;width:max-content;max-width:calc(100vw - 220px)}
+.super-head{position:sticky;left:14px;width:max-content;max-width:calc(100vw - 220px)}
+.group-head{position:sticky;left:24px;width:max-content;max-width:calc(100vw - 220px)}
 
 /* ============ ОГЛАВЛЕНИЕ ГРУПП / СВЕРНУТЬ ВСЁ ============ */
 .toc-wrap{position:relative}
@@ -987,7 +988,7 @@ function renderWorksheet(v){
   }
   const groups = WORKSHEET.map((sg,si)=>{
     const totalKeys = sg.groups.reduce((n,g)=>n+g.keys.length,0);
-    const superRow = `${si>0?`<tr class="group-gap big" aria-hidden="true"><td colspan="${nCols}"></td></tr>`:''}
+    const superRow = `<tr class="group-gap big" aria-hidden="true"><td colspan="${nCols}"></td></tr>
       <tr class="super-row" data-sid="${si}"><td colspan="${nCols}">
       <div class="super-head">
         <span class="chev">${I.chev}</span>
