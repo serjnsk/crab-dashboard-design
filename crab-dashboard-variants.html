@@ -278,7 +278,7 @@ table.grid{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums
 .group-head .gspacer{flex:1}
 .group-head .gact{color:var(--text-3);padding:3px 6px;border-radius:5px;font-size:12px}
 .group-head .gact:hover{background:var(--border);color:var(--text)}
-tr.g-hide,tr.s-hide{display:none}
+tr.g-hide,tr.s-hide,tr.v-hide{display:none}
 
 /* ============ POSITION CELL VARIANTS ============ */
 .cell{display:inline-flex;align-items:center;justify-content:center;gap:4px;font-weight:650;cursor:pointer;position:relative}
@@ -676,7 +676,8 @@ const WORKSHEET = [
       {kw:'биддер', typ:{gray:1,pink:2}, ws:2340, wse:181, serp:['vid'], pos:[54,54,45,51,58,52,42,54], swap:[6,7]},
       {kw:'биддер это', typ:{gray:1,purple:1}, ws:253, wse:103, serp:[], pos:[51,53,47,50,47,49,42,47], swap:[6]},
       {kw:'биддер ставок', typ:{pink:2}, ws:480, wse:95, serp:['ads'], pos:[null,null,88,76,71,66,60,58], relUrl:'/blog/bidder-stavok-obzor/'},
-      {kw:'биддер яндекс директ', typ:{pink:2,green:1}, ws:390, wse:60, serp:['ads','vid'], pos:[22,24,19,18,21,17,15,14], swap:[5]}
+      {kw:'биддер яндекс директ', typ:{pink:2,green:1}, ws:390, wse:60, serp:['ads','vid'], pos:[22,24,19,18,21,17,15,14], swap:[5]},
+      {kw:'биддер для маркетплейсов', typ:{gray:1}, ws:90, wse:10, serp:[], pos:[null,null,96,null,null,null,null,null]}
     ]
   }
  ]},
@@ -744,6 +745,17 @@ function posDelta(pos,i){ /* улучшение позиции = положит�
   let j=i-1; while(j>=0 && typeof pos[j]!=='number') j--;
   if(j<0 || typeof pos[i]!=='number') return null;
   return pos[j]-pos[i];
+}
+/* категории ключа для вкладок видов: упал/вырос — относительно предыдущего среза в таблице */
+function keyCats(k){
+  const last = k.pos[DATES.length-1];
+  const d = posDelta(k.pos, DATES.length-1);
+  const cats = [];
+  if(d!=null && d<0) cats.push('fell');
+  if(d!=null && d>0) cats.push('rose');
+  if(typeof last==='number' && last<=10) cats.push('top10');
+  if(last==null) cats.push('out');
+  return cats;
 }
 
 /* ================= ICONS ================= */
@@ -951,7 +963,8 @@ function renderWorksheet(v){
     const rows = g.keys.map((k,ki)=>{
       const cells = DATES.map((_,i)=>`<td class="pos ${i===DATES.length-1?'last':''}">${cellHtml(k,i,cgi,ki)}</td>`).join('');
       const rel = k.relUrl ? `<a class="rel-url" href="#" onclick="return false" title="Релевантная страница отличается от целевой URL группы (${g.url})">≠ ${k.relUrl}</a>` : '';
-      return `<tr class="kw-row" data-parent="${cgi}" data-super="${si}" data-key="${cgi}:${ki}">
+      const cats = keyCats(k).join(' ');
+      return `<tr class="kw-row" data-parent="${cgi}" data-super="${si}" data-key="${cgi}:${ki}" data-cats="${cats}">
         <td class="kw"><div class="kw-cell"><span class="eng ya" title="Яндекс">${I.ya}</span><span class="txt">${esc(k.kw)}</span></div>${rel}</td>
         <td class="typ">${typDots(k.typ)}</td>
         <td class="serp">${serpIcons(k.serp)}</td>
@@ -1036,14 +1049,13 @@ function renderDashboard(v){
   const contentHtml = v.detail
     ? `<div class="detail-grid"><div class="detail-main">${contentRaw}</div><aside class="detail-rail" id="detailRail"></aside></div>`
     : contentRaw;
-  /* вкладки авто-видов — сквозной блок для всех вариантов */
+  /* вкладки авто-видов: счётчики из данных, клик фильтрует ключи */
+  const allKeys = GROUPS.flatMap(g=>g.keys);
+  const cnt = view => view==='all' ? allKeys.length : allKeys.filter(k=>keyCats(k).includes(view)).length;
   const tabsHtml = `
       <div class="viewtabs">
-        <span class="vt active">Все ключи <b>17</b></span>
-        <span class="vt">Упавшие <b>3</b></span>
-        <span class="vt">Выросшие <b>6</b></span>
-        <span class="vt">ТОП-10 <b>11</b></span>
-        <span class="vt">Вне ТОП-100 <b>1</b></span>
+        ${[['all','Все ключи'],['fell','Упавшие'],['rose','Выросшие'],['top10','ТОП-10'],['out','Вне ТОП-100']]
+          .map(([view,label],i)=>`<button class="vt ${i===0?'active':''}" data-view="${view}">${label} <b>${cnt(view)}</b></button>`).join('')}
       </div>`;
   const viewbarHtml = tabsHtml + (v.viewbar==='attio' ? `
       <div class="viewbar">
@@ -1298,6 +1310,25 @@ function show(i){
       };
     });
   }
+  /* вкладки видов: фильтрация ключей, пустые группы/супергруппы скрываются */
+  const applyView = view=>{
+    app.querySelectorAll('.vt[data-view]').forEach(t=>t.classList.toggle('active', t.dataset.view===view));
+    app.querySelectorAll('tr.kw-row').forEach(r=>{
+      const ok = view==='all' || (r.dataset.cats||'').split(' ').includes(view);
+      r.classList.toggle('v-hide', !ok);
+    });
+    app.querySelectorAll('tr.group-row').forEach(gr=>{
+      const any = [...app.querySelectorAll(`tr.kw-row[data-parent="${gr.dataset.group}"]`)].some(r=>!r.classList.contains('v-hide'));
+      gr.classList.toggle('v-hide', !any);
+      const gap = gr.previousElementSibling;
+      if(gap && gap.classList.contains('group-gap')) gap.classList.toggle('v-hide', !any);
+    });
+    app.querySelectorAll('tr.super-row').forEach(sr=>{
+      const any = [...app.querySelectorAll(`tr.group-row[data-super="${sr.dataset.sid}"]`)].some(r=>!r.classList.contains('v-hide'));
+      sr.classList.toggle('v-hide', !any);
+    });
+  };
+  app.querySelectorAll('.vt[data-view]').forEach(t=> t.onclick = ()=> applyView(t.dataset.view));
   /* правка URL группы по карандашу */
   app.querySelectorAll('.gedit').forEach(b=>{
     b.onclick = e=>{
