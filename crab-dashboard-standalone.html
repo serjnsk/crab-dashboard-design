@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>CRAB — варианты дизайна дашборда</title>
+<title>CRAB — новый дизайн дашборда</title>
 <style>
 /* ============ TOKENS ============ */
 :root{
@@ -708,16 +708,8 @@ const SERP_TOP = [
 
 /* ================= VARIANTS ================= */
 const VARIANTS = [
-  {id:'v1', name:'Классика 2.0', summary:'table', cells:'fill', layout:'top', dens:'normal',
-   desc:'Эволюция текущего UI: знакомая структура и заливка ячеек, но с легендой, иерархией кнопок и чистыми токенами.'},
   {id:'v15', name:'Рама-графит', summary:'table', cells:'fill', layout:'top', dens:'normal', chrome:'darkframe',
-   desc:'Приглушённо-тёмные шапка и икон-сайдбар (графит, не чёрный), контент — светлая карточка. Крошки — рядом с заголовком.'},
-  {id:'v6', name:'Тепловая карта', summary:'table', cells:'heat', layout:'top', dens:'ultra',
-   desc:'Сплошной heatmap с ультраплотными строками — аномалии видны с расстояния вытянутой руки.'},
-  {id:'v8', name:'Мягкий UI', summary:'table', cells:'pill', layout:'top', dens:'relaxed',
-   desc:'Скругления, пастель, пилюли позиций и парящая панель — дружелюбная версия для долгих сессий.'},
-  {id:'v9', name:'Компакт · рама Pipedrive', summary:'table', cells:'chip', layout:'top', dens:'compact', viewbar:'attio', typStyle:'chips', chrome:'pd',
-   desc:'Плотная Attio-таблица в раме Pipedrive: тёмно-синий икон-сайдбар с логотипом, белая шапка с поиском по центру.'},
+   desc:'Победитель опроса пользователей: графитовая рама, светлая карточка контента, заливка ячеек.'},
 ];
 
 /* ================= HELPERS ================= */
@@ -1240,10 +1232,14 @@ document.getElementById('themeBtn').onclick = ()=>{
 };
 
 function renderSwitcher(){
-  document.getElementById('swPills').innerHTML = VARIANTS.map((v,i)=>
+  const single = VARIANTS.length===1;
+  document.getElementById('swPills').innerHTML = single ? '' : VARIANTS.map((v,i)=>
     `<button class="sw-pill ${i===cur?'active':''}" data-v="${i}" title="${v.name}">${i+1}</button>`).join('');
-  document.getElementById('swInfo').innerHTML =
-    `<b>Вариант ${cur+1}/${VARIANTS.length} · ${VARIANTS[cur].name}</b><span>${VARIANTS[cur].desc}</span>`;
+  document.getElementById('swInfo').innerHTML = single
+    ? `<b>${VARIANTS[0].name}</b><span>${VARIANTS[0].desc}</span>`
+    : `<b>Вариант ${cur+1}/${VARIANTS.length} · ${VARIANTS[cur].name}</b><span>${VARIANTS[cur].desc}</span>`;
+  const hint = document.querySelector('.sw-hint');
+  if(hint) hint.style.display = single ? 'none' : '';
   document.querySelectorAll('.sw-pill').forEach(b=> b.onclick = ()=> show(+b.dataset.v));
 }
 
