@@ -153,6 +153,9 @@ input,select{font:inherit;color:inherit}
 .state-ico svg{width:13px;height:14px}
 .state-ico.flag{font-size:12.5px}
 .state-ico.dot::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--t10-heat)}
+/* мгновенные тултипы для иконок */
+[data-tip]{position:relative}
+[data-tip]:hover::after{content:attr(data-tip);position:absolute;top:calc(100% + 7px);left:50%;transform:translateX(-50%);background:var(--text);color:var(--surface);font-size:10.5px;font-weight:600;padding:4.5px 9px;border-radius:6px;white-space:nowrap;z-index:120;pointer-events:none;box-shadow:var(--shadow-lg)}
 .ph-actions{margin-left:auto;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .btn{display:inline-flex;align-items:center;gap:7px;border-radius:var(--radius);padding:8px 14px;font-size:12.5px;font-weight:650;border:1px solid transparent;transition:background .12s}
 .btn.primary{background:var(--accent);color:#fff;box-shadow:var(--shadow)}
@@ -1326,13 +1329,13 @@ function renderDashboard(v){
       <div class="page-head">
         <div class="ph-left">
           <div class="ph-title">
-            <button class="star" title="В избранное">☆</button>
+            <button class="star" data-tip="В избранное">☆</button>
             <h1>Блог DL</h1>
             <span class="ph-states">
-              <span class="state-ico" title="Поисковая система: Яндекс">${I.ya}</span>
-              <span class="state-ico flag" title="Регион: Москва">🇷🇺</span>
-              <span class="state-ico dot" title="Мониторинг активен (открыт)"></span>
-              <span class="state-ico" title="Расписание: 1 раз в месяц">${I.cal}</span>
+              <span class="state-ico" data-tip="Поисковая система: Яндекс">${I.ya}</span>
+              <span class="state-ico flag" data-tip="Регион: Москва">🇷🇺</span>
+              <span class="state-ico dot" data-tip="Мониторинг активен (открыт)"></span>
+              <span class="state-ico" data-tip="Расписание: 1 раз в месяц · следующий срез 01.08.2026">${I.cal}</span>
             </span>
           </div>
           <span class="ph-meta">Последний срез: 01.07.2026, ср · следующий по расписанию — 01.08.2026</span>
@@ -1369,7 +1372,7 @@ function renderDashboard(v){
         <span class="dd-wrap" id="slWrap">
           <button class="f-select">Срезов: <b>${SLICES_N}</b> <span class="car">▼</span></button>
           <div class="dd-panel">
-            ${[4,6,8].map(n=>`<button class="dd-item ${n===SLICES_N?'active':''}" data-n="${n}">${n} последних</button>`).join('')}
+            ${[8,10,15,20,25].map(n=>`<button class="dd-item ${n===SLICES_N?'active':''}" data-n="${n}">${n} последних</button>`).join('')}
           </div>
         </span>
         <span class="spacer"></span>
