@@ -264,6 +264,8 @@ table.grid{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums
 /* group row — целостный блок: липкая шапка + акцентная кромка */
 .grid tr.group-row td{background:var(--surface-2);border-bottom:1px solid var(--border);border-top:1px solid var(--border);height:42px;padding:0 14px 0 24px;box-shadow:inset 3px 0 0 var(--accent);position:sticky;top:calc(52px + var(--thead-h));z-index:5}
 .grid tr.kw-row td.kw{box-shadow:inset 3px 0 0 var(--border)}
+.gcount-abs{position:absolute;right:14px;top:50%;transform:translateY(-50%)}
+.gurl-t[contenteditable="true"]{outline:none;border-bottom:1px dashed var(--accent)}
 .rel-url{display:block;font-size:10.5px;color:var(--t20-fg);margin:1px 0 3px 24px;max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:550}
 .rel-url:hover{text-decoration:underline}
 .group-head{display:flex;align-items:center;gap:10px;white-space:nowrap}
@@ -943,12 +945,9 @@ function renderWorksheet(v){
       <div class="group-head">
         <span class="chev">${I.chev}</span>
         <span class="gname">${esc(g.name)}</span>
-        <span class="gcount">${g.keys.length} ключ${g.keys.length>4?'ей':'а'}</span>
-        <a class="gurl" href="#" onclick="return false" title="Целевая страница группы">${I.link}${g.url}</a>
-        <span class="gspacer"></span>
-        <button class="gact" title="Снять позиции для группы">${I.play}</button>
-        <button class="gact" title="Редактировать группу">✎</button>
-      </div></td></tr>`;
+        <a class="gurl" href="#" onclick="return false" title="Целевая страница группы">${I.link}<span class="gurl-t">${g.url}</span></a>
+        <button class="gact gedit" title="Редактировать URL группы">✎</button>
+      </div><span class="gcount gcount-abs">${g.keys.length} ключ${g.keys.length>4?'ей':'а'}</span></td></tr>`;
     const rows = g.keys.map((k,ki)=>{
       const cells = DATES.map((_,i)=>`<td class="pos ${i===DATES.length-1?'last':''}">${cellHtml(k,i,cgi,ki)}</td>`).join('');
       const rel = k.relUrl ? `<a class="rel-url" href="#" onclick="return false" title="Релевантная страница отличается от целевой URL группы (${g.url})">≠ ${k.relUrl}</a>` : '';
@@ -1126,8 +1125,7 @@ function renderDashboard(v){
         </div>
         <div class="ph-actions">
           <button class="btn secondary">${I.vs} Позиции конкурента</button>
-          <button class="btn secondary">${I.refresh} Обновить частотность</button>
-          <button class="btn secondary icon" title="Выгрузить данные">${I.dl}</button>
+          <button class="btn secondary">${I.dl} Экспорт</button>
           <button class="btn primary">${I.play} Запустить мониторинг</button>
         </div>
       </div>
@@ -1300,6 +1298,19 @@ function show(i){
       };
     });
   }
+  /* правка URL группы по карандашу */
+  app.querySelectorAll('.gedit').forEach(b=>{
+    b.onclick = e=>{
+      e.stopPropagation();
+      const t = b.closest('.group-head').querySelector('.gurl-t');
+      t.contentEditable = 'true';
+      t.focus();
+      const sel = getSelection(), r = document.createRange();
+      r.selectNodeContents(t); sel.removeAllRanges(); sel.addRange(r);
+      t.onblur = ()=>{ t.contentEditable = 'false'; };
+      t.onkeydown = ev=>{ if(ev.key==='Enter'){ ev.preventDefault(); t.blur(); } };
+    };
+  });
   /* тумблеры: свернуть/развернуть все группы и все супергруппы */
   const gBtn = app.querySelector('#foldGroupsBtn'), sBtn = app.querySelector('#foldSupersBtn');
   if(gBtn) gBtn.onclick = ()=>{
