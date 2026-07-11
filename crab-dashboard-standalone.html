@@ -562,6 +562,18 @@ tr.kw-row.selected td{background:var(--accent-soft)!important}
 .grid tr.sum-row.total td{color:var(--text-3)}
 .sum-body tr:last-child td{border-bottom:2px solid var(--border-strong)}
 
+/* переключатель вида сводки: абсолютные / проценты */
+.sum-mode-seg{display:inline-flex;margin-left:10px;border:1px solid var(--border);border-radius:7px;padding:1.5px;background:var(--bg);vertical-align:-4px;gap:1px}
+.sm-mode{font-size:9.5px;font-weight:750;padding:2px 7px;border-radius:5px;color:var(--text-3);line-height:1.3}
+.sm-mode:hover{color:var(--text)}
+.sm-mode.active{background:var(--surface);color:var(--text);box-shadow:var(--shadow)}
+.sum-mode-abs .grid td.sum .pct{display:none}
+.sum-mode-abs .sum-delta.d-pct{display:none}
+.sum-mode-pct .grid td.sum .num{display:none}
+.sum-mode-pct .sum-delta.d-abs{display:none}
+.sum-mode-pct .grid td.sum .pct{color:var(--text);font-size:12px;font-weight:650;margin-left:0}
+.sum-mode-pct tr.sum-row.total .num{display:inline} /* «Всего ключей» без процентов — показываем всегда */
+
 /* ============ ЗАМОРОЖЕННАЯ КОЛОНКА КЛЮЧА (гориз. скролл) ============ */
 .grid thead th.kw{position:sticky;left:0;z-index:11}
 .grid td.kw{position:sticky;left:0;z-index:2;background:var(--surface)}
@@ -1050,16 +1062,20 @@ function renderWorksheet(v){
     <tbody>${groups}</tbody></table></div></div>`;
 }
 
-/* сводка как часть общей сетки: label занимает колонки ключа, даты совпадают с матрицей */
+/* сводка как часть общей сетки: label занимает колонки ключа, даты совпадают с матрицей.
+   Режимы отображения: абсолютные значения или проценты (переключатель у «Общей видимости») */
 function renderSummaryRows(labelSpan){
   const rows = SUMMARY.map(r=>{
     const cells = DATES.map((_,i)=>{
-      const df = delta(r.vals,i);
-      const dh = i>0&&df!==0 ? `<span class="sum-delta ${df>0?'up':'down'}">${df>0?'▲':'▼'}${Math.abs(df)}</span>` : '';
-      return `<td class="sum ${i===DATES.length-1?'lastcol':''}"><span class="num">${r.vals[i]}</span><span class="pct">${r.pct[i]} %</span>${dh}</td>`;
+      const dfA = delta(r.vals,i);
+      const dhA = i>0&&dfA!==0 ? `<span class="sum-delta d-abs ${dfA>0?'up':'down'}">${dfA>0?'▲':'▼'}${Math.abs(dfA)}</span>` : '';
+      const dfP = i>0 ? r.pct[i]-r.pct[i-1] : 0;
+      const dhP = i>0&&dfP!==0 ? `<span class="sum-delta d-pct ${dfP>0?'up':'down'}">${dfP>0?'▲':'▼'}${Math.abs(dfP)}</span>` : '';
+      return `<td class="sum ${i===DATES.length-1?'lastcol':''}"><span class="num">${r.vals[i]}</span><span class="pct">${r.pct[i]} %</span>${dhA}${dhP}</td>`;
     }).join('');
     const sw = r.band?`<span class="sw" style="background:var(--${r.band}-heat)"></span>`:'';
-    return `<tr class="sum-row ${r.hero?'hero':''}"><td class="sum-label" colspan="${labelSpan}">${sw}${r.label}</td>${cells}</tr>`;
+    const seg = r.hero ? `<span class="sum-mode-seg" title="Вид сводки: абсолютные значения / проценты"><button class="sm-mode active" data-m="abs">123</button><button class="sm-mode" data-m="pct">%</button></span>` : '';
+    return `<tr class="sum-row ${r.hero?'hero':''}"><td class="sum-label" colspan="${labelSpan}">${sw}${r.label}${seg}</td>${cells}</tr>`;
   }).join('');
   const totals = DATES.map((_,i)=>`<td class="sum ${i===DATES.length-1?'lastcol':''}"><span class="num total">${TOTAL_KEYS[i]}</span></td>`).join('');
   return rows + `<tr class="sum-row total"><td class="sum-label" colspan="${labelSpan}">Всего ключей</td>${totals}</tr>`;
@@ -1338,12 +1354,19 @@ function applyTheme(){
 function show(i){
   cur = i;
   const v = VARIANTS[i];
-  app.className = `${v.id} cells-${v.cells} dens-${v.dens} sum-${v.summary} chrome-${v.chrome||'std'}${v.nowCol?' has-now':''}`;
+  app.className = `${v.id} cells-${v.cells} dens-${v.dens} sum-${v.summary} sum-mode-abs chrome-${v.chrome||'std'}${v.nowCol?' has-now':''}`;
   app.innerHTML = renderDashboard(v);
   applyTheme();
   /* фактическая высота thead (меняется, если в датах есть время) — для отступа sticky-шапок групп */
   const theadEl = app.querySelector('.grid thead');
   if(theadEl) app.style.setProperty('--thead-h', Math.round(theadEl.getBoundingClientRect().height)+'px');
+  /* режим сводки: абсолютные / проценты */
+  app.querySelectorAll('.sm-mode').forEach(b=> b.onclick = e=>{
+    e.stopPropagation();
+    app.classList.remove('sum-mode-abs','sum-mode-pct');
+    app.classList.add('sum-mode-'+b.dataset.m);
+    app.querySelectorAll('.sm-mode').forEach(x=>x.classList.toggle('active', x===b));
+  });
   /* переключатель темы в шапке: системная / светлая / тёмная */
   app.querySelectorAll('.ts-btn').forEach(b=> b.onclick = ()=>{
     userTheme = b.dataset.mode==='system' ? null : b.dataset.mode;
