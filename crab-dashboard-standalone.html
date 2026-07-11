@@ -426,7 +426,8 @@ tr.g-hide,tr.s-hide,tr.v-hide{display:none}
 .viewbar .spacer{flex:1}
 
 /* viewtabs (HubSpot) */
-.viewtabs{display:flex;align-items:flex-end;gap:2px;border-bottom:2px solid var(--border);margin-bottom:12px;overflow-x:auto}
+.viewtabs{display:flex;align-items:flex-end;gap:2px;border-bottom:2px solid var(--border);margin-bottom:12px;overflow-x:auto;scrollbar-width:none}
+.viewtabs::-webkit-scrollbar{display:none}
 .vt{padding:8px 14px;font-size:12.5px;font-weight:650;color:var(--text-2);border:1px solid transparent;border-bottom:none;border-radius:8px 8px 0 0;cursor:pointer;margin-bottom:-2px;white-space:nowrap}
 .vt b{font-weight:650;color:var(--text-3);margin-left:4px;font-variant-numeric:tabular-nums}
 .vt:hover{background:var(--surface-2)}
@@ -595,6 +596,46 @@ tr.kw-row.selected td{background:var(--accent-soft)!important}
 .tool-ico{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border:1px solid var(--border);background:var(--bg);border-radius:7px;color:var(--text-2);font-size:14px;flex:none}
 .tool-ico:hover{color:var(--text);border-color:var(--border-strong)}
 .tool-ico svg{width:14px;height:14px}
+/* ============ ДРОПДАУНЫ ТУЛБАРА И КАЛЕНДАРЬ ПЕРИОДА ============ */
+.dd-wrap{position:relative}
+.dd-panel{position:absolute;top:calc(100% + 6px);left:0;background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow-lg);padding:6px;display:none;z-index:70;min-width:150px}
+.dd-wrap.open > .dd-panel{display:block}
+.dd-item{display:flex;align-items:center;gap:6px;width:100%;padding:7px 10px;border-radius:6px;font-size:12.5px;font-weight:600;color:var(--text-2);text-align:left;white-space:nowrap}
+.dd-item:hover{background:var(--bg);color:var(--text)}
+.dd-item.active{color:var(--accent);background:var(--accent-soft)}
+.dd-item .hsw{margin:0 2px 0 3px}
+.cal-pop{width:680px;max-width:94vw;position:fixed;left:50%;top:120px;transform:translateX(-50%);padding:16px}
+.cal-months{display:flex;gap:16px;align-items:flex-start}
+.cal-nav{align-self:center;font-size:17px;color:var(--text-3);padding:4px 9px;border-radius:6px;flex:none}
+.cal-nav:hover{background:var(--bg);color:var(--text)}
+.cal-month{flex:1;min-width:0}
+.cal-mt{font-size:12.5px;font-weight:700;text-align:center;margin-bottom:7px}
+.cal-wd{display:grid;grid-template-columns:repeat(7,1fr);font-size:9.5px;color:var(--text-3);text-align:center;border-bottom:1px solid var(--border);padding-bottom:4px;margin-bottom:3px}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:1px}
+.cal-day{height:25px;font-size:11px;border-radius:6px;color:var(--text-2);font-variant-numeric:tabular-nums;position:relative}
+.cal-day:hover{background:var(--bg);color:var(--text)}
+.cal-day.other{pointer-events:none}
+.cal-day.inr{background:var(--accent-soft);color:var(--text);border-radius:0}
+.cal-day.edge{background:var(--accent);color:#fff;border-radius:6px}
+.cal-day.has::after{content:"";position:absolute;left:50%;transform:translateX(-50%);bottom:1px;width:4px;height:4px;border-radius:50%;background:var(--t10-heat)}
+.cal-day.edge.has::after{background:#fff}
+.cal-foot{display:flex;align-items:center;gap:13px;border-top:1px solid var(--border);margin-top:13px;padding-top:13px;flex-wrap:wrap}
+.cal-radio{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--text-2);cursor:pointer;white-space:nowrap}
+.cal-radio input{accent-color:var(--accent)}
+.cal-toggle{display:inline-flex;align-items:center;gap:7px;font-size:12px;color:var(--text-2);cursor:pointer;margin-left:auto;white-space:nowrap}
+.cal-toggle input{display:none}
+.cal-toggle .tgl{width:30px;height:17px;border-radius:10px;background:var(--border-strong);position:relative;transition:background .15s;flex:none}
+.cal-toggle .tgl::after{content:"";position:absolute;top:2px;left:2px;width:13px;height:13px;border-radius:50%;background:#fff;transition:left .15s}
+.cal-toggle input:checked + .tgl{background:var(--accent)}
+.cal-toggle input:checked + .tgl::after{left:15px}
+.cal-foot .btn.primary{padding:7px 16px}
+
+/* календарик у группы: дата добавления в проект */
+.gcount-abs{display:inline-flex;align-items:center;gap:7px}
+.gcal{display:inline-flex;color:var(--text-3);cursor:default}
+.gcal:hover{color:var(--text-2)}
+.gcal svg{width:12px;height:12px}
+
 tr.flash td{animation:rowflash 1.4s ease}
 @keyframes rowflash{0%{background:var(--accent-soft)}100%{}}
 @media (prefers-reduced-motion: reduce){tr.flash td{animation:none}}
@@ -718,7 +759,7 @@ const TYP_META = {
 const WORKSHEET = [
  {name:'Маркетинг', groups:[
   {
-    name:'минус слова adwords', url:'/blog/minus-slova-adwords/',
+    name:'минус слова adwords', url:'/blog/minus-slova-adwords/', added:'12.11.2025',
     keys:[
       {kw:'минус слова adwords', typ:{green:3,gray:1}, ws:1300, wse:140, serp:['ads'], pos:[10,11,8,8,5,7,5,5]},
       {kw:'как добавить минус слова в adwords', typ:{green:2}, ws:720, wse:90, serp:[], pos:[10,8,8,8,'na',6,4,4]},
@@ -734,7 +775,7 @@ const WORKSHEET = [
     ]
   },
   {
-    name:'биддер', url:'/connect/p/bidder-stavok/',
+    name:'биддер', url:'/connect/p/bidder-stavok/', added:'03.02.2026',
     keys:[
       {kw:'биддер', typ:{gray:1,pink:2}, ws:2340, wse:181, serp:['vid'], pos:[54,54,45,51,58,52,42,54], swap:[6,7]},
       {kw:'биддер это', typ:{gray:1,purple:1}, ws:253, wse:103, serp:[], pos:[51,53,47,50,47,49,42,47], swap:[6]},
@@ -746,7 +787,7 @@ const WORKSHEET = [
  ]},
  {name:'Витальные', groups:[
   {
-    name:'vital', url:'/',
+    name:'vital', url:'/', added:'01.10.2025',
     keys:[
       {kw:'directline.pro', typ:{gray:2}, ws:880, wse:720, serp:[], pos:[1,1,1,1,1,1,1,1]},
       {kw:'директлайн агентство', typ:{gray:1,pink:1}, ws:210, wse:90, serp:['map'], pos:[3,3,2,2,1,1,1,1]}
@@ -782,8 +823,47 @@ const VARIANTS = [
    desc:'Победитель опроса пользователей: графитовая рама, светлая карточка контента, заливка ячеек.'},
 ];
 
+/* ================= СОСТОЯНИЕ ВИДА ================= */
+const HL_PRESETS = [
+  {label:'3-5-10', arr:[3,5,10,null]},
+  {label:'3-10-20-50', arr:[3,10,20,50]}
+];
+let HL = HL_PRESETS[1].arr, HL_LABEL = HL_PRESETS[1].label; /* пороги подсветки */
+let SLICES_N = 8;                                            /* сколько последних срезов показывать */
+let PERIOD = {from: DATES[0].iso, to: DATES[DATES.length-1].iso};
+let SAMPLING = 'all';                                        /* частота срезов: all/day/week/2week/month */
+let VIS = new Set(DATES.map((_,i)=>i)), LASTV = DATES.length-1;
+
+function isoWeekKey(iso, span){
+  const d = new Date(iso+'T00:00:00');
+  const onejan = new Date(d.getFullYear(),0,1);
+  const week = Math.floor(((d-onejan)/86400000 + onejan.getDay())/7);
+  return d.getFullYear()+'-'+Math.floor(week/span);
+}
+function visibleIdx(){
+  let idx = DATES.map((_,i)=>i).filter(i=> DATES[i].iso>=PERIOD.from && DATES[i].iso<=PERIOD.to);
+  if(SAMPLING!=='all'){
+    const keyFn = SAMPLING==='month' ? i=>DATES[i].iso.slice(0,7)
+      : SAMPLING==='2week' ? i=>isoWeekKey(DATES[i].iso,2)
+      : SAMPLING==='week' ? i=>isoWeekKey(DATES[i].iso,1)
+      : i=>DATES[i].iso; /* day: не более одного среза в день */
+    const seen = new Set();
+    idx = idx.filter(i=>{ const k2=keyFn(i); if(seen.has(k2)) return false; seen.add(k2); return true; });
+  }
+  if(idx.length>SLICES_N) idx = idx.slice(-SLICES_N);
+  if(!idx.length) idx = [DATES.length-1];
+  return new Set(idx);
+}
+function prevVis(i){ for(let j=i-1;j>=0;j--) if(VIS.has(j)) return j; return -1; }
+const fmtRu = iso => iso.split('-').reverse().join('.');
+
 /* ================= HELPERS ================= */
-const band = p => p==null||p==='na' ? null : p<=3?'t3' : p<=10?'t10' : p<=20?'t20' : p<=50?'t50' : 't100';
+const band = p => {
+  if(p==null||p==='na') return null;
+  const B=['t3','t10','t20','t50'];
+  for(let i=0;i<HL.length;i++){ if(HL[i]!=null && p<=HL[i]) return B[i]; }
+  return p<=100 ? 't100' : null;
+};
 const fmtWs = n => n>=1000 ? (n/1000).toFixed(1).replace('.',',').replace(',0','')+'k' : String(n);
 const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;');
 
@@ -797,22 +877,25 @@ function spark(vals, w=110, h=26, color='var(--accent)'){
     <circle cx="${last[0]}" cy="${last[1]}" r="2.6" fill="${color}"/></svg>`;
 }
 
-function delta(vals,i){
-  if(i===0) return 0;
-  const cur=vals[i], prev=vals[i-1];
+function delta(vals,i){ /* к предыдущему ПОКАЗАННОМУ срезу */
+  const j = prevVis(i);
+  if(j<0) return 0;
+  const cur=vals[i], prev=vals[j];
   if(typeof cur!=='number'||typeof prev!=='number') return 0;
   return cur-prev;
 }
-function posDelta(pos,i){ /* улучшение позиции = положительная дельта */
-  if(i===0) return null;
-  let j=i-1; while(j>=0 && typeof pos[j]!=='number') j--;
-  if(j<0 || typeof pos[i]!=='number') return null;
-  return pos[j]-pos[i];
+function posDelta(pos,i){ /* улучшение позиции = положительная дельта; сравнение с предыдущим видимым срезом */
+  if(typeof pos[i]!=='number') return null;
+  for(let j=i-1;j>=0;j--){
+    if(!VIS.has(j)) continue;
+    if(typeof pos[j]==='number') return pos[j]-pos[i];
+  }
+  return null;
 }
-/* категории ключа для вкладок видов: упал/вырос — относительно предыдущего среза в таблице */
+/* категории ключа для вкладок видов: упал/вырос — относительно предыдущего показанного среза */
 function keyCats(k){
-  const last = k.pos[DATES.length-1];
-  const d = posDelta(k.pos, DATES.length-1);
+  const last = k.pos[LASTV];
+  const d = posDelta(k.pos, LASTV);
   const cats = [];
   if(d!=null && d<0) cats.push('fell');
   if(d!=null && d>0) cats.push('rose');
@@ -1005,8 +1088,8 @@ function cellHtml(k, i, gi, ki){
 }
 
 function renderWorksheet(v){
-  const nCols = (v.nowCol?5:4)+DATES.length;
-  const dateHead = DATES.map((d,i)=>`<th class="date ${i===DATES.length-1?'last':''}"><span class="d">${d.d}</span><span class="dw">${d.w}</span>${d.t?`<span class="dtm">${d.t}</span>`:''}</th>`).join('');
+  const nCols = (v.nowCol?5:4)+VIS.size;
+  const dateHead = DATES.map((d,i)=> !VIS.has(i)?'':`<th class="date ${i===LASTV?'last':''}"><span class="d">${d.d}</span><span class="dw">${d.w}</span>${d.t?`<span class="dtm">${d.t}</span>`:''}</th>`).join('');
   const theadHtml = `<thead><tr>
       <th class="kw">Ключ</th><th title="Типизация сайтов в ТОП-10">Тип ТОП-10</th>
       <th title="Элементы выдачи">SERP</th><th title="Частотность: базовая / !точная">Частота</th>
@@ -1022,9 +1105,9 @@ function renderWorksheet(v){
         <span class="gname">${esc(g.name)}</span>
         <a class="gurl" href="#" onclick="return false" title="Целевая страница группы">${I.link}<span class="gurl-t">${g.url}</span></a>
         <button class="gact gedit" title="Редактировать URL группы">✎</button>
-      </div><span class="gcount gcount-abs">${g.keys.length} ключ${g.keys.length>4?'ей':'а'}</span></td></tr>`;
+      </div><span class="gcount gcount-abs"><span class="gcal" title="Группа добавлена в проект: ${g.added||'—'}">${I.cal}</span>${g.keys.length} ключ${g.keys.length>4?'ей':'а'}</span></td></tr>`;
     const rows = g.keys.map((k,ki)=>{
-      const cells = DATES.map((_,i)=>`<td class="pos ${i===DATES.length-1?'last':''}">${cellHtml(k,i,cgi,ki)}</td>`).join('');
+      const cells = DATES.map((_,i)=> !VIS.has(i)?'':`<td class="pos ${i===LASTV?'last':''}">${cellHtml(k,i,cgi,ki)}</td>`).join('');
       const rel = k.relUrl ? `<a class="rel-url" href="#" onclick="return false" title="Релевантная страница отличается от целевой URL группы (${g.url})">≠ ${k.relUrl}</a>` : '';
       const cats = keyCats(k).join(' ');
       return `<tr class="kw-row" data-parent="${cgi}" data-super="${si}" data-key="${cgi}:${ki}" data-cats="${cats}">
@@ -1079,17 +1162,19 @@ function renderWorksheet(v){
 function renderSummaryRows(labelSpan){
   const rows = SUMMARY.map(r=>{
     const cells = DATES.map((_,i)=>{
+      if(!VIS.has(i)) return '';
+      const j = prevVis(i);
       const dfA = delta(r.vals,i);
-      const dhA = i>0&&dfA!==0 ? `<span class="sum-delta d-abs ${dfA>0?'up':'down'}">${dfA>0?'▲':'▼'}${Math.abs(dfA)}</span>` : '';
-      const dfP = i>0 ? r.pct[i]-r.pct[i-1] : 0;
-      const dhP = i>0&&dfP!==0 ? `<span class="sum-delta d-pct ${dfP>0?'up':'down'}">${dfP>0?'▲':'▼'}${Math.abs(dfP)}</span>` : '';
-      return `<td class="sum ${i===DATES.length-1?'lastcol':''}"><span class="num">${r.vals[i]}</span><span class="pct">${r.pct[i]} %</span>${dhA}${dhP}</td>`;
+      const dhA = j>=0&&dfA!==0 ? `<span class="sum-delta d-abs ${dfA>0?'up':'down'}">${dfA>0?'▲':'▼'}${Math.abs(dfA)}</span>` : '';
+      const dfP = j>=0 ? r.pct[i]-r.pct[j] : 0;
+      const dhP = j>=0&&dfP!==0 ? `<span class="sum-delta d-pct ${dfP>0?'up':'down'}">${dfP>0?'▲':'▼'}${Math.abs(dfP)}</span>` : '';
+      return `<td class="sum ${i===LASTV?'lastcol':''}"><span class="num">${r.vals[i]}</span><span class="pct">${r.pct[i]} %</span>${dhA}${dhP}</td>`;
     }).join('');
     const sw = r.band?`<span class="sw" style="background:var(--${r.band}-heat)"></span>`:'';
     const seg = r.hero ? `<span class="sum-mode-seg" title="Вид сводки: абсолютные значения / проценты"><button class="sm-mode active" data-m="abs">123</button><button class="sm-mode" data-m="pct">%</button></span>` : '';
     return `<tr class="sum-row ${r.hero?'hero':''}"><td class="sum-label" colspan="${labelSpan}">${sw}${r.label}${seg}</td>${cells}</tr>`;
   }).join('');
-  const totals = DATES.map((_,i)=>`<td class="sum ${i===DATES.length-1?'lastcol':''}"><span class="num total">${TOTAL_KEYS[i]}</span></td>`).join('');
+  const totals = DATES.map((_,i)=> !VIS.has(i)?'':`<td class="sum ${i===LASTV?'lastcol':''}"><span class="num total">${TOTAL_KEYS[i]}</span></td>`).join('');
   return rows + `<tr class="sum-row total"><td class="sum-label" colspan="${labelSpan}">Всего ключей</td>${totals}</tr>`;
 }
 
@@ -1105,6 +1190,8 @@ function renderLegend(){
 
 function renderDashboard(v){
   curV = v;
+  VIS = visibleIdx(); LASTV = Math.max(...VIS);
+  const hlSwatches = arr => arr.map((t,i)=> t==null?null:`<span class="hsw" style="background:var(--${['t3','t10','t20','t50'][i]}-heat)"></span>${t}`).filter(Boolean).join('–');
   /* сводка живёт внутри общей колоночной сетки матрицы (renderWorksheet) — даты всегда выровнены.
      Легенды нет: пороги подсветки показаны в селекте «Подсветка», типизация и «⇅» — тултипами */
   const contentRaw = renderWorksheet(v);
@@ -1225,10 +1312,23 @@ function renderDashboard(v){
         </span>
         <button class="tool-ico" id="foldGroupsBtn" title="Свернуть / развернуть группы">${I.foldG}</button>
         <button class="tool-ico" id="foldSupersBtn" title="Свернуть / развернуть супергруппы">${I.foldS}</button>
-        <span class="f-select" title="Пороги подсветки позиций: ТОП-3, 4–10, 11–20, 21–50">Подсветка: <b class="hl"><span class="hsw" style="background:var(--t3-heat)"></span>3–<span class="hsw" style="background:var(--t10-heat)"></span>10–<span class="hsw" style="background:var(--t20-heat)"></span>20–<span class="hsw" style="background:var(--t50-heat)"></span>50</b> <span class="car">▼</span></span>
-        <span class="f-select">Срезов: <b>8</b> <span class="car">▼</span></span>
+        <span class="dd-wrap" id="hlWrap">
+          <button class="f-select" title="Пороги подсветки позиций">Подсветка: <b class="hl">${hlSwatches(HL)}</b> <span class="car">▼</span></button>
+          <div class="dd-panel">
+            ${HL_PRESETS.map(p=>`<button class="dd-item ${p.label===HL_LABEL?'active':''}" data-hl="${p.label}">${hlSwatches(p.arr)}</button>`).join('')}
+          </div>
+        </span>
+        <span class="dd-wrap" id="slWrap">
+          <button class="f-select">Срезов: <b>${SLICES_N}</b> <span class="car">▼</span></button>
+          <div class="dd-panel">
+            ${[4,6,8].map(n=>`<button class="dd-item ${n===SLICES_N?'active':''}" data-n="${n}">${n} последних</button>`).join('')}
+          </div>
+        </span>
         <span class="spacer"></span>
-        <span class="period">${I.cal} 23.02.2026 — 01.07.2026</span>
+        <span class="dd-wrap cal-wrap" id="calWrap">
+          <button class="period">${I.cal} ${fmtRu(PERIOD.from)} — ${fmtRu(PERIOD.to)}</button>
+          <div class="dd-panel cal-pop" id="calPop"></div>
+        </span>
       </div>
       ${contentHtml}
     </main>
@@ -1374,8 +1474,69 @@ function openSerp(gi,ki,di){
 }
 function closeSerp(){ serpModal.classList.remove('open'); drawerBack.classList.remove('open'); }
 drawerBack.onclick = closeSerp;
-document.addEventListener('keydown', e=>{ if(e.key==='Escape'){ closeSerp(); document.querySelectorAll('.toc-wrap.open').forEach(t=>t.classList.remove('open')); } });
-document.addEventListener('click', e=>{ const tw=document.querySelector('.toc-wrap.open'); if(tw && !e.target.closest('.toc-wrap')) tw.classList.remove('open'); });
+document.addEventListener('keydown', e=>{ if(e.key==='Escape'){ closeSerp(); document.querySelectorAll('.toc-wrap.open, .dd-wrap.open').forEach(t=>t.classList.remove('open')); } });
+document.addEventListener('click', e=>{
+  document.querySelectorAll('.toc-wrap.open, .dd-wrap.open').forEach(w=>{ if(!w.contains(e.target)) w.classList.remove('open'); });
+});
+
+/* ================= КАЛЕНДАРЬ ПЕРИОДА ================= */
+let CAL = null;
+function openCal(){
+  CAL = { y:+PERIOD.from.slice(0,4), m:+PERIOD.from.slice(5,7)-1,
+          from:PERIOD.from, to:PERIOD.to, sampling:SAMPLING, custom:false, pick:false };
+  buildCal();
+}
+function calMonthHtml(y,m){
+  const MN=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+  const startDow = (new Date(y,m,1).getDay()+6)%7;
+  const dim = new Date(y,m+1,0).getDate();
+  let cells='';
+  for(let i=0;i<startDow;i++) cells += '<span class="cal-day other"></span>';
+  for(let d=1;d<=dim;d++){
+    const iso = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const has = MODAL_DATES.some(md=>md.iso===iso);
+    const inr = iso>=CAL.from && iso<=CAL.to;
+    const edge = iso===CAL.from || iso===CAL.to;
+    cells += `<button class="cal-day ${inr?'inr':''} ${edge?'edge':''} ${has?'has':''}" data-iso="${iso}">${d}</button>`;
+  }
+  return `<div class="cal-month"><div class="cal-mt">${MN[m]} ${y}</div>
+    <div class="cal-wd">${['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].map(w=>`<span>${w}</span>`).join('')}</div>
+    <div class="cal-grid">${cells}</div></div>`;
+}
+function buildCal(){
+  const pop = document.getElementById('calPop');
+  if(!pop || !CAL) return;
+  const months = [0,1,2].map(off=>{
+    let y=CAL.y, m=CAL.m+off; y+=Math.floor(m/12); m=((m%12)+12)%12;
+    return calMonthHtml(y,m);
+  }).join('');
+  pop.innerHTML = `
+    <div class="cal-months"><button class="cal-nav" data-nav="-1">‹</button>${months}<button class="cal-nav" data-nav="1">›</button></div>
+    <div class="cal-foot">
+      ${[['all','Все'],['day','1/день'],['week','1/неделю'],['2week','2/неделю'],['month','1/месяц']]
+        .map(([v2,l])=>`<label class="cal-radio"><input type="radio" name="samp" value="${v2}" ${CAL.sampling===v2?'checked':''}>${l}</label>`).join('')}
+      <label class="cal-toggle"><input type="checkbox" id="calCustom" ${CAL.custom?'checked':''}><span class="tgl"></span>Свой выбор дат</label>
+      <button class="btn primary" id="calApply">Применить</button>
+    </div>`;
+  pop.querySelectorAll('.cal-nav').forEach(b=> b.onclick = e=>{ e.stopPropagation(); CAL.m += +b.dataset.nav; buildCal(); });
+  pop.querySelectorAll('.cal-day:not(.other)').forEach(d=> d.onclick = e=>{
+    e.stopPropagation();
+    const iso = d.dataset.iso;
+    if(!CAL.pick){ CAL.from = iso; CAL.to = iso; CAL.pick = true; }
+    else { if(iso<CAL.from){ CAL.to = CAL.from; CAL.from = iso; } else CAL.to = iso; CAL.pick = false; }
+    CAL.custom = true;
+    buildCal();
+  });
+  pop.querySelectorAll('input[name="samp"]').forEach(r=> r.onchange = ()=>{ CAL.sampling = r.value; });
+  const cc = document.getElementById('calCustom');
+  if(cc) cc.onchange = ()=>{ CAL.custom = cc.checked; };
+  document.getElementById('calApply').onclick = e=>{
+    e.stopPropagation();
+    PERIOD = {from:CAL.from, to:CAL.to};
+    SAMPLING = CAL.sampling;
+    show(cur);
+  };
+}
 
 /* ================= SWITCHER / THEME ================= */
 let cur = 0;
@@ -1435,6 +1596,22 @@ function show(i){
       app.querySelectorAll(`tr[data-super="${si}"]`).forEach(r=>r.classList.toggle('s-hide',on));
     };
   });
+  /* дропдауны тулбара: подсветка, срезы, период */
+  app.querySelectorAll('.dd-wrap > .f-select, .dd-wrap > .period').forEach(btn=>{
+    btn.onclick = e=>{
+      e.stopPropagation();
+      const w = btn.parentElement;
+      const was = w.classList.contains('open');
+      document.querySelectorAll('.dd-wrap.open, .toc-wrap.open').forEach(x=>x.classList.remove('open'));
+      if(!was){ w.classList.add('open'); if(w.id==='calWrap') openCal(); }
+    };
+  });
+  app.querySelectorAll('#hlWrap .dd-item').forEach(b=> b.onclick = ()=>{
+    const p = HL_PRESETS.find(x=>x.label===b.dataset.hl);
+    HL = p.arr; HL_LABEL = p.label;
+    show(cur);
+  });
+  app.querySelectorAll('#slWrap .dd-item').forEach(b=> b.onclick = ()=>{ SLICES_N = +b.dataset.n; show(cur); });
   /* оглавление групп */
   const tocWrap = app.querySelector('.toc-wrap');
   if(tocWrap){
