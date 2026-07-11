@@ -171,7 +171,7 @@ input,select{font:inherit;color:inherit}
 .f-select{display:flex;align-items:center;gap:6px;background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:6px 10px;font-size:12.5px;color:var(--text-2);white-space:nowrap}
 .f-select b{color:var(--text);font-weight:650}
 .f-select .car{color:var(--text-3);font-size:9px}
-.f-select .hsw{display:inline-block;width:9px;height:9px;border-radius:2px;margin:0 2px 0 3px;vertical-align:-1px}
+.hsw{display:inline-block;width:9px;height:9px;border-radius:2px;margin:0 2px 0 3px;vertical-align:-1px}
 .toolbar .spacer{flex:1}
 .period{display:flex;align-items:center;gap:7px;background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:6px 12px;font-size:12.5px;font-weight:600;font-variant-numeric:tabular-nums}
 
@@ -626,8 +626,8 @@ tr.kw-row.selected td{background:var(--accent-soft)!important}
 .dd-wrap.open > .dd-panel{display:block}
 .dd-item{display:flex;align-items:center;gap:6px;width:100%;padding:7px 10px;border-radius:6px;font-size:12.5px;font-weight:600;color:var(--text-2);text-align:left;white-space:nowrap}
 .dd-item:hover{background:var(--bg);color:var(--text)}
-.dd-item.active{color:var(--accent);background:var(--accent-soft)}
-.dd-item .hsw{margin:0 2px 0 3px}
+.dd-item.active{color:var(--text);background:var(--accent-soft);font-weight:700}
+.dd-item.active::after{content:"✓";margin-left:auto;color:var(--accent);font-size:11px;padding-left:10px}
 .cal-pop{width:680px;max-width:94vw;position:fixed;left:50%;top:120px;transform:translateX(-50%);padding:16px}
 .cal-months{display:flex;gap:16px;align-items:flex-start}
 .cal-nav{align-self:center;font-size:17px;color:var(--text-3);padding:4px 9px;border-radius:6px;flex:none}
