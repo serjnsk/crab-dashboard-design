@@ -621,7 +621,10 @@ tr.flash td{animation:rowflash 1.4s ease}
 /* ============ SERP MODAL (по центру, мультивыбор дат) ============ */
 .serp-modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:95;padding:24px;pointer-events:none}
 .serp-modal.open{display:flex}
-.sm-box{background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow-lg);width:auto;min-width:380px;max-width:min(980px,94vw);max-height:88vh;display:flex;flex-direction:column;overflow:hidden;pointer-events:auto}
+.sm-box{background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow-lg);width:auto;min-width:380px;max-width:96vw;max-height:90vh;display:flex;flex-direction:column;overflow:hidden;pointer-events:auto}
+.sm-range{display:flex;align-items:center;gap:8px;margin-top:11px;font-size:11.5px;color:var(--text-3);flex-wrap:wrap}
+.sm-range input[type="date"]{border:1px solid var(--border);background:var(--bg);border-radius:7px;padding:4px 8px;font-size:11.5px;color:var(--text);font-family:inherit;color-scheme:inherit}
+.dchip.arch{border-style:dashed}
 .sm-head{padding:14px 18px 10px;border-bottom:1px solid var(--border);flex:none}
 .sm-title{display:flex;align-items:center;gap:9px}
 .sm-title .eng{width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center}
@@ -674,8 +677,17 @@ tr.flash td{animation:rowflash 1.4s ease}
 <script>
 /* ================= DATA ================= */
 const DATES = [
-  {d:'23.02',w:'пн'},{d:'02.03',w:'пн'},{d:'09.03',w:'пн'},{d:'16.03',w:'пн',t:'09:12'},
-  {d:'16.03',w:'пн',t:'17:40'},{d:'05.05',w:'вт'},{d:'05.06',w:'пт'},{d:'01.07',w:'ср'}
+  {d:'23.02',w:'пн',iso:'2026-02-23'},{d:'02.03',w:'пн',iso:'2026-03-02'},{d:'09.03',w:'пн',iso:'2026-03-09'},{d:'16.03',w:'пн',t:'09:12',iso:'2026-03-16'},
+  {d:'16.03',w:'пн',t:'17:40',iso:'2026-03-16'},{d:'05.05',w:'вт',iso:'2026-05-05'},{d:'05.06',w:'пт',iso:'2026-06-05'},{d:'01.07',w:'ср',iso:'2026-07-01'}
+];
+/* архивные срезы за пределами текущего периода — доступны в модалке через диапазон дат */
+const ARCHIVE_DATES = [
+  {d:'01.12',w:'пн',iso:'2025-12-01'},{d:'15.12',w:'пн',iso:'2025-12-15'},{d:'29.12',w:'пн',iso:'2025-12-29'},
+  {d:'12.01',w:'пн',iso:'2026-01-12'},{d:'26.01',w:'пн',iso:'2026-01-26'},{d:'09.02',w:'пн',iso:'2026-02-09'}
+];
+const MODAL_DATES = [
+  ...ARCHIVE_DATES.map((d,i)=>({...d, id:'a'+i, seed:20+i, arch:true})),
+  ...DATES.map((d,i)=>({...d, id:'m'+i, seed:i, mi:i}))
 ];
 
 const SUMMARY = [
@@ -1222,12 +1234,19 @@ const smBox = document.getElementById('smBox');
 const drawerBack = document.getElementById('drawerBack');
 let serpState = null; /* {gi, ki, dates:[индексы выбранных срезов]} */
 
-/* выдача для конкретного среза: детерминированная перестановка + наш сайт на позиции из матрицы */
-function serpForDate(k, di){
+/* наша позиция для колонки модалки: из матрицы (текущий период) или синтетическая (архив) */
+function modalPos(k, md){
+  if(md.mi!=null) return k.pos[md.mi];
+  const base = k.pos.find(p=>typeof p==='number');
+  if(base==null) return null;
+  return Math.max(1, base + ((md.seed*3)%7) - 3);
+}
+/* выдача для конкретного среза: детерминированная перестановка + наш сайт на своей позиции */
+function serpForDate(k, md){
   const base = SERP_TOP.filter(r=>!r.our).map(r=>({...r}));
-  for(let s=0;s<di;s++){ const i=(s*3)%(base.length-1); const t=base[i]; base[i]=base[i+1]; base[i+1]=t; }
+  for(let s=0;s<md.seed;s++){ const i=(s*3)%(base.length-1); const t=base[i]; base[i]=base[i+1]; base[i+1]=t; }
   const our = SERP_TOP.find(r=>r.our);
-  const p = k.pos[di];
+  const p = modalPos(k, md);
   const list = base.slice(0,10);
   if(typeof p==='number' && p<=10) list.splice(p-1, 0, {...our});
   return list.slice(0,10).map((r,i)=>({...r, pos:i+1}));
@@ -1245,16 +1264,17 @@ function serpColRows(list){
 }
 
 function renderSerpModal(){
-  const {gi,ki,dates} = serpState;
+  const {gi,ki,dates,range} = serpState;
   const k = GROUPS[gi].keys[ki];
-  const chips = DATES.map((d,i)=>
-    `<button class="dchip ${dates.includes(i)?'active':''}" data-di="${i}">${d.d}${d.t?` ${d.t}`:''}</button>`).join('');
-  const cols = dates.slice().sort((a,b)=>a-b).map(di=>{
-    const p = k.pos[di]; const b = band(p);
+  const inRange = md => md.iso >= range.from && md.iso <= range.to;
+  const chips = MODAL_DATES.filter(inRange).map(md=>
+    `<button class="dchip ${dates.includes(md.id)?'active':''} ${md.arch?'arch':''}" data-id="${md.id}">${md.d}${md.t?` ${md.t}`:''}</button>`).join('');
+  const cols = MODAL_DATES.filter(md=>dates.includes(md.id)).map(md=>{
+    const p = modalPos(k, md); const b = band(p);
     return `<div class="sm-col">
-      <div class="sm-col-h"><b>${DATES[di].d}</b>${DATES[di].t?`<span class="t">${DATES[di].t}</span>`:''}<span class="dw2">${DATES[di].w}</span>
+      <div class="sm-col-h"><b>${md.d}</b>${md.t?`<span class="t">${md.t}</span>`:''}<span class="dw2">${md.w}</span>${md.arch?'<span class="t">архив</span>':''}
         <span class="ourpos ${b||'none'}" title="Наша позиция в этом срезе">${p==null?'—':(p==='na'?'н/д':p)}</span></div>
-      <div class="sm-list">${serpColRows(serpForDate(k,di))}</div>
+      <div class="sm-list">${serpColRows(serpForDate(k,md))}</div>
     </div>`;
   }).join('');
   smBox.innerHTML = `
@@ -1264,21 +1284,43 @@ function renderSerpModal(){
         <h3>${esc(k.kw)}</h3>
         <button class="close" id="smClose" aria-label="Закрыть">✕</button>
       </div>
+      <div class="sm-range">
+        <span>Период:</span>
+        <input type="date" id="smFrom" value="${range.from}" aria-label="Начало периода">
+        <span>—</span>
+        <input type="date" id="smTo" value="${range.to}" aria-label="Конец периода">
+        <span class="sm-hint" style="margin:0">расширьте период, чтобы выбрать более старые срезы</span>
+      </div>
       <div class="sm-dates">${chips}</div>
-      <div class="sm-hint">Выберите несколько дат, чтобы сравнить выдачу по срезам</div>
     </div>
     <div class="sm-cols">${cols}</div>`;
   document.getElementById('smClose').onclick = closeSerp;
   smBox.querySelectorAll('.dchip').forEach(c=>{
     c.onclick = ()=>{
-      const di = +c.dataset.di;
-      const idx = serpState.dates.indexOf(di);
+      const id = c.dataset.id;
+      const idx = serpState.dates.indexOf(id);
       if(idx>=0){ if(serpState.dates.length===1) return; serpState.dates.splice(idx,1); }
-      else serpState.dates.push(di);
+      else serpState.dates.push(id);
+      renderSerpModal();
+    };
+  });
+  ['smFrom','smTo'].forEach(inputId=>{
+    document.getElementById(inputId).onchange = ()=>{
+      serpState.range = {
+        from: document.getElementById('smFrom').value || '2025-01-01',
+        to: document.getElementById('smTo').value || '2026-12-31'
+      };
+      /* выбранные даты вне нового диапазона снимаются */
+      serpState.dates = serpState.dates.filter(id=>{ const md=MODAL_DATES.find(m=>m.id===id); return md && inRangeOf(md, serpState.range); });
+      if(!serpState.dates.length){
+        const avail = MODAL_DATES.filter(md=>inRangeOf(md, serpState.range));
+        if(avail.length) serpState.dates = [avail[avail.length-1].id];
+      }
       renderSerpModal();
     };
   });
 }
+function inRangeOf(md, range){ return md.iso >= range.from && md.iso <= range.to; }
 
 function serpListHtml(){
   return SERP_TOP.map(r=>`
@@ -1319,7 +1361,7 @@ function renderDetail(gi,ki,di){
 }
 
 function openSerp(gi,ki,di){
-  serpState = {gi, ki, dates:[di]};
+  serpState = {gi, ki, dates:['m'+di], range:{from: DATES[0].iso, to: DATES[DATES.length-1].iso}};
   renderSerpModal();
   serpModal.classList.add('open'); drawerBack.classList.add('open');
 }
