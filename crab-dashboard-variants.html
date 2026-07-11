@@ -1437,11 +1437,26 @@ function serpColRows(list){
     </div>`).join('');
 }
 
+/* доступные в модалке срезы: диапазон + частота (та же логика, что у периода страницы) */
+function sampledModalDates(){
+  const r = serpState.range;
+  let list = MODAL_DATES.filter(md=> md.iso>=r.from && md.iso<=r.to);
+  const s = serpState.sampling||'all';
+  if(s!=='all'){
+    const keyFn = s==='month' ? md=>md.iso.slice(0,7)
+      : s==='2week' ? md=>isoWeekKey(md.iso,2)
+      : s==='week' ? md=>isoWeekKey(md.iso,1)
+      : md=>md.iso;
+    const seen = new Set();
+    list = list.filter(md=>{ const k2=keyFn(md); if(seen.has(k2)) return false; seen.add(k2); return true; });
+  }
+  return list;
+}
+
 function renderSerpModal(){
   const {gi,ki,dates,range} = serpState;
   const k = GROUPS[gi].keys[ki];
-  const inRange = md => md.iso >= range.from && md.iso <= range.to;
-  const chips = MODAL_DATES.filter(inRange).map(md=>
+  const chips = sampledModalDates().map(md=>
     `<button class="dchip ${dates.includes(md.id)?'active':''} ${md.arch?'arch':''}" data-id="${md.id}">${md.d}${md.t?` ${md.t}`:''}</button>`).join('');
   const cols = MODAL_DATES.filter(md=>dates.includes(md.id)).map(md=>{
     const p = modalPos(k, md); const b = band(p);
@@ -1460,9 +1475,10 @@ function renderSerpModal(){
       </div>
       <div class="sm-range">
         <span>Период:</span>
-        <input type="date" id="smFrom" value="${range.from}" aria-label="Начало периода">
-        <span>—</span>
-        <input type="date" id="smTo" value="${range.to}" aria-label="Конец периода">
+        <span class="dd-wrap" id="smCalWrap">
+          <button class="period">${I.cal} ${fmtRu(range.from)} — ${fmtRu(range.to)}</button>
+          <div class="dd-panel cal-pop" id="smCalPop"></div>
+        </span>
         <span class="sm-hint" style="margin:0">расширьте период, чтобы выбрать более старые срезы</span>
       </div>
       <div class="sm-dates">${chips}</div>
@@ -1478,23 +1494,18 @@ function renderSerpModal(){
       renderSerpModal();
     };
   });
-  ['smFrom','smTo'].forEach(inputId=>{
-    document.getElementById(inputId).onchange = ()=>{
-      serpState.range = {
-        from: document.getElementById('smFrom').value || '2025-01-01',
-        to: document.getElementById('smTo').value || '2026-12-31'
-      };
-      /* выбранные даты вне нового диапазона снимаются */
-      serpState.dates = serpState.dates.filter(id=>{ const md=MODAL_DATES.find(m=>m.id===id); return md && inRangeOf(md, serpState.range); });
-      if(!serpState.dates.length){
-        const avail = MODAL_DATES.filter(md=>inRangeOf(md, serpState.range));
-        if(avail.length) serpState.dates = [avail[avail.length-1].id];
-      }
-      renderSerpModal();
-    };
-  });
+  /* календарь диапазона — тот же компонент, что у периода страницы */
+  const smCalWrap = document.getElementById('smCalWrap');
+  smCalWrap.querySelector('.period').onclick = e=>{
+    e.stopPropagation();
+    const was = smCalWrap.classList.contains('open');
+    document.querySelectorAll('.dd-wrap.open').forEach(x=>x.classList.remove('open'));
+    if(!was){
+      smCalWrap.classList.add('open');
+      openCalFor('modal', serpState.range.from, serpState.range.to, serpState.sampling||'all');
+    }
+  };
 }
-function inRangeOf(md, range){ return md.iso >= range.from && md.iso <= range.to; }
 
 function serpListHtml(){
   return SERP_TOP.map(r=>`
@@ -1535,7 +1546,7 @@ function renderDetail(gi,ki,di){
 }
 
 function openSerp(gi,ki,di){
-  serpState = {gi, ki, dates:['m'+di], range:{from: DATES[0].iso, to: DATES[DATES.length-1].iso}};
+  serpState = {gi, ki, dates:['m'+di], range:{from: DATES[0].iso, to: DATES[DATES.length-1].iso}, sampling:'all'};
   renderSerpModal();
   serpModal.classList.add('open'); drawerBack.classList.add('open');
 }
@@ -1573,12 +1584,13 @@ function renderGsList(){
 }
 
 /* ================= КАЛЕНДАРЬ ПЕРИОДА ================= */
-let CAL = null;
-function openCal(){
-  CAL = { y:+PERIOD.from.slice(0,4), m:+PERIOD.from.slice(5,7)-1,
-          from:PERIOD.from, to:PERIOD.to, sampling:SAMPLING, custom:false, pick:false };
+let CAL = null; /* target: 'page' — период страницы, 'modal' — диапазон в SERP-модалке */
+function openCalFor(target, from, to, sampling){
+  CAL = { target, y:+from.slice(0,4), m:+from.slice(5,7)-1,
+          from, to, sampling, custom:false, pick:false };
   buildCal();
 }
+function openCal(){ openCalFor('page', PERIOD.from, PERIOD.to, SAMPLING); }
 function calMonthHtml(y,m){
   const MN=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
   const startDow = (new Date(y,m,1).getDay()+6)%7;
@@ -1597,7 +1609,7 @@ function calMonthHtml(y,m){
     <div class="cal-grid">${cells}</div></div>`;
 }
 function buildCal(){
-  const pop = document.getElementById('calPop');
+  const pop = document.getElementById(CAL && CAL.target==='modal' ? 'smCalPop' : 'calPop');
   if(!pop || !CAL) return;
   const months = [0,1,2].map(off=>{
     let y=CAL.y, m=CAL.m+off; y+=Math.floor(m/12); m=((m%12)+12)%12;
@@ -1625,9 +1637,18 @@ function buildCal(){
   if(cc) cc.onchange = ()=>{ CAL.custom = cc.checked; };
   document.getElementById('calApply').onclick = e=>{
     e.stopPropagation();
-    PERIOD = {from:CAL.from, to:CAL.to};
-    SAMPLING = CAL.sampling;
-    show(cur);
+    if(CAL.target==='modal'){
+      serpState.range = {from:CAL.from, to:CAL.to};
+      serpState.sampling = CAL.sampling;
+      const avail = sampledModalDates().map(md=>md.id);
+      serpState.dates = serpState.dates.filter(id=>avail.includes(id));
+      if(!serpState.dates.length && avail.length) serpState.dates = [avail[avail.length-1]];
+      renderSerpModal();
+    } else {
+      PERIOD = {from:CAL.from, to:CAL.to};
+      SAMPLING = CAL.sampling;
+      show(cur);
+    }
   };
 }
 
