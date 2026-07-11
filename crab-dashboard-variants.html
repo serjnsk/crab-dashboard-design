@@ -85,6 +85,30 @@ input,select{font:inherit;color:inherit}
 .gsearch{display:flex;align-items:center;gap:8px;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:6px 12px;width:300px;color:var(--text-3);font-size:12.5px}
 .gsearch svg{flex:none}
 .gsearch .kbd{margin-left:auto;font-family:var(--mono);font-size:10.5px;border:1px solid var(--border-strong);border-radius:4px;padding:1px 5px;color:var(--text-3)}
+/* живой поиск с панелью «Все / Избранное» */
+.search-wrap{position:relative}
+.gsearch input{border:none;background:transparent;outline:none;color:var(--text);width:210px;font-size:12.5px}
+.gsearch input::placeholder{color:var(--text-3)}
+.chrome-darkframe .gsearch input{color:#EDF1F7}
+.gs-panel{position:absolute;top:calc(100% + 8px);left:0;width:390px;max-height:430px;display:none;flex-direction:column;background:var(--surface);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow-lg);z-index:80;overflow:hidden}
+.search-wrap.open .gs-panel{display:flex}
+.gs-tabs{display:flex;border-bottom:1px solid var(--border);flex:none}
+.gs-tab{flex:1;padding:10px;font-size:12.5px;font-weight:650;color:var(--text-3);border-bottom:2px solid transparent;margin-bottom:-1px}
+.gs-tab:hover{color:var(--text)}
+.gs-tab.active{color:var(--text);border-bottom-color:var(--accent)}
+.gs-list{overflow-y:auto}
+.gs-item{display:flex;gap:9px;padding:9px 12px;border-bottom:1px solid var(--border);align-items:flex-start;cursor:pointer}
+.gs-item:last-child{border-bottom:none}
+.gs-item:hover{background:var(--bg)}
+.gs-item .eng{width:16px;height:16px;flex:none;border-radius:4px;font-size:9.5px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;margin-top:2px}
+.gs-body{flex:1;min-width:0}
+.gs-t{font-size:12.5px;color:var(--text)}
+.gs-t b{font-weight:700}
+.gs-sep{color:var(--text-3);margin:0 5px}
+.gs-d{font-size:10.5px;color:var(--text-3);margin-top:2px;display:flex;gap:4px;align-items:center}
+.gs-star{color:var(--text-3);font-size:15px;flex:none;padding:0 2px;line-height:1}
+.gs-star:hover,.gs-star.on{color:#E8B93B}
+.gs-empty{padding:16px;text-align:center;color:var(--text-3);font-size:12px}
 .avatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#3D5AFE,#00B0FF);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center}
 /* переключатель темы в шапке: системная / светлая / тёмная */
 .theme-seg{display:inline-flex;background:var(--bg);border:1px solid var(--border);border-radius:9px;padding:2px;gap:1px}
@@ -271,7 +295,7 @@ table.grid{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums
 .group-head{display:flex;align-items:center;gap:10px;white-space:nowrap}
 .group-head .chev{color:var(--text-3);font-size:10px;transition:transform .15s;display:inline-block}
 .group-row.collapsed .chev{transform:rotate(-90deg)}
-.group-head .gname{font-weight:700;font-size:13px}
+.group-head .gname{font-weight:750;font-size:14.5px}
 .group-head .gcount{font-size:11px;color:var(--text-3);font-variant-numeric:tabular-nums}
 .group-head .gurl{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;color:var(--t3-fg);background:var(--t3-bg);border-radius:6px;padding:2.5px 9px;font-weight:550;max-width:340px;overflow:hidden;text-overflow:ellipsis}
 .group-head .gurl:hover{text-decoration:underline}
@@ -810,6 +834,19 @@ const SERP_TOP = [
   {pos:10, typ:'gray', title:'Генератор минус-слов и склонятор онлайн', dom:'semantica.in', path:'/tools/minus-words'}
 ];
 
+/* глобальный поиск по проектам и мониторингам */
+const SEARCH_ITEMS = [
+  {eng:'ya', proj:'directline.pro', mon:'Блог DL (1 раз в месяц)', fav:true},
+  {eng:'go', proj:'directline.pro', mon:'Блог DL (1 раз в месяц)', fav:false},
+  {eng:'go', proj:'directline.pro', mon:'Test DuckDuckGo', fav:false},
+  {eng:'go', proj:'lilledesaatmine.ee', mon:'Эстония (EE) - основной OLD', fav:false},
+  {eng:'go', proj:'eflowers.dk', mon:'Дания (DK) - основной', fav:false},
+  {eng:'go', proj:'saudi.florist', mon:'Saudi (EN)', fav:false},
+  {eng:'go', proj:'blumen365.at', mon:'Австрия (DE) - основной - OLD', fav:false},
+  {eng:'go', proj:'expressflowers.ch', mon:'Швейцария (DE) - основной', fav:false}
+];
+let GS_TAB = 'all';
+
 /* ================= VARIANTS ================= */
 const VARIANTS = [
   {id:'v15', name:'Рама-графит', summary:'table', cells:'fill', layout:'top', dens:'normal', chrome:'darkframe',
@@ -1239,10 +1276,21 @@ function renderDashboard(v){
       <button class="ts-btn" data-mode="light" title="Светлая тема">${I.sun}</button>
       <button class="ts-btn" data-mode="dark" title="Тёмная тема">${I.moon}</button>
     </span>`;
+  const searchHtml = `
+    <span class="search-wrap" id="searchWrap">
+      <span class="gsearch">${I.search}<input id="gsInput" placeholder="Поиск по проектам и мониторингам" autocomplete="off"><span class="kbd">⌘K</span></span>
+      <div class="gs-panel">
+        <div class="gs-tabs">
+          <button class="gs-tab ${GS_TAB==='all'?'active':''}" data-t="all">Все</button>
+          <button class="gs-tab ${GS_TAB==='fav'?'active':''}" data-t="fav">Избранное</button>
+        </div>
+        <div class="gs-list" id="gsList"></div>
+      </div>
+    </span>`;
   const topbarHtml = chrome==='pd' ? `
   <header class="topbar">
     <span class="spacer"></span>
-    <span class="gsearch">${I.search} Поиск по проектам и мониторингам <span class="kbd">⌘K</span></span>
+    ${searchHtml}
     <span class="spacer"></span>
     <button class="tb-ico" title="Помощь">?</button>
     ${themeSeg}
@@ -1251,7 +1299,7 @@ function renderDashboard(v){
   <header class="topbar">
     <span class="logo"><span class="mark">${I.crab}</span>CRAB</span>
     <span class="spacer"></span>
-    <span class="gsearch">${I.search} Поиск по проектам и мониторингам <span class="kbd">⌘K</span></span>
+    ${searchHtml}
     ${themeSeg}
     <span class="avatar">DC</span>
   </header>`;
@@ -1467,10 +1515,36 @@ function openSerp(gi,ki,di){
 }
 function closeSerp(){ serpModal.classList.remove('open'); drawerBack.classList.remove('open'); }
 drawerBack.onclick = closeSerp;
-document.addEventListener('keydown', e=>{ if(e.key==='Escape'){ closeSerp(); document.querySelectorAll('.toc-wrap.open, .dd-wrap.open').forEach(t=>t.classList.remove('open')); } });
-document.addEventListener('click', e=>{
-  document.querySelectorAll('.toc-wrap.open, .dd-wrap.open').forEach(w=>{ if(!w.contains(e.target)) w.classList.remove('open'); });
+document.addEventListener('keydown', e=>{
+  if(e.key==='Escape'){ closeSerp(); document.querySelectorAll('.toc-wrap.open, .dd-wrap.open, .search-wrap.open').forEach(t=>t.classList.remove('open')); }
+  if((e.metaKey||e.ctrlKey) && e.key.toLowerCase()==='k'){ e.preventDefault(); const i=document.getElementById('gsInput'); if(i) i.focus(); }
 });
+document.addEventListener('click', e=>{
+  document.querySelectorAll('.toc-wrap.open, .dd-wrap.open, .search-wrap.open').forEach(w=>{ if(!w.contains(e.target)) w.classList.remove('open'); });
+});
+
+/* ================= ГЛОБАЛЬНЫЙ ПОИСК ================= */
+function renderGsList(){
+  const listEl = document.getElementById('gsList');
+  if(!listEl) return;
+  const q = (document.getElementById('gsInput').value||'').toLowerCase();
+  const items = SEARCH_ITEMS.filter(it=> (GS_TAB==='all'||it.fav) && (it.proj+' '+it.mon).toLowerCase().includes(q));
+  listEl.innerHTML = items.length ? items.map(it=>`
+    <div class="gs-item">
+      <span class="eng ${it.eng}">${it.eng==='ya'?I.ya:'G'}</span>
+      <div class="gs-body">
+        <div class="gs-t"><b>${it.proj}</b><span class="gs-sep">›</span>${esc(it.mon)}</div>
+        <div class="gs-d">${I.link} ${it.proj}</div>
+      </div>
+      <button class="gs-star ${it.fav?'on':''}" data-i="${SEARCH_ITEMS.indexOf(it)}" title="${it.fav?'Убрать из избранного':'В избранное'}">${it.fav?'★':'☆'}</button>
+    </div>`).join('') : '<div class="gs-empty">Ничего не найдено</div>';
+  listEl.querySelectorAll('.gs-star').forEach(s=> s.onclick = e=>{
+    e.stopPropagation();
+    const it = SEARCH_ITEMS[+s.dataset.i];
+    it.fav = !it.fav;
+    renderGsList();
+  });
+}
 
 /* ================= КАЛЕНДАРЬ ПЕРИОДА ================= */
 let CAL = null;
@@ -1589,6 +1663,19 @@ function show(i){
       app.querySelectorAll(`tr[data-super="${si}"]`).forEach(r=>r.classList.toggle('s-hide',on));
     };
   });
+  /* глобальный поиск */
+  const gsWrap = app.querySelector('#searchWrap');
+  if(gsWrap){
+    const inp = gsWrap.querySelector('#gsInput');
+    inp.onfocus = ()=>{ gsWrap.classList.add('open'); renderGsList(); };
+    inp.oninput = renderGsList;
+    gsWrap.querySelectorAll('.gs-tab').forEach(t=> t.onclick = e=>{
+      e.stopPropagation();
+      GS_TAB = t.dataset.t;
+      gsWrap.querySelectorAll('.gs-tab').forEach(x=>x.classList.toggle('active', x===t));
+      renderGsList();
+    });
+  }
   /* дропдауны тулбара: подсветка, срезы, период */
   app.querySelectorAll('.dd-wrap > .f-select, .dd-wrap > .period').forEach(btn=>{
     btn.onclick = e=>{
