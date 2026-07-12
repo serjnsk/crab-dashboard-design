@@ -1,3 +1,4 @@
+<meta charset="utf-8">
 <title>CRAB — новый дизайн дашборда</title>
 <style>
 /* ============ TOKENS ============ */
@@ -256,7 +257,7 @@ input,select{font:inherit;color:inherit}
 /* ============ WORKSHEET ============ */
 .worksheet{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:clip}
 .table-wrap{overflow-x:auto}
-@media (min-width:1200px){.table-wrap{overflow-x:visible}} /* без scroll-контейнера работают sticky-шапки */
+@media (min-width:1200px){.table-wrap:not(.h-scroll){overflow-x:visible}} /* без scroll-контейнера работают sticky-шапки */
 #app{--thead-h:34px}
 .dens-compact{--thead-h:30px}
 .dens-ultra{--thead-h:30px}
@@ -615,6 +616,37 @@ tr.kw-row.selected td{background:var(--accent-soft)!important}
 .super-head{position:sticky;left:14px;width:max-content;max-width:calc(100vw - 220px)}
 .group-head{position:sticky;left:24px;width:max-content;max-width:calc(100vw - 220px)}
 
+/* ============ АДАПТИВНОСТЬ СРЕЗОВ: компактный режим ============ */
+/* sl-mid: колонки ужимаются, но дельты позиций остаются читаемыми —
+   экономим на отступах и дне недели в дате, не на данных */
+.sl-mid .grid td.pos{min-width:52px;padding:0 1px}
+.sl-mid .cell{gap:3px}
+.sl-mid .cells-chip .cell{min-width:0;padding:3px 4px}
+.sl-mid .grid thead th.date .dw,.sl-mid .grid thead th.date .dtm{display:none}
+.sl-mid .grid thead th.date{padding:9px 2px}
+.sl-mid .grid td.sum{padding:0 3px}
+.sl-mid .grid td.sum .num{font-size:11.5px}
+.sl-mid .sum-delta{font-size:8.5px}
+/* маркер смены страницы «⇅»: в углу наезжает на цифру — уводим вниз по центру, там свободно */
+.sl-mid.cells-fill .swap{top:auto;bottom:1px;left:50%;transform:translateX(-50%);width:11px;height:11px;font-size:7px}
+
+/* ============ ГОРИЗ. СКРОЛЛ СРЕЗОВ: фикс. левая часть + липкий последний срез ============ */
+.table-wrap.h-scroll{overflow-x:auto}
+.h-scroll .grid th.kw,.h-scroll .grid td.kw{width:240px;min-width:240px;max-width:240px}
+.h-scroll .grid thead th:nth-child(2),.h-scroll .grid td.typ{position:sticky;left:240px;background:var(--surface);width:86px;min-width:86px;max-width:86px}
+.h-scroll .grid thead th:nth-child(3),.h-scroll .grid td.serp{position:sticky;left:326px;background:var(--surface);width:60px;min-width:60px;max-width:60px}
+.h-scroll .grid thead th:nth-child(4),.h-scroll .grid td.freq{position:sticky;left:386px;background:var(--surface);width:90px;min-width:90px}
+.h-scroll .grid td.typ,.h-scroll .grid td.serp,.h-scroll .grid td.freq{z-index:2}
+.h-scroll .grid thead th:nth-child(-n+4){z-index:11}
+.h-scroll .grid thead th.date.last{position:sticky;right:0;z-index:11;background:var(--surface)}
+.h-scroll .grid td.pos.last{position:sticky;right:0;z-index:3;background:linear-gradient(var(--t100-bg),var(--t100-bg)) var(--surface)}
+.h-scroll .grid td.sum.lastcol{position:sticky;right:0;z-index:3;background:linear-gradient(var(--accent-soft),var(--accent-soft)) var(--surface)}
+/* тени на границах прокручиваемой зоны */
+.h-scroll.sc-left .grid td.freq,.h-scroll.sc-left .grid thead th:nth-child(4),
+.h-scroll.sc-left .grid td.sum-label{box-shadow:10px 0 12px -10px rgba(15,23,42,.35)}
+.h-scroll.sc-right .grid td.pos.last,.h-scroll.sc-right .grid thead th.date.last,
+.h-scroll.sc-right .grid td.sum.lastcol{box-shadow:-10px 0 12px -10px rgba(15,23,42,.35)}
+
 /* ============ ОГЛАВЛЕНИЕ ГРУПП / СВЕРНУТЬ ВСЁ ============ */
 .toc-wrap{position:relative}
 .toc-panel{position:absolute;top:calc(100% + 6px);left:0;width:290px;max-height:340px;overflow-y:auto;background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow-lg);padding:8px;display:none;z-index:70}
@@ -832,6 +864,67 @@ const WORKSHEET = [
     proto.forEach(g=> WORKSHEET[0].groups.push({...g, name:`${g.name} · ${c}`}));
   }
 }
+/* уплотнение истории: +17 генерированных срезов между опорными (итого 25) — для проверки адаптивности.
+   Ручные данные остаются якорями, промежуточные значения интерполируются с детерминированным шумом */
+{
+  const INS = ['2025-12-22','2026-01-05','2026-01-19','2026-02-02','2026-02-16',
+    '2026-03-23','2026-03-30','2026-04-06','2026-04-13','2026-04-20','2026-04-27',
+    '2026-05-12','2026-05-19','2026-05-26','2026-06-12','2026-06-19','2026-06-26'];
+  const WD = ['вс','пн','вт','ср','чт','пт','сб'];
+  const mk = iso => ({d: iso.slice(8,10)+'.'+iso.slice(5,7), w: WD[new Date(iso+'T00:00:00').getDay()], iso, gen:true});
+  const olds = DATES.splice(0, DATES.length);
+  const ins = INS.map(mk);
+  const map = []; /* старый индекс → новый */
+  let p = 0;
+  olds.forEach((d, oi)=>{
+    while(p < ins.length && ins[p].iso < d.iso) DATES.push(ins[p++]);
+    map[oi] = DATES.length; DATES.push(d);
+  });
+  while(p < ins.length) DATES.push(ins[p++]);
+
+  const hash = s => { let h=2166136261; for(let i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619); } return (h>>>0)/4294967295; };
+  const frac = (a,b,x)=>{ const t=+new Date(x)-+new Date(a), s=+new Date(b)-+new Date(a); return s? t/s : 0; };
+  const num = v => typeof v==='number';
+  const expand = (vals, tag, jit, lo, hi)=>{
+    const out = new Array(DATES.length).fill(null);
+    map.forEach((ni,oi)=> out[ni]=vals[oi]);
+    for(let i=0;i<DATES.length;i++){
+      if(!DATES[i].gen) continue;
+      let L=-1,R=-1; /* ближайшие якоря; 'na' (позиция не снята) — прозрачен, null (вне ТОП-100) — блокирует */
+      for(let j=i-1;j>=0;j--) if(!DATES[j].gen && out[j]!=='na'){L=j;break;}
+      for(let j=i+1;j<DATES.length;j++) if(!DATES[j].gen && out[j]!=='na'){R=j;break;}
+      const lv = L>=0?out[L]:null, rv = R>=0?out[R]:null;
+      let v;
+      if(num(lv)&&num(rv)) v = lv + (rv-lv)*frac(DATES[L].iso, DATES[R].iso, DATES[i].iso);
+      else if(L<0 && num(rv)) v = rv;      /* до первого якоря */
+      else if(R<0 && num(lv)) v = lv;      /* после последнего */
+      else continue;                       /* внутри null-периода (вне ТОП-100) */
+      v += (hash(tag+DATES[i].iso)-.5)*2*jit;
+      out[i] = Math.min(hi, Math.max(lo, Math.round(v)));
+    }
+    return out;
+  };
+
+  const done = new Set(); /* дубли групп делят одни объекты ключей */
+  WORKSHEET.forEach(sg=>sg.groups.forEach(g=>g.keys.forEach(k=>{
+    if(done.has(k)) return; done.add(k);
+    k.pos = expand(k.pos, k.kw, 3, 1, 100);
+    if(k.swap) k.swap = k.swap.map(oi=>map[oi]);
+  })));
+  SUMMARY.forEach(r=>{
+    r.vals = expand(r.vals, 'sum:'+r.key, r.hero?14:22, 0, 99999);
+    r.pct  = expand(r.pct,  'pct:'+r.key, 1, 0, 100);
+  });
+  TOTAL_KEYS.splice(0, TOTAL_KEYS.length, ...expand(TOTAL_KEYS, 'total', 0, 0, 99999));
+
+  /* архив сдвигаем раньше новой границы истории, модалка пересобирается */
+  ARCHIVE_DATES.splice(0, ARCHIVE_DATES.length,
+    ...['2025-10-06','2025-10-20','2025-11-03','2025-11-17','2025-12-01','2025-12-15'].map(mk));
+  MODAL_DATES.splice(0, MODAL_DATES.length,
+    ...ARCHIVE_DATES.map((d,i)=>({...d, id:'a'+i, seed:20+i, arch:true})),
+    ...DATES.map((d,i)=>({...d, id:'m'+i, seed:i, mi:i})));
+}
+
 const GROUPS = WORKSHEET.flatMap(s=>s.groups);
 
 const SERP_TOP = [
@@ -1127,7 +1220,7 @@ function cellHtml(k, i, gi, ki){
   const d = posDelta(k.pos,i);
   const dh = d ? `<span class="d ${d>0?'up':'down'}">${d>0?'+':''}${d}</span>` : '';
   const sw = (k.swap||[]).includes(i) ? `<span class="swap" title="Сменилась релевантная страница">⇅</span>` : '';
-  return `<button class="cell ${b}" data-serp="${gi}:${ki}:${i}" title="Открыть ТОП выдачи · ${DATES[i].d}${(k.swap||[]).includes(i)?' · сменилась релевантная страница':''}">${sw}${p}${dh}</button>`;
+  return `<button class="cell ${b}" data-serp="${gi}:${ki}:${i}" title="${DATES[i].d}: позиция ${p}${d?` (${d>0?'+':''}${d})`:''} · открыть ТОП выдачи${(k.swap||[]).includes(i)?' · сменилась релевантная страница':''}">${sw}${p}${dh}</button>`;
 }
 
 function renderWorksheet(v){
@@ -1652,6 +1745,38 @@ function buildCal(){
   };
 }
 
+/* ================= АДАПТИВНОСТЬ СРЕЗОВ ================= */
+/* ширина колонки среза от доступного места: полная → компактная (дельты всегда читаемы)
+   → гориз. скролл с компактными ячейками и фикс. левой частью */
+function updateScrollShadows(w){
+  w.classList.toggle('sc-left', w.scrollLeft > 2);
+  w.classList.toggle('sc-right', w.scrollLeft < w.scrollWidth - w.clientWidth - 2);
+}
+function applySliceDensity(){
+  const wraps = [...app.querySelectorAll('.table-wrap')];
+  if(!wraps.length) return;
+  const FIXED = 476 + (curV && curV.nowCol ? 150 : 0); /* ключ+тип+serp+частота(+сейчас) */
+  const per = (wraps[0].clientWidth - FIXED) / (VIS.size || 1);
+  app.classList.remove('sl-mid');
+  if(per < 62) app.classList.add('sl-mid'); /* тесно: компактные колонки; не влезли — дальше сработает скролл */
+  /* чтение scrollWidth после смены классов форсирует пересчёт лэйаута — rAF не нужен
+     (и не срабатывает в фоновых вкладках) */
+  wraps.forEach(w=>{
+    const over = w.scrollWidth > w.clientWidth + 1;
+    w.classList.toggle('h-scroll', over);
+    if(over){
+      if(!w.__sl){ w.__sl = true; w.addEventListener('scroll', ()=>updateScrollShadows(w), {passive:true}); }
+      w.scrollLeft = w.scrollWidth; /* старт: последние срезы на виду */
+      updateScrollShadows(w);
+    }
+  });
+  /* фактическая высота thead (меняется в плотных режимах и при времени в датах) */
+  const theadEl = app.querySelector('.grid thead');
+  if(theadEl) app.style.setProperty('--thead-h', Math.round(theadEl.getBoundingClientRect().height)+'px');
+}
+let __slT;
+window.addEventListener('resize', ()=>{ clearTimeout(__slT); __slT = setTimeout(applySliceDensity, 120); });
+
 /* ================= SWITCHER / THEME ================= */
 let cur = 0;
 let userTheme = null; /* null = auto (или дефолт варианта) */
@@ -1674,9 +1799,7 @@ function show(i){
   app.className = `${v.id} cells-${v.cells} dens-${v.dens} sum-${v.summary} sum-mode-abs chrome-${v.chrome||'std'}${v.nowCol?' has-now':''}`;
   app.innerHTML = renderDashboard(v);
   applyTheme();
-  /* фактическая высота thead (меняется, если в датах есть время) — для отступа sticky-шапок групп */
-  const theadEl = app.querySelector('.grid thead');
-  if(theadEl) app.style.setProperty('--thead-h', Math.round(theadEl.getBoundingClientRect().height)+'px');
+  applySliceDensity(); /* плотность колонок срезов + h-scroll; внутри же меряется --thead-h */
   /* режим сводки: абсолютные / проценты */
   app.querySelectorAll('.sm-mode').forEach(b=> b.onclick = e=>{
     e.stopPropagation();
