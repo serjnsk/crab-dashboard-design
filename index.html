@@ -635,8 +635,19 @@ tr.kw-row.selected td{background:var(--accent-soft)!important}
 .sl-mid.cells-fill .swap{top:auto;bottom:1px;left:50%;transform:translateX(-50%);width:11px;height:11px;font-size:7px}
 
 /* ============ ГОРИЗ. СКРОЛЛ СРЕЗОВ: фикс. левая часть + липкий последний срез ============ */
+/* внутри скролл-контейнера вертикальная липкость отсчитывается от контейнера, а не от окна:
+   top:52px смещал шапку вниз поверх сводки — в скролл-режиме вертикальные offsets снимаем */
+.table-wrap.h-scroll .grid thead th{top:auto}
+.table-wrap.h-scroll .grid tr.group-row td{top:auto}
+@media (max-width:1199.98px){
+  .table-wrap .grid thead th{top:auto}
+  .table-wrap .grid tr.group-row td{top:auto}
+}
 .table-wrap.h-scroll{overflow-x:auto;scrollbar-width:none} /* родной скроллбар скрыт — вместо него плавающий .hsb у низа окна */
 .table-wrap.h-scroll::-webkit-scrollbar{display:none}
+/* зажатие колонки ключа — отдельный класс: если после него всё влезло, скролл не включается
+   и вертикальная липкость шапки сохраняется */
+.table-wrap.kw-clamp .grid th.kw,.table-wrap.kw-clamp .grid td.kw{width:240px;min-width:240px;max-width:240px}
 .hsb{position:fixed;bottom:0;z-index:60;display:none;overflow-x:auto;overflow-y:hidden;height:14px;background:var(--surface);border-top:1px solid var(--border)}
 .hsb.on{display:block}
 .hsb > div{height:1px}
@@ -644,7 +655,6 @@ tr.kw-row.selected td{background:var(--accent-soft)!important}
 .hsb::-webkit-scrollbar-track{background:var(--surface)}
 .hsb::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:7px;border:3px solid var(--surface)}
 .hsb::-webkit-scrollbar-thumb:hover{background:var(--text-3)}
-.h-scroll .grid th.kw,.h-scroll .grid td.kw{width:240px;min-width:240px;max-width:240px}
 .h-scroll .grid thead th:nth-child(2),.h-scroll .grid td.typ{position:sticky;left:240px;background:var(--surface);width:86px;min-width:86px;max-width:86px}
 .h-scroll .grid thead th:nth-child(3),.h-scroll .grid td.serp{position:sticky;left:326px;background:var(--surface);width:60px;min-width:60px;max-width:60px}
 .h-scroll .grid thead th:nth-child(4),.h-scroll .grid td.freq{position:sticky;left:386px;background:var(--surface);width:90px;min-width:90px}
@@ -1770,16 +1780,20 @@ function applySliceDensity(){
   const wraps = [...app.querySelectorAll('.table-wrap')];
   if(!wraps.length) return;
   const FIXED = 476 + (curV && curV.nowCol ? 150 : 0); /* ключ+тип+serp+частота(+сейчас) */
-  /* сброс ДО измерений: h-scroll зажимает колонку ключа и искажает ширину таблицы */
+  /* сброс ДО измерений: kw-clamp/h-scroll зажимают колонку ключа и искажают ширину таблицы */
   app.classList.remove('sl-mid');
-  wraps.forEach(w=>w.classList.remove('h-scroll'));
+  wraps.forEach(w=>w.classList.remove('h-scroll','kw-clamp'));
   const per = (wraps[0].clientWidth - FIXED) / (VIS.size || 1);
   if(per < 62) app.classList.add('sl-mid'); /* тесно: компактные колонки; не влезли — дальше сработает скролл */
   /* чтение scrollWidth после смены классов форсирует пересчёт лэйаута — rAF не нужен
      (и не срабатывает в фоновых вкладках) */
   wraps.forEach(w=>{
-    const over = w.scrollWidth > w.clientWidth + 1;
-    w.classList.toggle('h-scroll', over);
+    let over = w.scrollWidth > w.clientWidth + 1;
+    if(over){ /* шаг 1: зажать колонку ключа — часто этого достаточно */
+      w.classList.add('kw-clamp');
+      over = w.scrollWidth > w.clientWidth + 1;
+    }
+    w.classList.toggle('h-scroll', over); /* шаг 2: не помогло — скролл-режим */
     if(over){
       if(!w.__sl){ w.__sl = true; w.addEventListener('scroll', ()=>{ updateScrollShadows(w); if(HSB && HSB.__w===w) HSB.scrollLeft = w.scrollLeft; }, {passive:true}); }
       w.scrollLeft = w.scrollWidth; /* старт: последние срезы на виду */
