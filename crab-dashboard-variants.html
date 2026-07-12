@@ -631,7 +631,15 @@ tr.kw-row.selected td{background:var(--accent-soft)!important}
 .sl-mid.cells-fill .swap{top:auto;bottom:1px;left:50%;transform:translateX(-50%);width:11px;height:11px;font-size:7px}
 
 /* ============ ГОРИЗ. СКРОЛЛ СРЕЗОВ: фикс. левая часть + липкий последний срез ============ */
-.table-wrap.h-scroll{overflow-x:auto}
+.table-wrap.h-scroll{overflow-x:auto;scrollbar-width:none} /* родной скроллбар скрыт — вместо него плавающий .hsb у низа окна */
+.table-wrap.h-scroll::-webkit-scrollbar{display:none}
+.hsb{position:fixed;bottom:0;z-index:60;display:none;overflow-x:auto;overflow-y:hidden;height:14px;background:var(--surface);border-top:1px solid var(--border)}
+.hsb.on{display:block}
+.hsb > div{height:1px}
+.hsb::-webkit-scrollbar{height:13px}
+.hsb::-webkit-scrollbar-track{background:var(--surface)}
+.hsb::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:7px;border:3px solid var(--surface)}
+.hsb::-webkit-scrollbar-thumb:hover{background:var(--text-3)}
 .h-scroll .grid th.kw,.h-scroll .grid td.kw{width:240px;min-width:240px;max-width:240px}
 .h-scroll .grid thead th:nth-child(2),.h-scroll .grid td.typ{position:sticky;left:240px;background:var(--surface);width:86px;min-width:86px;max-width:86px}
 .h-scroll .grid thead th:nth-child(3),.h-scroll .grid td.serp{position:sticky;left:326px;background:var(--surface);width:60px;min-width:60px;max-width:60px}
@@ -1756,8 +1764,10 @@ function applySliceDensity(){
   const wraps = [...app.querySelectorAll('.table-wrap')];
   if(!wraps.length) return;
   const FIXED = 476 + (curV && curV.nowCol ? 150 : 0); /* ключ+тип+serp+частота(+сейчас) */
-  const per = (wraps[0].clientWidth - FIXED) / (VIS.size || 1);
+  /* сброс ДО измерений: h-scroll зажимает колонку ключа и искажает ширину таблицы */
   app.classList.remove('sl-mid');
+  wraps.forEach(w=>w.classList.remove('h-scroll'));
+  const per = (wraps[0].clientWidth - FIXED) / (VIS.size || 1);
   if(per < 62) app.classList.add('sl-mid'); /* тесно: компактные колонки; не влезли — дальше сработает скролл */
   /* чтение scrollWidth после смены классов форсирует пересчёт лэйаута — rAF не нужен
      (и не срабатывает в фоновых вкладках) */
@@ -1765,7 +1775,7 @@ function applySliceDensity(){
     const over = w.scrollWidth > w.clientWidth + 1;
     w.classList.toggle('h-scroll', over);
     if(over){
-      if(!w.__sl){ w.__sl = true; w.addEventListener('scroll', ()=>updateScrollShadows(w), {passive:true}); }
+      if(!w.__sl){ w.__sl = true; w.addEventListener('scroll', ()=>{ updateScrollShadows(w); if(HSB && HSB.__w===w) HSB.scrollLeft = w.scrollLeft; }, {passive:true}); }
       w.scrollLeft = w.scrollWidth; /* старт: последние срезы на виду */
       updateScrollShadows(w);
     }
@@ -1773,7 +1783,35 @@ function applySliceDensity(){
   /* фактическая высота thead (меняется в плотных режимах и при времени в датах) */
   const theadEl = app.querySelector('.grid thead');
   if(theadEl) app.style.setProperty('--thead-h', Math.round(theadEl.getBoundingClientRect().height)+'px');
+  updateHsb();
 }
+
+/* плавающий горизонтальный скроллбар: прикреплён к низу окна, пока таблица на экране.
+   Родной скроллбар .table-wrap скрыт — иначе он оказывается под всеми строками, в самом низу */
+let HSB = null;
+function updateHsb(){
+  const w = app.querySelector('.table-wrap.h-scroll');
+  if(!HSB){
+    HSB = document.createElement('div');
+    HSB.className = 'hsb';
+    HSB.appendChild(document.createElement('div'));
+    HSB.addEventListener('scroll', ()=>{ if(HSB.__w) HSB.__w.scrollLeft = HSB.scrollLeft; }, {passive:true});
+    document.body.appendChild(HSB);
+  }
+  HSB.__w = w;
+  if(!w || w.scrollWidth <= w.clientWidth + 1){ HSB.classList.remove('on'); return; }
+  const r = w.getBoundingClientRect();
+  const visible = r.top < innerHeight - 60 && r.bottom > 120;
+  HSB.classList.toggle('on', visible);
+  if(!visible) return;
+  HSB.style.left = r.left + 'px';
+  HSB.style.width = r.width + 'px';
+  /* когда низ таблицы поднимается в окно — скроллбар «приземляется» на её нижнюю кромку */
+  HSB.style.bottom = Math.max(0, innerHeight - r.bottom) + 'px';
+  HSB.firstChild.style.width = w.scrollWidth + 'px';
+  HSB.scrollLeft = w.scrollLeft;
+}
+window.addEventListener('scroll', updateHsb, {passive:true});
 let __slT;
 window.addEventListener('resize', ()=>{ clearTimeout(__slT); __slT = setTimeout(applySliceDensity, 120); });
 
