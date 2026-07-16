@@ -1252,7 +1252,7 @@ function renderWorksheet(v){
   const dateHead = DATES.map((d,i)=> !VIS.has(i)?'':`<th class="date ${i===LASTV?'last':''}"><span class="d">${d.d}</span><span class="dw">${d.w}</span>${d.t?`<span class="dtm">${d.t}</span>`:''}</th>`).join('');
   const theadHtml = `<thead><tr>
       <th class="kw">Ключ</th><th title="Типизация сайтов в ТОП-10">Тип ТОП-10</th>
-      <th title="Элементы выдачи">SERP</th><th title="Частотность: базовая / !точная">Частота</th>
+      <th title="Элементы выдачи">SERP</th><th title="Частотность: базовая / !точная">Частотность</th>
       ${v.nowCol?'<th class="now" title="Текущая позиция, изменение за период, тренд">Сейчас · Δ</th>':''}
       ${dateHead}
     </tr></thead>`;
