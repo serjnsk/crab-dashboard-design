@@ -340,6 +340,11 @@ tr.g-hide,tr.s-hide,tr.v-hide{display:none}
 .cell.na{color:var(--text-3);font-weight:500;font-size:10.5px;border:1px dashed var(--border-strong);border-radius:5px;padding:2px 7px;cursor:default}
 .swap{position:absolute;top:-5px;left:-6px;width:13px;height:13px;border-radius:50%;background:var(--surface);border:1px solid var(--border-strong);color:var(--text-2);font-size:8px;line-height:1;display:flex;align-items:center;justify-content:center;z-index:2;cursor:pointer}
 .swap:hover{color:var(--text);border-color:var(--text-3)}
+/* ряд маркеров внизу ячейки: ⇅ и/или реклама — центрируются вместе, дельте сверху не мешают */
+.cell .marks{position:absolute;left:0;right:0;bottom:1px;display:flex;justify-content:center;align-items:center;gap:3px;pointer-events:none;z-index:2}
+.marks .swap{position:static;pointer-events:auto;width:12px;height:12px;font-size:7px}
+.marks .admark{display:inline-flex;width:10px;height:10px;pointer-events:auto;cursor:default}
+.admark svg{width:100%;height:100%;display:block}
 .cells-fill .swap,.cells-heat .swap{top:2px;left:3px;background:transparent;border:none}
 .cells-heat .swap{color:rgba(255,255,255,.9)}
 .swapsw{display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;border-radius:50%;background:var(--surface);border:1px solid var(--border-strong);color:var(--text-2);font-size:8px}
@@ -643,7 +648,8 @@ tr.kw-row.selected td{background:var(--accent-soft)!important}
 .sl-mid .grid td.sum .num{font-size:11.5px}
 .sl-mid .sum-delta{font-size:8.5px}
 /* маркер смены страницы «⇅»: в углу наезжает на цифру — уводим вниз по центру, там свободно */
-.sl-mid.cells-fill .swap{top:auto;bottom:1px;left:50%;transform:translateX(-50%);width:11px;height:11px;font-size:7px}
+.sl-mid .marks .swap{width:11px;height:11px}
+.sl-mid .marks .admark{width:9px;height:9px}
 
 /* ============ ГОРИЗ. СКРОЛЛ СРЕЗОВ: фикс. левая часть + липкий последний срез ============ */
 /* внутри скролл-контейнера вертикальная липкость отсчитывается от контейнера, а не от окна:
@@ -830,6 +836,9 @@ tr.flash td{animation:rowflash 1.4s ease}
 .ourpos.t50{background:var(--t50-bg);color:var(--t50-fg)}
 .ourpos.t100{background:var(--t100-bg);color:var(--t100-fg)}
 .ourpos.none{background:var(--bg);color:var(--text-3)}
+/* полоса «реклама в выдаче» — перед органическими результатами колонки */
+.sm-ads{display:flex;align-items:center;gap:7px;flex:none;padding:6px 14px;font-size:10.5px;font-weight:650;color:var(--t20-fg);background:var(--t20-bg);border-bottom:1px solid var(--border)}
+.sm-ads .admark{display:inline-flex;width:11px;height:11px;flex:none}
 .sm-list{overflow-y:auto;min-height:0}
 .sm-list .serp-row{padding:8px 14px}
 .sm-list .serp-row.our{padding-left:11px}
@@ -987,6 +996,8 @@ const WORKSHEET = [
     if(k.swap) k.swap = k.swap.map(oi=>map[oi]);
     /* динамика частотности к прошлому месяцу: детерминированная генерация ±14% */
     k.wsd = Math.round((hash('ws:'+k.kw)-.5)*.28*k.ws);
+    /* срезы с рекламой в выдаче: чаще у ключей с ads в SERP-фичах */
+    k.adsAt = DATES.map((_,idx)=>idx).filter(idx=> hash('ads:'+k.kw+':'+DATES[idx].iso) < ((k.serp||[]).includes('ads') ? .55 : .12));
   })));
   SUMMARY.forEach(r=>{
     r.vals = expand(r.vals, 'sum:'+r.key, r.hero?14:22, 0, 99999);
@@ -1162,6 +1173,7 @@ const I = {
   link:'<svg width="11" height="11" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5.5 8.5l3-3M6 3.8l1.2-1.2a2.5 2.5 0 0 1 3.5 3.5L9.5 7.3M8 10.2l-1.2 1.2a2.5 2.5 0 0 1-3.5-3.5L4.5 6.7"/></svg>',
   chev:'<svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor"><path d="M1.5 3l3.5 4 3.5-4z"/></svg>',
   copy:'<svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="4.5" y="4.5" width="8" height="8" rx="1.5"/><path d="M9.5 4.5V3a1.5 1.5 0 0 0-1.5-1.5H3A1.5 1.5 0 0 0 1.5 3v5A1.5 1.5 0 0 0 3 9.5h1.5"/></svg>',
+  gads:'<svg viewBox="0 0 24 24" aria-label="Google Ads"><rect x="8.7" y="1.5" width="6.6" height="21" rx="3.3" fill="#FBBC04" transform="rotate(-30 12 12)"/><rect x="8.7" y="1.5" width="6.6" height="21" rx="3.3" fill="#4285F4" transform="rotate(30 12 12)"/><circle cx="5" cy="18.7" r="3.4" fill="#34A853"/></svg>',
   check:'<svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 7.5l3 3 6-6.5"/></svg>',
   /* флаги регионов: SVG вместо эмодзи — на Windows эмодзи-флаги не отображаются */
   flags:{
@@ -1315,8 +1327,12 @@ function cellHtml(k, i, gi, ki){
   const b = band(p);
   const d = posDelta(k.pos,i);
   const dh = d ? `<span class="d ${d>0?'up':'down'}">${d>0?'+':''}${d}</span>` : '';
-  const sw = (k.swap||[]).includes(i) ? `<span class="swap" data-swap="${gi}:${ki}:${i}" title="Сменилась релевантная страница — подробнее">⇅</span>` : '';
-  return `<button class="cell ${b}" data-serp="${gi}:${ki}:${i}" title="${DATES[i].d}: позиция ${p}${d?` (${d>0?'+':''}${d})`:''} · открыть ТОП выдачи${(k.swap||[]).includes(i)?' · сменилась релевантная страница':''}">${sw}${p}${dh}</button>`;
+  /* маркеры среза — рядом внизу ячейки, не наезжая друг на друга и на дельту */
+  const marks = [];
+  if((k.swap||[]).includes(i)) marks.push(`<span class="swap" data-swap="${gi}:${ki}:${i}" title="Сменилась релевантная страница — подробнее">⇅</span>`);
+  if((k.adsAt||[]).includes(i)) marks.push(`<span class="admark" title="Реклама в выдаче · ${DATES[i].d}">${I.gads}</span>`);
+  const mk = marks.length ? `<span class="marks">${marks.join('')}</span>` : '';
+  return `<button class="cell ${b}" data-serp="${gi}:${ki}:${i}" title="${DATES[i].d}: позиция ${p}${d?` (${d>0?'+':''}${d})`:''} · открыть ТОП выдачи${(k.swap||[]).includes(i)?' · сменилась релевантная страница':''}">${mk}${p}${dh}</button>`;
 }
 
 function renderWorksheet(v){
@@ -1727,9 +1743,14 @@ function renderSerpModal(){
     `<button class="dchip ${dates.includes(md.id)?'active':''} ${md.arch?'arch':''}" data-id="${md.id}">${md.d}${md.t?` ${md.t}`:''}</button>`).join('');
   const cols = MODAL_DATES.filter(md=>dates.includes(md.id)).map(md=>{
     const p = modalPos(k, md); const b = band(p);
+    /* реклама в этом срезе: для срезов матрицы — из данных ключа, для архивных — детерминированно */
+    const hasAds = md.mi!=null ? (k.adsAt||[]).includes(md.mi) : (hashStr('ads:'+k.kw+':'+md.id)%100) < 40;
+    const adsN = 2 + (hashStr('adsn:'+k.kw+':'+md.id) % 3);
+    const adsStrip = hasAds ? `<div class="sm-ads" title="Рекламная выдача показывалась над органическими результатами"><span class="admark">${I.gads}</span>Реклама в выдаче · ${adsN} объявлени${adsN===2?'я':adsN>4?'й':'я'} над результатами</div>` : '';
     return `<div class="sm-col">
       <div class="sm-col-h"><b>${md.d}</b>${md.t?`<span class="t">${md.t}</span>`:''}<span class="dw2">${md.w}</span>${md.arch?'<span class="t">архив</span>':''}
         <span class="ourpos ${b||'none'}" title="Наша позиция в этом срезе">${p==null?'—':(p==='na'?'н/д':p)}</span></div>
+      ${adsStrip}
       <div class="sm-list">${serpColRows(serpForDate(k,md))}</div>
     </div>`;
   }).join('');
