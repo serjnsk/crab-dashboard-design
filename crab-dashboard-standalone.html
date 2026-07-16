@@ -1251,7 +1251,7 @@ function renderWorksheet(v){
   const nCols = (v.nowCol?5:4)+VIS.size;
   const dateHead = DATES.map((d,i)=> !VIS.has(i)?'':`<th class="date ${i===LASTV?'last':''}"><span class="d">${d.d}</span><span class="dw">${d.w}</span>${d.t?`<span class="dtm">${d.t}</span>`:''}</th>`).join('');
   const theadHtml = `<thead><tr>
-      <th class="kw">Ключ</th><th title="Типизация сайтов в ТОП-10">Тип ТОП-10</th>
+      <th class="kw">Ключ</th><th title="Типизация сайтов в ТОП-10">Топ 10</th>
       <th title="Элементы выдачи">SERP</th><th title="Частотность: базовая / !точная">Частотность</th>
       ${v.nowCol?'<th class="now" title="Текущая позиция, изменение за период, тренд">Сейчас · Δ</th>':''}
       ${dateHead}
@@ -1351,7 +1351,7 @@ function renderLegend(){
 function renderDashboard(v){
   curV = v;
   VIS = visibleIdx(); LASTV = Math.max(...VIS);
-  const hlSwatches = arr => arr.map((t,i)=> t==null?null:`<span class="hsw" style="background:var(--${['t3','t10','t20','t50'][i]}-heat)"></span>${t}`).filter(Boolean).join('–');
+  const hlSwatches = arr => arr.map((t,i)=> t==null?null:`<span class="hsw" style="background:var(--${['t3','t10','t20','t50'][i]}-heat)"></span>–${t}`).filter(Boolean).join(', '); /* тире перед числом: цвет ДО этой позиции */
   /* сводка живёт внутри общей колоночной сетки матрицы (renderWorksheet) — даты всегда выровнены.
      Легенды нет: пороги подсветки показаны в селекте «Подсветка», типизация и «⇅» — тултипами */
   const contentRaw = renderWorksheet(v);
@@ -1376,7 +1376,7 @@ function renderDashboard(v){
         <span class="vb-pill view"><span class="vb-dot"></span>Все группы <span class="car">▾</span></span>
         <span class="vb-sep"></span>
         <span class="vb-pill">${I.vs} Сортировка: последний срез <span class="car">▾</span></span>
-        <span class="vb-pill">Подсветка: 3–10–20–50</span>
+        <span class="vb-pill">Подсветка: –3, –10, –20, –50</span>
         <span class="vb-pill">+ Фильтр</span>
         <span class="spacer"></span>
         <span class="vb-pill">Настройки вида</span>
@@ -1488,7 +1488,7 @@ function renderDashboard(v){
         </span>
         <span class="f-input">${I.search}<input placeholder="Фильтр по ключам" aria-label="Фильтр по ключам"></span>
         <span class="toc-wrap">
-          <button class="f-select" id="tocBtn">Оглавление групп <span class="car">▼</span></button>
+          <button class="f-select" id="tocBtn">Перейти к группе <span class="car">▼</span></button>
           <div class="toc-panel" id="tocPanel">
             <input id="tocSearch" placeholder="Найти группу…" aria-label="Найти группу">
             <div class="toc-list">${tocListHtml}</div>
