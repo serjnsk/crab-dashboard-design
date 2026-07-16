@@ -283,6 +283,10 @@ table.grid{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums
 .serp-ico{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:4px;background:var(--bg);border:1px solid var(--border);color:var(--text-2);margin:0 1px;font-size:9px;font-weight:700}
 .grid td.freq{text-align:right;min-width:86px;white-space:nowrap}
 .freq-b{font-family:var(--mono);font-size:11px;color:var(--text-2)}
+/* динамика частотности к прошлому месяцу — «степенью», как дельта в ячейках позиций;
+   крупные значения сокращаются (1,2k), полное число — в тултипе */
+.freq-d{font-family:var(--mono);font-size:9px;font-weight:750;line-height:1;vertical-align:5px;margin-left:2px;letter-spacing:-.02em}
+.freq-d.up{color:var(--up)}.freq-d.down{color:var(--down)}
 .freq-e{font-family:var(--mono);font-size:10.5px;color:var(--text-3);margin-left:6px}
 .freq-e::before{content:"!";color:var(--t50-fg);font-weight:700}
 .grid td.pos{text-align:center;padding:0 3px;min-width:64px}
@@ -836,6 +840,7 @@ const SUMMARY = [
 ];
 const TOTAL_KEYS = [2467,2467,2467,2467,2467,2467,2467,2465];
 const WS_MONTH = '06/2026'; /* месяц данных частотности (Wordstat) — за месяц до последнего среза */
+const WS_PREV = '05/2026';  /* предыдущий месяц — база для динамики частотности */
 
 /* typ: типизация сайтов в ТОП-10 по ключу (категории задаются в настройках проекта) */
 const TYP_META = {
@@ -937,12 +942,18 @@ const WORKSHEET = [
     if(done.has(k)) return; done.add(k);
     k.pos = expand(k.pos, k.kw, 3, 1, 100);
     if(k.swap) k.swap = k.swap.map(oi=>map[oi]);
+    /* динамика частотности к прошлому месяцу: детерминированная генерация ±14% */
+    k.wsd = Math.round((hash('ws:'+k.kw)-.5)*.28*k.ws);
   })));
   SUMMARY.forEach(r=>{
     r.vals = expand(r.vals, 'sum:'+r.key, r.hero?14:22, 0, 99999);
     r.pct  = expand(r.pct,  'pct:'+r.key, 1, 0, 100);
   });
   TOTAL_KEYS.splice(0, TOTAL_KEYS.length, ...expand(TOTAL_KEYS, 'total', 0, 0, 99999));
+
+  /* демо вывода времени среза в шапке: если в один день несколько мониторингов */
+  const TIMES = {'2026-06-19':'11:05','2026-06-26':'09:12','2026-07-01':'17:40'};
+  DATES.forEach(d=>{ if(TIMES[d.iso]) d.t = TIMES[d.iso]; });
 
   /* архив сдвигаем раньше новой границы истории, модалка пересобирается */
   ARCHIVE_DATES.splice(0, ARCHIVE_DATES.length,
@@ -1282,7 +1293,7 @@ function renderWorksheet(v){
         <td class="kw"><div class="kw-cell"><span class="eng ya" title="Яндекс">${I.ya}</span><span class="txt">${esc(k.kw)}</span></div>${rel}</td>
         <td class="typ">${typDots(k.typ)}</td>
         <td class="serp">${serpIcons(k.serp)}</td>
-        <td class="freq"><span class="freq-b" title="Частотность ${WS_MONTH} (базовая)">${fmtWs(k.ws)}</span><span class="freq-e" title="Точная частотность ${WS_MONTH}">${fmtWs(k.wse)}</span></td>
+        <td class="freq"><span class="freq-b" title="Частотность ${WS_MONTH} (базовая)">${fmtWs(k.ws)}</span>${k.wsd?`<span class="freq-d ${k.wsd>0?'up':'down'}" title="Изменение к ${WS_PREV}: ${k.wsd>0?'+':'−'}${Math.abs(k.wsd).toLocaleString('ru-RU')}">${k.wsd>0?'+':'−'}${fmtWs(Math.abs(k.wsd))}</span>`:''}<span class="freq-e" title="Точная частотность ${WS_MONTH}">${fmtWs(k.wse)}</span></td>
         ${v.nowCol?`<td class="now">${nowCellHtml(k)}</td>`:''}
         ${cells}</tr>`;
     }).join('');
@@ -1798,7 +1809,7 @@ function updateScrollShadows(w){
 function applySliceDensity(){
   const wraps = [...app.querySelectorAll('.table-wrap')];
   if(!wraps.length) return;
-  const FIXED = 476 + (curV && curV.nowCol ? 150 : 0); /* ключ+тип+serp+частота(+сейчас) */
+  const FIXED = 492 + (curV && curV.nowCol ? 150 : 0); /* ключ+тип+serp+частотность с дельтой(+сейчас) */
   /* сброс ДО измерений: kw-clamp/h-scroll зажимают колонку ключа и искажают ширину таблицы */
   app.classList.remove('sl-mid');
   wraps.forEach(w=>w.classList.remove('h-scroll','kw-clamp'));
