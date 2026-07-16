@@ -792,17 +792,19 @@ tr.flash td{animation:rowflash 1.4s ease}
 .drawer-head .close:hover{background:var(--bg);color:var(--text)}
 .drawer-head .dh-meta{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
 .drawer-body{flex:1;overflow-y:auto;padding:8px 0}
-.serp-row{display:flex;gap:12px;padding:10px 20px;border-bottom:1px solid var(--border);align-items:flex-start;position:relative}
-.serp-row.our{background:var(--accent-soft);border-left:3px solid var(--accent);padding-left:17px}
-.serp-pos{flex:none;width:26px;height:26px;border-radius:6px;color:#fff;font-size:12px;font-weight:750;display:flex;align-items:center;justify-content:center;font-variant-numeric:tabular-nums}
+.serp-row{display:flex;gap:9px;padding:10px 16px 10px 12px;border-bottom:1px solid var(--border);align-items:flex-start;position:relative}
+.serp-row.our{background:var(--accent-soft);border-left:3px solid var(--accent);padding-left:9px}
+/* номер позиции — маленький и незаметный (не основной элемент); подсветка типизации сохранена цветом */
+.serp-pos{flex:none;width:17px;height:17px;margin-top:1px;border-radius:4px;color:#fff;font-size:9px;font-weight:750;display:flex;align-items:center;justify-content:center;font-variant-numeric:tabular-nums;opacity:.9}
 .serp-body{min-width:0}
 .serp-title{font-size:12.8px;font-weight:600;line-height:1.35;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
 .serp-url{font-size:11.5px;color:var(--t3-fg);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-/* фавиконка: цветная буква-заглушка сразу, реальная иконка поверх после загрузки */
-.serp-url .fav{position:relative;display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;border-radius:3px;vertical-align:-3px;margin-right:5px;overflow:hidden}
-.serp-url .fav i{font-style:normal;font-size:8.5px;font-weight:800;color:#fff;line-height:1}
-.serp-url .fav img{position:absolute;inset:0;width:100%;height:100%;opacity:0}
-.serp-url .fav img.ok{opacity:1}
+/* фавиконка — акцентный элемент в строке тайтла: цветная буква-заглушка сразу,
+   реальная иконка поверх после загрузки */
+.serp-title .fav{position:relative;display:inline-flex;align-items:center;justify-content:center;width:19px;height:19px;border-radius:5px;vertical-align:-4px;margin-right:8px;overflow:hidden;flex:none}
+.serp-title .fav i{font-style:normal;font-size:10.5px;font-weight:800;color:#fff;line-height:1}
+.serp-title .fav img{position:absolute;inset:0;width:100%;height:100%;opacity:0}
+.serp-title .fav img.ok{opacity:1}
 .serp-url b{font-weight:650}
 .our-tag{display:inline-block;font-size:9.5px;font-weight:750;text-transform:uppercase;letter-spacing:.05em;background:var(--accent);color:#fff;border-radius:4px;padding:1.5px 6px;margin-left:8px;vertical-align:1px}
 /* наш сайт на нескольких позициях: чип у первого URL, выпадающий список всех URL */
@@ -894,7 +896,11 @@ tr.flash td{animation:rowflash 1.4s ease}
 /* полоса «реклама в выдаче» — перед органическими результатами колонки */
 .sm-ads{display:flex;align-items:center;gap:7px;flex:none;padding:6px 14px;font-size:10.5px;font-weight:650;color:var(--t20-fg);background:var(--t20-bg);border-bottom:1px solid var(--border)}
 .sm-ads .admark{display:inline-flex;width:11px;height:11px;flex:none}
-.sm-list{overflow-y:auto;min-height:0}
+.sm-list{overflow-y:auto;min-height:0;scrollbar-width:thin;scrollbar-color:var(--border-strong) transparent}
+.sm-list::-webkit-scrollbar{width:9px}
+.sm-list::-webkit-scrollbar-track{background:transparent}
+.sm-list::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:5px;border:2px solid var(--surface)}
+.sm-list::-webkit-scrollbar-thumb:hover{background:var(--text-3)}
 .sm-list .serp-row{padding:8px 14px}
 .sm-list .serp-row.our{padding-left:11px}
 
@@ -1096,6 +1102,19 @@ const SERP_TOP = [
   {pos:8, typ:'pink', title:'Настроим контекстную рекламу под ключ — агентство', dom:'netpeak.net', path:'/ru/services/ppc/'},
   {pos:9, typ:'green', title:'Минус-слова в контекстной рекламе: гайд для новичков', dom:'texterra.ru', path:'/blog/minus-slova.html'},
   {pos:10, typ:'gray', title:'Генератор минус-слов и склонятор онлайн', dom:'semantica.in', path:'/tools/minus-words'}
+];
+/* вторая десятка выдачи — когда наша позиция 11–20, показываем ТОП-20 */
+const SERP_TOP2 = [
+  {typ:'green', title:'Минус-слова в Яндекс Директ и Google Ads: в чём разница подходов', dom:'seonews.ru', path:'/analytics/minus-slova/'},
+  {typ:'green', title:'Как чистить поисковые запросы: работа с минус-словами на практике', dom:'cossa.ru', path:'/trends/minus-words/'},
+  {typ:'purple', title:'Подборка инструментов для сбора минус-слов — сравнение 2026', dom:'vc.ru', path:'/tools/minus-slova-instrumenty'},
+  {typ:'pink', title:'Настройка Google Ads под ключ — от 30 000 ₽', dom:'kokoc.com', path:'/services/context/'},
+  {typ:'green', title:'Кросс-минусовка в Директе и Ads: пошаговая инструкция', dom:'promopult.ru', path:'/blog/kross-minusovka/'},
+  {typ:'green', title:'Минус-слова для интернет-магазина: готовый список', dom:'calltouch.ru', path:'/blog/minus-slova-magazin/'},
+  {typ:'gray', title:'Минус-слова — что это такое простыми словами', dom:'unisender.com', path:'/ru/glossary/minus-slova/'},
+  {typ:'purple', title:'Обсуждение: сколько минус-слов достаточно для кампании?', dom:'searchengines.guru', path:'/ru/forum/minus-words'},
+  {typ:'pink', title:'Аудит контекстной рекламы бесплатно — агентство i-Media', dom:'i-media.ru', path:'/services/ppc-audit/'},
+  {typ:'green', title:'Типы соответствия ключевых слов и минус-слова в Google Ads', dom:'ppc.world', path:'/articles/match-types/'}
 ];
 
 /* глобальный поиск по проектам и мониторингам */
@@ -1788,22 +1807,24 @@ function modalPos(k, md){
 }
 /* выдача для конкретного среза: детерминированная перестановка + наш сайт на своей позиции */
 function serpForDate(k, md){
-  const base = SERP_TOP.filter(r=>!r.our).map(r=>({...r}));
+  const base = [...SERP_TOP.filter(r=>!r.our), ...SERP_TOP2].map(r=>({...r}));
   for(let s=0;s<md.seed;s++){ const i=(s*3)%(base.length-1); const t=base[i]; base[i]=base[i+1]; base[i+1]=t; }
   const our = SERP_TOP.find(r=>r.our);
   const p = modalPos(k, md);
-  const list = base.slice(0,10);
-  if(typeof p==='number' && p<=10){
+  /* наша позиция 11–20 — показываем ТОП-20, иначе ТОП-10 */
+  const N = (typeof p==='number' && p>10 && p<=20) ? 20 : 10;
+  const list = base.slice(0,N);
+  if(typeof p==='number' && p<=N){
     list.splice(p-1, 0, {...our});
     /* наш сайт на нескольких позициях: у ключей с релевантной страницей (relUrl) — всегда,
        у остальных — в части срезов */
     if(k.relUrl || md.seed % 3 === 1){
-      const p2 = Math.min(10, p + 3 + (md.seed % 2));
+      const p2 = Math.min(N, p + 3 + (md.seed % 2));
       const path2 = k.relUrl || '/blog/sklonyator-minus-slov/';
       list.splice(p2-1, 0, {...our, path:path2, title:PAGE_TITLES[path2]||'Склонятор минус-слов: просклонять список онлайн'});
     }
   }
-  return list.slice(0,10).map((r,i)=>({...r, pos:i+1}));
+  return list.slice(0,N).map((r,i)=>({...r, pos:i+1}));
 }
 
 function serpColRows(list){
@@ -1818,8 +1839,8 @@ function serpColRows(list){
     <div class="serp-row ${r.our?'our':''}">
       <span class="serp-pos" style="background:${TYP_META[r.typ].color}" title="${TYP_META[r.typ].name}">${r.pos}</span>
       <div class="serp-body">
-        <div class="serp-title">${esc(r.title)}${r.our?'<span class="our-tag">наш сайт</span>':''}</div>
-        <div class="serp-url"><span class="fav" style="background:hsl(${hashStr(r.dom)%360} 42% 46%)"><i>${r.dom[0].toUpperCase()}</i><img src="https://www.google.com/s2/favicons?domain=${r.dom}&amp;sz=32" alt="" loading="lazy" onload="this.classList.add('ok')"></span><b>${r.dom}</b>${r.path}${multi}</div>
+        <div class="serp-title"><span class="fav" style="background:hsl(${hashStr(r.dom)%360} 42% 46%)"><i>${r.dom[0].toUpperCase()}</i><img src="https://www.google.com/s2/favicons?domain=${r.dom}&amp;sz=32" alt="" loading="lazy" onload="this.classList.add('ok')"></span>${esc(r.title)}${r.our?'<span class="our-tag">наш сайт</span>':''}</div>
+        <div class="serp-url"><b>${r.dom}</b>${r.path}${multi}</div>
       </div>
     </div>`;
   }).join('');
@@ -1875,7 +1896,6 @@ function renderSerpModal(){
         </span>
         <span class="sm-sep"></span>
         ${[5,10].map(n=>`<button class="lastn ${isLastN(n)?'active':''}" data-n="${n}" title="Показать ${n} последних срезов">Последние ${n}</button>`).join('')}
-        <span class="sm-hint" style="margin:0">диапазон и частота задают показанные срезы; расширьте период — увидите более старые</span>
       </div>
     </div>
     <div class="sm-cols">${cols}</div>`;
