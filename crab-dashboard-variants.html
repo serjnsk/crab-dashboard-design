@@ -815,7 +815,12 @@ tr.flash td{animation:rowflash 1.4s ease}
 .our-multi.open .om-panel{display:flex}
 .om-item{display:flex;align-items:center;gap:8px;font-size:11px;padding:4px 7px;border-radius:5px;min-width:0}
 .om-item:hover{background:var(--bg)}
-.om-pos{flex:none;min-width:17px;text-align:center;font-size:10px;background:var(--t10-bg);color:var(--t10-fg);border-radius:4px;padding:1.5px 4px;font-weight:750}
+.om-pos{flex:none;min-width:17px;text-align:center;font-size:10px;background:var(--t100-bg);color:var(--t100-fg);border-radius:4px;padding:1.5px 4px;font-weight:750;font-variant-numeric:tabular-nums}
+.om-pos.t3{background:var(--t3-bg);color:var(--t3-fg)}
+.om-pos.t10{background:var(--t10-bg);color:var(--t10-fg)}
+.om-pos.t20{background:var(--t20-bg);color:var(--t20-fg)}
+.om-pos.t50{background:var(--t50-bg);color:var(--t50-fg)}
+.om-pos.t100{background:var(--t100-bg);color:var(--t100-fg)}
 .om-url{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text-2)}
 /* попап смены релевантной страницы: было/стало, копирование и переход */
 #swapPop{position:fixed;z-index:95;width:340px;background:var(--surface);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow-lg);padding:11px;display:none}
@@ -1839,37 +1844,49 @@ function modalPos(k, md){
   return Math.max(1, base + ((md.seed*3)%7) - 3);
 }
 /* выдача для конкретного среза: детерминированная перестановка + наш сайт на своей позиции */
+/* все URL нашего сайта по ключу в этом срезе с их актуальными позициями:
+   первый — лучший (он же в матрице), остальные могут быть глубже, в т.ч. за пределами топа */
+function ourUrlsFor(k, md){
+  const p = modalPos(k, md);
+  if(typeof p!=='number') return [];
+  const our = SERP_TOP.find(r=>r.our);
+  const urls = [{path:our.path, title:our.title, pos:p}];
+  if(k.relUrl) urls.push({path:k.relUrl, title:PAGE_TITLES[k.relUrl]||'Релевантная страница', pos:Math.min(99, p + 9 + (md.seed%6))});
+  if(md.seed % 3 === 1){
+    const used = urls.map(u=>u.path);
+    const extra = Object.keys(PAGE_TITLES).find(pt=>!used.includes(pt) && pt!=='/');
+    if(extra) urls.push({path:extra, title:PAGE_TITLES[extra], pos:Math.min(99, p + 35 + (md.seed%15))});
+  }
+  return urls;
+}
 function serpForDate(k, md){
   const base = [...SERP_TOP.filter(r=>!r.our), ...SERP_TOP2].map(r=>({...r}));
   for(let s=0;s<md.seed;s++){ const i=(s*3)%(base.length-1); const t=base[i]; base[i]=base[i+1]; base[i+1]=t; }
   const our = SERP_TOP.find(r=>r.our);
+  const ours = ourUrlsFor(k, md);
   const p = modalPos(k, md);
   /* наша позиция 11–20 — показываем ТОП-20, иначе ТОП-10 */
   const N = (typeof p==='number' && p>10 && p<=20) ? 20 : 10;
   const list = base.slice(0,N);
-  if(typeof p==='number' && p<=N){
-    list.splice(p-1, 0, {...our});
-    /* наш сайт на нескольких позициях: у ключей с релевантной страницей (relUrl) — всегда,
-       у остальных — в части срезов */
-    if(k.relUrl || md.seed % 3 === 1){
-      const p2 = Math.min(N, p + 3 + (md.seed % 2));
-      const path2 = k.relUrl || '/blog/sklonyator-minus-slov/';
-      list.splice(p2-1, 0, {...our, path:path2, title:PAGE_TITLES[path2]||'Склонятор минус-слов: просклонять список онлайн'});
-    }
-  }
-  return list.slice(0,N).map((r,i)=>({...r, pos:i+1}));
+  /* в выдачу встают только наши URL, реально попавшие в показанный топ */
+  ours.filter(u=>u.pos<=N).sort((a,b)=>a.pos-b.pos).forEach(u=>{
+    list.splice(u.pos-1, 0, {...our, path:u.path, title:u.title});
+  });
+  return {list: list.slice(0,N).map((r,i)=>({...r, pos:i+1})), ours};
 }
 
 /* разметка топов: категория сайта, назначенная правым кликом по позиции (домен → тип) */
 const DOM_TYP = {};
-function serpColRows(list){
-  const ours = list.filter(r=>r.our);
+function serpColRows(list, oursAll){
+  oursAll = oursAll || [];
+  const firstOur = list.find(r=>r.our);
   return list.map(r0=>{
     const r = DOM_TYP[r0.dom] ? {...r0, typ:DOM_TYP[r0.dom]} : r0;
-    /* наш сайт на нескольких позициях: у первого URL — чип-стрелка со списком всех */
-    const multi = ours.length>1 && r0===ours[0] ? `<span class="our-multi">
-        <button class="om-btn" title="Наш сайт занимает ${ours.length} позиции в этой выдаче — показать все URL">${ours.length} URL <span class="car">▾</span></button>
-        <span class="om-panel">${ours.map(o=>`<span class="om-item"><b class="om-pos">${o.pos}</b><span class="om-url">${o.dom}${o.path}</span></span>`).join('')}</span>
+    /* наш сайт несколькими URL: в выдаче стоит лучший, у него чип со ВСЕМИ нашими URL
+       и их актуальными позициями — в т.ч. за пределами показанного топа (20, 58, …) */
+    const multi = oursAll.length>1 && r0===firstOur ? `<span class="our-multi">
+        <button class="om-btn" title="Наш сайт найден по ${oursAll.length} URL — показать все с позициями">${oursAll.length} URL <span class="car">▾</span></button>
+        <span class="om-panel">${oursAll.map(o=>`<span class="om-item" title="${esc(o.title)}"><b class="om-pos ${band(o.pos)||'t100'}">${o.pos}</b><span class="om-url">${SITE_DOM}${o.path}</span></span>`).join('')}</span>
       </span>` : '';
     return `
     <div class="serp-row ${r.our?'our':''}" data-dom="${r.dom}" data-typ="${r.typ}">
@@ -1917,7 +1934,7 @@ function renderSerpModal(){
       <div class="sm-col-h"><b>${md.d}</b>${md.t?`<span class="t">${md.t}</span>`:''}<span class="dw2">${md.w}</span>${md.arch?'<span class="t">архив</span>':''}
         <span class="ourpos ${b||'none'}" title="Наша позиция в этом срезе">${p==null?'—':(p==='na'?'н/д':p)}</span></div>
       ${adsStrip}
-      <div class="sm-list">${serpColRows(serpForDate(k,md))}</div>
+      <div class="sm-list">${(sd=>serpColRows(sd.list, sd.ours))(serpForDate(k,md))}</div>
     </div>`;
   }).join('');
   smBox.innerHTML = `
