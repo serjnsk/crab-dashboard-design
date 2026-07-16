@@ -135,13 +135,15 @@ input,select{font:inherit;color:inherit}
 .am-who{display:flex;flex-direction:column;min-width:0;line-height:1.3}
 .am-who b{font-size:12.5px;font-weight:700;color:var(--text)}
 .am-who span{font-size:10.5px;color:var(--text-3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.am-plan{margin-left:auto;flex:none;font-size:9px;font-weight:800;letter-spacing:.06em;color:var(--accent);background:var(--accent-soft);border-radius:5px;padding:2.5px 7px;cursor:default}
-/* блок лимитов с прогрессом */
-.am-usage{display:block;padding:2px 11px 8px;cursor:default}
-.am-u-row{display:flex;justify-content:space-between;align-items:baseline;font-size:10.5px;color:var(--text-3);margin-bottom:5px}
-.am-u-row b{color:var(--text-2);font-weight:700;font-variant-numeric:tabular-nums}
-.am-bar{display:block;height:5px;border-radius:3px;background:var(--bg);overflow:hidden;border:1px solid var(--border)}
-.am-bar i{display:block;height:100%;border-radius:3px;background:linear-gradient(90deg,#3D5AFE,#00B0FF)}
+/* команда пользователя */
+.am-team{display:flex;align-items:center;gap:7px;padding:1px 11px 7px;font-size:11px;color:var(--text-3);cursor:default}
+.am-team svg{flex:none}
+.am-team b{color:var(--text-2);font-weight:700;margin-left:auto;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* счётчики проектов: видит / создал */
+.am-stats{display:flex;gap:6px;padding:0 9px 8px}
+.am-stat{flex:1;display:flex;flex-direction:column;align-items:center;gap:1px;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:7px 4px;cursor:default}
+.am-stat b{font-size:15px;font-weight:800;color:var(--text);font-variant-numeric:tabular-nums;line-height:1.1}
+.am-stat span{font-size:9.5px;color:var(--text-3)}
 /* подписи секций */
 .am-label{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--text-3);padding:7px 11px 3px}
 
@@ -1582,11 +1584,11 @@ function renderDashboard(v){
         <div class="am-head">
           <span class="avatar am-ava">DC</span>
           <span class="am-who"><b>Дмитрий Ч.</b><span>dc@directline.pro</span></span>
-          <span class="am-plan" title="Тариф PRO · продление 12.08.2026">PRO</span>
         </div>
-        <div class="am-usage" title="Использовано проверок позиций в июле">
-          <span class="am-u-row"><span>Проверки за июль</span><b>12,4k / 20k</b></span>
-          <span class="am-bar"><i style="width:62%"></i></span>
+        <div class="am-team" title="Команда пользователя">${I.users}Команда<b>SEO · DirectLine</b></div>
+        <div class="am-stats">
+          <span class="am-stat" title="Проекты, доступные пользователю"><b>24</b><span>видит проектов</span></span>
+          <span class="am-stat" title="Проекты, где пользователь — создатель"><b>7</b><span>создал</span></span>
         </div>
         <div class="am-sep"></div>
         <div class="am-label">Аккаунт</div>
