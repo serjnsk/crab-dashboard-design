@@ -14,3 +14,4 @@
 - `index.html` — страница для GitHub Pages (копия standalone)
 - `crab-dashboard-standalone.html` — автономный файл для раздачи напрямую
 - `crab-dashboard-variants.html` — рабочий файл (фрагмент для Claude Artifacts)
+- `FRONTEND.md` — README для верстальщика: токены, пороги адаптивности, поведение компонентов, что в прототипе демо-специфично
