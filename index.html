@@ -347,11 +347,13 @@ tr.g-hide,tr.s-hide,tr.v-hide{display:none}
 .cell.na{color:var(--text-3);font-weight:500;font-size:10.5px;border:1px dashed var(--border-strong);border-radius:5px;padding:2px 7px;cursor:default}
 .swap{position:absolute;top:-5px;left:-6px;width:13px;height:13px;border-radius:50%;background:var(--surface);border:1px solid var(--border-strong);color:var(--text-2);font-size:8px;line-height:1;display:flex;align-items:center;justify-content:center;z-index:2;cursor:pointer}
 .swap:hover{color:var(--text);border-color:var(--text-3)}
-/* ряд маркеров внизу ячейки: ⇅ и/или реклама — центрируются вместе, дельте сверху не мешают */
-.cell .marks{position:absolute;left:0;right:0;bottom:1px;display:flex;justify-content:center;align-items:center;gap:3px;pointer-events:none;z-index:2}
-.marks .swap{position:static;pointer-events:auto;width:12px;height:12px;font-size:7px}
-.marks .admark{display:inline-flex;width:10px;height:10px;pointer-events:auto;cursor:default}
-.admark svg{width:100%;height:100%;display:block}
+/* маркеры по углам ячейки круглыми бейджами: ⇅ — верхний левый, реклама — нижний левый.
+   Разнесены от центра (позиция) и от дельты (верхний правый); крупнее — легче попасть */
+.cell .marks{position:absolute;inset:0;pointer-events:none;z-index:2}
+.cell .marks .swap{position:absolute;top:1px;left:1px;pointer-events:auto;width:16px;height:16px;font-size:9px;background:var(--surface);border:1px solid var(--border-strong);transition:transform .1s}
+.cell .marks .swap:hover{transform:scale(1.12)}
+.cell .marks .admark{position:absolute;bottom:1px;left:1px;display:flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:var(--surface);border:1px solid var(--border-strong);pointer-events:auto;cursor:default}
+.cell .marks .admark svg{width:10px;height:10px;display:block}
 .cells-fill .swap,.cells-heat .swap{top:2px;left:3px;background:transparent;border:none}
 .cells-heat .swap{color:rgba(255,255,255,.9)}
 .swapsw{display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;border-radius:50%;background:var(--surface);border:1px solid var(--border-strong);color:var(--text-2);font-size:8px}
@@ -655,8 +657,9 @@ tr.kw-row.selected td{background:var(--accent-soft)!important}
 .sl-mid .grid td.sum .num{font-size:11.5px}
 .sl-mid .sum-delta{font-size:8.5px}
 /* маркер смены страницы «⇅»: в углу наезжает на цифру — уводим вниз по центру, там свободно */
-.sl-mid .marks .swap{width:11px;height:11px}
-.sl-mid .marks .admark{width:9px;height:9px}
+.sl-mid .cell .marks .swap{width:14px;height:14px;font-size:8px}
+.sl-mid .cell .marks .admark{width:14px;height:14px}
+.sl-mid .cell .marks .admark svg{width:9px;height:9px}
 
 /* ============ ГОРИЗ. СКРОЛЛ СРЕЗОВ: фикс. левая часть + липкий последний срез ============ */
 /* внутри скролл-контейнера вертикальная липкость отсчитывается от контейнера, а не от окна:
@@ -1027,6 +1030,8 @@ const WORKSHEET = [
     k.wsed = Math.round((hash('wse:'+k.kw)-.5)*.28*k.wse);
     /* срезы с рекламой в выдаче: чаще у ключей с ads в SERP-фичах */
     k.adsAt = DATES.map((_,idx)=>idx).filter(idx=> hash('ads:'+k.kw+':'+DATES[idx].iso) < ((k.serp||[]).includes('ads') ? .55 : .12));
+    /* демо соседства маркеров: у ads-ключей срезы со сменой релеванта получают и рекламу */
+    if((k.serp||[]).includes('ads') && k.swap) k.swap.forEach(ix=>{ if(!k.adsAt.includes(ix)) k.adsAt.push(ix); });
   })));
   SUMMARY.forEach(r=>{
     r.vals = expand(r.vals, 'sum:'+r.key, r.hero?14:22, 0, 99999);
