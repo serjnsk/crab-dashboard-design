@@ -794,6 +794,8 @@ tr.flash td{animation:rowflash 1.4s ease}
 .drawer-body{flex:1;overflow-y:auto;padding:8px 0}
 .serp-row{display:flex;gap:9px;padding:10px 16px 10px 12px;border-bottom:1px solid var(--border);align-items:flex-start;position:relative}
 .serp-row.our{background:var(--accent-soft);border-left:3px solid var(--accent);padding-left:9px}
+/* кросс-подсветка одного домена между колонками дат */
+.serp-row.hl{background:var(--t3-bg)}
 /* номер позиции — маленький и незаметный (не основной элемент); подсветка типизации сохранена цветом */
 .serp-pos{flex:none;width:17px;height:17px;margin-top:1px;border-radius:4px;color:#fff;font-size:9px;font-weight:750;display:flex;align-items:center;justify-content:center;font-variant-numeric:tabular-nums;opacity:.9}
 .serp-body{min-width:0}
@@ -1957,6 +1959,11 @@ function renderSerpModal(){
   smBox.querySelectorAll('.serp-row[data-dom]').forEach(row=> row.oncontextmenu = e=>{
     e.preventDefault();
     showTypMenu(row.dataset.dom, row.dataset.typ, e.clientX, e.clientY);
+  });
+  /* кросс-подсветка: hover по сайту подсвечивает этот же домен в остальных колонках */
+  smBox.querySelectorAll('.serp-row[data-dom]').forEach(row=>{
+    row.onmouseenter = ()=> smBox.querySelectorAll(`.serp-row[data-dom="${row.dataset.dom}"]`).forEach(x=>x.classList.add('hl'));
+    row.onmouseleave = ()=> smBox.querySelectorAll('.serp-row.hl').forEach(x=>x.classList.remove('hl'));
   });
   /* календарь диапазона — тот же компонент, что у периода страницы */
   const smCalWrap = document.getElementById('smCalWrap');
