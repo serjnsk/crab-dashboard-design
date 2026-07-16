@@ -733,7 +733,9 @@ tr.kw-row.selected td{background:var(--accent-soft)!important}
 .dd-item:hover{background:var(--bg);color:var(--text)}
 .dd-item.active{color:var(--text);background:var(--accent-soft);font-weight:700}
 .dd-item.active::after{content:"✓";margin-left:auto;color:var(--accent);font-size:11px;padding-left:10px}
-.cal-pop{width:680px;max-width:94vw;position:fixed;left:50%;top:120px;transform:translateX(-50%);padding:16px}
+/* календарь открывается под своей кнопкой диапазона (координаты ставит placeCalPop);
+   fixed — чтобы не обрезался overflow модалки */
+.cal-pop{width:680px;max-width:94vw;position:fixed;padding:16px}
 .cal-months{display:flex;gap:16px;align-items:flex-start}
 .cal-nav{align-self:center;font-size:17px;color:var(--text-3);padding:4px 9px;border-radius:6px;flex:none}
 .cal-nav:hover{background:var(--bg);color:var(--text)}
@@ -1893,6 +1895,7 @@ function renderSerpModal(){
     if(!was){
       smCalWrap.classList.add('open');
       openCalFor('modal', serpState.range.from, serpState.range.to, serpState.sampling||'all');
+      placeCalPop(smCalWrap);
     }
   };
 }
@@ -1982,6 +1985,18 @@ function openCalFor(target, from, to, sampling){
   buildCal();
 }
 function openCal(){ openCalFor('page', PERIOD.from, PERIOD.to, SAMPLING); }
+/* календарь — под кнопкой диапазона, правым краем к ней; прижим к краям окна */
+function placeCalPop(wrap){
+  const pop = wrap.querySelector('.cal-pop'), btn = wrap.querySelector('.period');
+  if(!pop || !btn) return;
+  const r = btn.getBoundingClientRect();
+  const W = Math.min(680, innerWidth*.94);
+  pop.style.left = Math.max(8, Math.min(r.right - W, innerWidth - W - 8)) + 'px';
+  let top = r.bottom + 8;
+  const H = pop.offsetHeight || 380;
+  if(top + H > innerHeight - 8) top = Math.max(8, r.top - H - 8); /* снизу не влезает — вверх */
+  pop.style.top = top + 'px';
+}
 function calMonthHtml(y,m){
   const MN=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
   const startDow = (new Date(y,m,1).getDay()+6)%7;
@@ -2185,7 +2200,7 @@ function show(i){
       const w = btn.parentElement;
       const was = w.classList.contains('open');
       document.querySelectorAll('.dd-wrap.open, .toc-wrap.open').forEach(x=>x.classList.remove('open'));
-      if(!was){ w.classList.add('open'); if(w.id==='calWrap') openCal(); }
+      if(!was){ w.classList.add('open'); if(w.id==='calWrap'){ openCal(); placeCalPop(w); } }
     };
   });
   app.querySelectorAll('#hlWrap .dd-item').forEach(b=> b.onclick = ()=>{
