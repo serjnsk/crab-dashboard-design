@@ -338,7 +338,8 @@ tr.g-hide,tr.s-hide,tr.v-hide{display:none}
 .cell .d.up{color:var(--up)}.cell .d.down{color:var(--down)}
 .cell.none{color:var(--text-3);font-weight:400;cursor:default}
 .cell.na{color:var(--text-3);font-weight:500;font-size:10.5px;border:1px dashed var(--border-strong);border-radius:5px;padding:2px 7px;cursor:default}
-.swap{position:absolute;top:-5px;left:-6px;width:13px;height:13px;border-radius:50%;background:var(--surface);border:1px solid var(--border-strong);color:var(--text-2);font-size:8px;line-height:1;display:flex;align-items:center;justify-content:center;z-index:2}
+.swap{position:absolute;top:-5px;left:-6px;width:13px;height:13px;border-radius:50%;background:var(--surface);border:1px solid var(--border-strong);color:var(--text-2);font-size:8px;line-height:1;display:flex;align-items:center;justify-content:center;z-index:2;cursor:pointer}
+.swap:hover{color:var(--text);border-color:var(--text-3)}
 .cells-fill .swap,.cells-heat .swap{top:2px;left:3px;background:transparent;border:none}
 .cells-heat .swap{color:rgba(255,255,255,.9)}
 .swapsw{display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;border-radius:50%;background:var(--surface);border:1px solid var(--border-strong);color:var(--text-2);font-size:8px}
@@ -771,6 +772,24 @@ tr.flash td{animation:rowflash 1.4s ease}
 .om-item:hover{background:var(--bg)}
 .om-pos{flex:none;min-width:17px;text-align:center;font-size:10px;background:var(--t10-bg);color:var(--t10-fg);border-radius:4px;padding:1.5px 4px;font-weight:750}
 .om-url{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text-2)}
+/* попап смены релевантной страницы: было/стало, копирование и переход */
+#swapPop{position:fixed;z-index:95;width:340px;background:var(--surface);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow-lg);padding:11px;display:none}
+#swapPop.open{display:block}
+.swp-head{display:flex;align-items:center;gap:7px;font-size:11px;font-weight:700;color:var(--text-2);margin:0 2px 8px}
+.swp-head b{color:var(--text)}
+.swp-head .swapsw{flex:none}
+.swp-row{display:flex;gap:9px;align-items:flex-start;padding:7px 8px;border-radius:8px;min-width:0}
+.swp-lbl{flex:none;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;border-radius:4px;padding:2px 6px;margin-top:1px}
+.swp-row.was .swp-lbl{background:var(--t100-bg);color:var(--t100-fg)}
+.swp-row.now .swp-lbl{background:var(--t3-bg);color:var(--t3-fg)}
+.swp-row.now{background:var(--surface-2)}
+.swp-body{min-width:0;flex:1}
+.swp-title{font-size:11.5px;font-weight:600;line-height:1.35;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.swp-url{font-size:10.5px;color:var(--t3-fg);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.swp-acts{display:flex;gap:2px;flex:none;margin-top:1px}
+.swp-acts button,.swp-acts a{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:5px;color:var(--text-3)}
+.swp-acts button:hover,.swp-acts a:hover{color:var(--text);background:var(--border)}
+.swp-acts button.copied{color:var(--up)}
 
 /* ============ SERP MODAL (по центру, мультивыбор дат) ============ */
 .serp-modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:95;padding:24px;pointer-events:none}
@@ -1296,7 +1315,7 @@ function cellHtml(k, i, gi, ki){
   const b = band(p);
   const d = posDelta(k.pos,i);
   const dh = d ? `<span class="d ${d>0?'up':'down'}">${d>0?'+':''}${d}</span>` : '';
-  const sw = (k.swap||[]).includes(i) ? `<span class="swap" title="Сменилась релевантная страница">⇅</span>` : '';
+  const sw = (k.swap||[]).includes(i) ? `<span class="swap" data-swap="${gi}:${ki}:${i}" title="Сменилась релевантная страница — подробнее">⇅</span>` : '';
   return `<button class="cell ${b}" data-serp="${gi}:${ki}:${i}" title="${DATES[i].d}: позиция ${p}${d?` (${d>0?'+':''}${d})`:''} · открыть ТОП выдачи${(k.swap||[]).includes(i)?' · сменилась релевантная страница':''}">${sw}${p}${dh}</button>`;
 }
 
@@ -1574,6 +1593,64 @@ function renderDashboard(v){
   </div>`;
 }
 
+/* ================= SWAP POPOVER: смена релевантной страницы ================= */
+const PAGE_TITLES = {
+  '/blog/minus-slova-adwords/':'Минус-слова в Google Adwords: как собрать, просклонять и добавить',
+  '/blog/sklonyator-minus-slov/':'Склонятор минус-слов: просклонять список онлайн',
+  '/blog/bidder-stavok-obzor/':'Биддер ставок: обзор и сравнение инструментов',
+  '/connect/p/bidder-stavok/':'Биддер ставок для Яндекс Директа — DirectLine Connect',
+  '/':'DirectLine — агентство performance-маркетинга'
+};
+const SITE_DOM = 'directline.pro';
+function hashStr(s){ let h=2166136261; for(let i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619); } return h>>>0; }
+
+let swapPop = null;
+function swapPageRow(cls, lbl, path, title){
+  const full = 'https://'+SITE_DOM+path;
+  return `<div class="swp-row ${cls}">
+    <span class="swp-lbl">${lbl}</span>
+    <div class="swp-body">
+      <div class="swp-title">${esc(title)}</div>
+      <div class="swp-url"><b>${SITE_DOM}</b>${path}</div>
+    </div>
+    <span class="swp-acts">
+      <button data-copy="${full}" title="Скопировать URL">${I.copy}</button>
+      <a href="${full}" target="_blank" rel="noopener" title="Открыть страницу">${I.link}</a>
+    </span>
+  </div>`;
+}
+function showSwapPop(gi, ki, di, anchor){
+  const k = GROUPS[gi].keys[ki], g = GROUPS[gi];
+  const nowPath = k.relUrl || g.url;
+  const nowTitle = PAGE_TITLES[nowPath] || `Целевая страница группы «${g.name}»`;
+  /* демо: «старая» страница — детерминированно из пула, не совпадает с новой */
+  const cand = Object.keys(PAGE_TITLES).filter(p=>p!==nowPath);
+  const wasPath = cand[hashStr(k.kw+':'+di) % cand.length];
+  if(!swapPop){
+    swapPop = document.createElement('div');
+    swapPop.id = 'swapPop';
+    document.body.appendChild(swapPop);
+  }
+  swapPop.innerHTML = `
+    <div class="swp-head"><span class="swapsw">⇅</span>Смена релевантной страницы · <b>${DATES[di].d}${DATES[di].t?' '+DATES[di].t:''}</b></div>
+    ${swapPageRow('was','Было', wasPath, PAGE_TITLES[wasPath])}
+    ${swapPageRow('now','Стало', nowPath, nowTitle)}`;
+  swapPop.querySelectorAll('[data-copy]').forEach(b=> b.onclick = ()=>{
+    copyText(b.dataset.copy);
+    b.classList.add('copied'); b.innerHTML = I.check;
+    setTimeout(()=>{ b.classList.remove('copied'); b.innerHTML = I.copy; }, 1200);
+  });
+  swapPop.classList.add('open');
+  /* позиционирование у иконки с прижимом к краям окна; при нехватке места снизу — вверх */
+  const W = 340, H = swapPop.offsetHeight || 150;
+  let left = Math.max(8, Math.min(anchor.left - 20, innerWidth - W - 12));
+  let top = anchor.bottom + 7;
+  if(top + H > innerHeight - 10) top = anchor.top - H - 7;
+  swapPop.style.left = left+'px';
+  swapPop.style.top = top+'px';
+}
+function closeSwapPop(){ if(swapPop) swapPop.classList.remove('open'); }
+
 /* ================= SERP MODAL ================= */
 const serpModal = document.getElementById('serpModal');
 const smBox = document.getElementById('smBox');
@@ -1755,11 +1832,12 @@ function openSerp(gi,ki,di){
 function closeSerp(){ serpModal.classList.remove('open'); drawerBack.classList.remove('open'); }
 drawerBack.onclick = closeSerp;
 document.addEventListener('keydown', e=>{
-  if(e.key==='Escape'){ closeSerp(); document.querySelectorAll('.toc-wrap.open, .dd-wrap.open, .search-wrap.open, .our-multi.open').forEach(t=>t.classList.remove('open')); }
+  if(e.key==='Escape'){ closeSerp(); closeSwapPop(); document.querySelectorAll('.toc-wrap.open, .dd-wrap.open, .search-wrap.open, .our-multi.open').forEach(t=>t.classList.remove('open')); }
   if((e.metaKey||e.ctrlKey) && e.key.toLowerCase()==='k'){ e.preventDefault(); const i=document.getElementById('gsInput'); if(i) i.focus(); }
 });
 document.addEventListener('click', e=>{
   document.querySelectorAll('.toc-wrap.open, .dd-wrap.open, .search-wrap.open, .our-multi.open').forEach(w=>{ if(!w.contains(e.target)) w.classList.remove('open'); });
+  if(swapPop && swapPop.classList.contains('open') && !swapPop.contains(e.target) && !e.target.closest('.swap')) closeSwapPop();
 });
 
 /* ================= ГЛОБАЛЬНЫЙ ПОИСК ================= */
@@ -2101,6 +2179,12 @@ function show(i){
     };
     cell.querySelector('.txt').onclick = doCopy;
     btn.onclick = doCopy;
+  });
+  /* иконка ⇅ смены релевантной страницы: попап было/стало */
+  app.querySelectorAll('.swap[data-swap]').forEach(s=> s.onclick = e=>{
+    e.stopPropagation();
+    const [gi,ki,di] = s.dataset.swap.split(':').map(Number);
+    showSwapPop(gi, ki, di, s.getBoundingClientRect());
   });
   /* панель деталей: выбор ключа кликом по строке */
   if(v.detail){
