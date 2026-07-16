@@ -345,6 +345,15 @@ th.freq-h .fh-l{display:block}
 .gurl-t[contenteditable="true"]{outline:none;border-bottom:1px dashed var(--accent)}
 .rel-url{display:block;font-size:10.5px;color:var(--t20-fg);margin:1px 0 3px 24px;max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:550}
 .rel-url:hover{text-decoration:underline}
+/* чип «N URL» у релевантного URL в таблице + попап со всеми URL и позициями */
+.rel-wrap{display:flex;align-items:center;gap:6px;margin:1px 0 3px 24px;min-width:0}
+.rel-wrap .rel-url{margin:0;flex:0 1 auto}
+.ku-btn{flex:none;display:inline-flex;align-items:center;gap:3px;border:1px solid var(--accent);background:transparent;color:var(--accent);border-radius:8px;padding:0 6px;font-size:9px;font-weight:750;line-height:15px;white-space:nowrap}
+.ku-btn:hover{background:var(--accent-soft)}
+.ku-btn .car{font-size:6px}
+#kuPop{position:fixed;z-index:95;min-width:260px;max-width:340px;background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow-lg);padding:7px;display:none}
+#kuPop.open{display:block}
+#kuPop .tm-title{padding:3px 7px 6px}
 .group-head{display:flex;align-items:center;gap:10px;white-space:nowrap}
 .group-head .chev{color:var(--text-3);font-size:10px;transition:transform .15s;display:inline-block}
 .group-row.collapsed .chev{transform:rotate(-90deg)}
@@ -1467,7 +1476,12 @@ function renderWorksheet(v){
       </div><span class="gcount gcount-abs"><span class="gcal" title="Группа добавлена в проект: ${g.added||'—'}">${I.cal}</span>${g.keys.length} ключ${g.keys.length>4?'ей':'а'}</span></td></tr>`;
     const rows = g.keys.map((k,ki)=>{
       const cells = DATES.map((_,i)=> !VIS.has(i)?'':`<td class="pos ${i===LASTV?'last':''}">${cellHtml(k,i,cgi,ki)}</td>`).join('');
-      const rel = k.relUrl ? `<a class="rel-url" href="#" onclick="return false" title="Релевантная страница отличается от целевой URL группы (${g.url})">≠ ${k.relUrl}</a>` : '';
+      const rel = k.relUrl ? (()=>{
+        /* сайт в топе несколькими URL: чип-выпадашка рядом с релевантным URL, позиции — последний срез */
+        const urls = ourUrlsFor(k, {mi:LASTV, seed:LASTV});
+        const chip = urls.length>1 ? `<button class="ku-btn" data-ku="${cgi}:${ki}" title="Сайт найден по ${urls.length} URL — показать все с актуальными позициями">${urls.length} URL <span class="car">▾</span></button>` : '';
+        return `<span class="rel-wrap"><a class="rel-url" href="#" onclick="return false" title="Релевантная страница отличается от целевой URL группы (${g.url})">≠ ${k.relUrl}</a>${chip}</span>`;
+      })() : '';
       const cats = keyCats(k).join(' ');
       return `<tr class="kw-row" data-parent="${cgi}" data-super="${si}" data-key="${cgi}:${ki}" data-cats="${cats}">
         <td class="kw"><div class="kw-cell" data-kw="${esc(k.kw)}"><a class="eng ya" title="Открыть ключ в Яндексе" href="https://yandex.ru/search/?text=${encodeURIComponent(k.kw)}" target="_blank" rel="noopener">${I.ya}</a><span class="txt" title="Скопировать ключ">${esc(k.kw)}</span><button class="kw-copy" title="Скопировать ключ">${I.copy}</button></div>${rel}</td>
@@ -1758,6 +1772,23 @@ function showTypMenu(dom, curTyp, x, y){
 }
 function closeTypMenu(){ if(typMenu) typMenu.classList.remove('open'); }
 
+/* ================= ПОПАП «ВСЕ URL ПО КЛЮЧУ» (страница мониторинга) ================= */
+let kuPop = null;
+function showKuPop(gi, ki, anchor){
+  const k = GROUPS[gi].keys[ki];
+  const urls = ourUrlsFor(k, {mi:LASTV, seed:LASTV});
+  if(!kuPop){ kuPop = document.createElement('div'); kuPop.id = 'kuPop'; document.body.appendChild(kuPop); }
+  kuPop.innerHTML = `<div class="tm-title">URL сайта по ключу · позиции на ${DATES[LASTV].d}</div>` +
+    urls.map(o=>`<span class="om-item" title="${esc(o.title)}"><b class="om-pos ${band(o.pos)||'t100'}">${o.pos}</b><span class="om-url">${SITE_DOM}${o.path}</span></span>`).join('');
+  kuPop.classList.add('open');
+  const W = Math.min(340, Math.max(260, kuPop.offsetWidth)), H = kuPop.offsetHeight || 120;
+  let top = anchor.bottom + 6;
+  if(top + H > innerHeight - 8) top = Math.max(8, anchor.top - H - 6);
+  kuPop.style.left = Math.max(8, Math.min(anchor.left, innerWidth - W - 10)) + 'px';
+  kuPop.style.top = top + 'px';
+}
+function closeKuPop(){ if(kuPop) kuPop.classList.remove('open'); }
+
 /* ================= МОДАЛКА «ПОЗИЦИИ КОНКУРЕНТА» ================= */
 const compModal = document.getElementById('compModal');
 const cmInput = document.getElementById('cmInput');
@@ -2038,13 +2069,14 @@ function openSerp(gi,ki,di){
 function closeSerp(){ serpModal.classList.remove('open'); drawerBack.classList.remove('open'); closeTypMenu(); }
 drawerBack.onclick = closeSerp;
 document.addEventListener('keydown', e=>{
-  if(e.key==='Escape'){ closeSerp(); closeSwapPop(); closeComp(); closeTypMenu(); document.querySelectorAll('.toc-wrap.open, .dd-wrap.open, .search-wrap.open, .our-multi.open').forEach(t=>t.classList.remove('open')); }
+  if(e.key==='Escape'){ closeSerp(); closeSwapPop(); closeComp(); closeTypMenu(); closeKuPop(); document.querySelectorAll('.toc-wrap.open, .dd-wrap.open, .search-wrap.open, .our-multi.open').forEach(t=>t.classList.remove('open')); }
   if((e.metaKey||e.ctrlKey) && e.key.toLowerCase()==='k'){ e.preventDefault(); const i=document.getElementById('gsInput'); if(i) i.focus(); }
 });
 document.addEventListener('click', e=>{
   document.querySelectorAll('.toc-wrap.open, .dd-wrap.open, .search-wrap.open, .our-multi.open').forEach(w=>{ if(!w.contains(e.target)) w.classList.remove('open'); });
   if(swapPop && swapPop.classList.contains('open') && !swapPop.contains(e.target) && !e.target.closest('.swap')) closeSwapPop();
   if(typMenu && typMenu.classList.contains('open') && !typMenu.contains(e.target)) closeTypMenu();
+  if(kuPop && kuPop.classList.contains('open') && !kuPop.contains(e.target) && !e.target.closest('.ku-btn')) closeKuPop();
 });
 
 /* ================= ГЛОБАЛЬНЫЙ ПОИСК ================= */
@@ -2405,6 +2437,14 @@ function show(i){
   app.querySelectorAll('.ws-seg button').forEach(b=> b.onclick = e=>{
     e.stopPropagation();
     if(WS_MODE!==b.dataset.m){ WS_MODE = b.dataset.m; show(cur); }
+  });
+  /* чип «N URL» у релевантного URL: попап со всеми URL и актуальными позициями */
+  app.querySelectorAll('.ku-btn').forEach(b=> b.onclick = e=>{
+    e.stopPropagation();
+    const [gi,ki] = b.dataset.ku.split(':').map(Number);
+    const was = kuPop && kuPop.classList.contains('open');
+    closeKuPop();
+    if(!was || kuPop.__src!==b){ showKuPop(gi, ki, b.getBoundingClientRect()); kuPop.__src = b; }
   });
   /* иконка ⇅ смены релевантной страницы: попап было/стало */
   app.querySelectorAll('.swap[data-swap]').forEach(s=> s.onclick = e=>{
