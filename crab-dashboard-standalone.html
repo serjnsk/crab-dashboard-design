@@ -767,6 +767,14 @@ tr.flash td{animation:rowflash 1.4s ease}
 .dchip{border:1px solid var(--border);background:var(--bg);border-radius:16px;padding:4px 11px;font-size:11.5px;font-weight:650;color:var(--text-2);font-variant-numeric:tabular-nums;white-space:nowrap}
 .dchip:hover{border-color:var(--border-strong);color:var(--text)}
 .dchip.active{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+/* быстрый выбор «Последние N срезов» в SERP-модалке */
+.sm-sep{width:1px;height:18px;background:var(--border);flex:none}
+.lastn{border:1px solid var(--border);background:var(--bg);border-radius:16px;padding:4px 11px;font-size:11.5px;font-weight:650;color:var(--text-2);white-space:nowrap}
+.lastn:hover{border-color:var(--border-strong);color:var(--text)}
+.lastn.active{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+/* флаг региона: в статусах заголовка и после названий супергрупп */
+.flag-ico{display:inline-flex;width:17px;height:12px;border-radius:2.5px;overflow:hidden;box-shadow:0 0 0 1px var(--border);flex:none;cursor:default}
+.flag-ico svg{width:100%;height:100%;display:block}
 .sm-hint{font-size:10.5px;color:var(--text-3);margin-top:7px}
 .sm-cols{display:flex;overflow-x:auto;flex:1;min-height:0}
 .sm-col{flex:0 0 310px;min-width:310px;border-right:1px solid var(--border);display:flex;flex-direction:column;min-height:0}
@@ -833,6 +841,7 @@ const SUMMARY = [
   {key:'t100',label:'Ключей в ТОП 51–100',vals:[305,342,309,275,291,286,307,285], pct:[12,14,13,11,12,12,12,12], band:'t100'}
 ];
 const TOTAL_KEYS = [2467,2467,2467,2467,2467,2467,2467,2465];
+const WS_MONTH = '06/2026'; /* месяц данных частотности (Wordstat) — за месяц до последнего среза */
 
 /* typ: типизация сайтов в ТОП-10 по ключу (категории задаются в настройках проекта) */
 const TYP_META = {
@@ -843,7 +852,7 @@ const TYP_META = {
 };
 
 const WORKSHEET = [
- {name:'Маркетинг', groups:[
+ {name:'Маркетинг', reg:{f:'ru', name:'Москва'}, groups:[
   {
     name:'минус слова adwords', url:'/blog/minus-slova-adwords/', added:'12.11.2025',
     keys:[
@@ -871,7 +880,7 @@ const WORKSHEET = [
     ]
   }
  ]},
- {name:'Витальные', groups:[
+ {name:'Витальные', reg:{f:'de', name:'Германия'}, groups:[
   {
     name:'vital', url:'/', added:'01.10.2025',
     keys:[
@@ -1095,7 +1104,12 @@ const I = {
   dl:'<svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 2v7M4 6.5L7 9.5 10 6.5M2 12h10"/></svg>',
   cal:'<svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="1.5" y="2.5" width="11" height="10" rx="1.5"/><path d="M1.5 5.5h11M4.5 1v3M9.5 1v3"/></svg>',
   link:'<svg width="11" height="11" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5.5 8.5l3-3M6 3.8l1.2-1.2a2.5 2.5 0 0 1 3.5 3.5L9.5 7.3M8 10.2l-1.2 1.2a2.5 2.5 0 0 1-3.5-3.5L4.5 6.7"/></svg>',
-  chev:'<svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor"><path d="M1.5 3l3.5 4 3.5-4z"/></svg>'
+  chev:'<svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor"><path d="M1.5 3l3.5 4 3.5-4z"/></svg>',
+  /* флаги регионов: SVG вместо эмодзи — на Windows эмодзи-флаги не отображаются */
+  flags:{
+    ru:'<svg viewBox="0 0 18 12" preserveAspectRatio="none"><rect width="18" height="4" fill="#F5F5F5"/><rect y="4" width="18" height="4" fill="#0039A6"/><rect y="8" width="18" height="4" fill="#D52B1E"/></svg>',
+    de:'<svg viewBox="0 0 18 12" preserveAspectRatio="none"><rect width="18" height="4" fill="#1B1B1B"/><rect y="4" width="18" height="4" fill="#DD0000"/><rect y="8" width="18" height="4" fill="#FFCE00"/></svg>'
+  }
 };
 
 /* ================= RENDER ================= */
@@ -1252,7 +1266,7 @@ function renderWorksheet(v){
   const dateHead = DATES.map((d,i)=> !VIS.has(i)?'':`<th class="date ${i===LASTV?'last':''}"><span class="d">${d.d}</span><span class="dw">${d.w}</span>${d.t?`<span class="dtm">${d.t}</span>`:''}</th>`).join('');
   const theadHtml = `<thead><tr>
       <th class="kw">Ключ</th><th title="Типизация сайтов в ТОП-10">Топ 10</th>
-      <th title="Элементы выдачи">SERP</th><th title="Частотность: базовая / !точная">Частотность</th>
+      <th title="Элементы выдачи">SERP</th><th title="Частотность ${WS_MONTH}: базовая / !точная">Частотность</th>
       ${v.nowCol?'<th class="now" title="Текущая позиция, изменение за период, тренд">Сейчас · Δ</th>':''}
       ${dateHead}
     </tr></thead>`;
@@ -1274,7 +1288,7 @@ function renderWorksheet(v){
         <td class="kw"><div class="kw-cell"><span class="eng ya" title="Яндекс">${I.ya}</span><span class="txt">${esc(k.kw)}</span></div>${rel}</td>
         <td class="typ">${typDots(k.typ)}</td>
         <td class="serp">${serpIcons(k.serp)}</td>
-        <td class="freq"><span class="freq-b" title="Частотность (базовая)">${fmtWs(k.ws)}</span><span class="freq-e" title="Точная частотность">${fmtWs(k.wse)}</span></td>
+        <td class="freq"><span class="freq-b" title="Частотность ${WS_MONTH} (базовая)">${fmtWs(k.ws)}</span><span class="freq-e" title="Точная частотность ${WS_MONTH}">${fmtWs(k.wse)}</span></td>
         ${v.nowCol?`<td class="now">${nowCellHtml(k)}</td>`:''}
         ${cells}</tr>`;
     }).join('');
@@ -1291,6 +1305,7 @@ function renderWorksheet(v){
         <div class="module-head" data-sid="${si}">
           <span class="chev">${I.chev}</span>
           <span class="sname">${esc(sg.name)}</span>
+          ${sg.reg?`<span class="flag-ico" title="Регион: ${sg.reg.name}">${I.flags[sg.reg.f]}</span>`:''}
           <span class="scount">${sg.groups.length} групп${sg.groups.length===1?'а':'ы'} · ${totalKeys} ключей</span>
           <span class="gspacer"></span>
           <button class="gact" title="Снять позиции супергруппы">${I.play}</button>
@@ -1307,6 +1322,7 @@ function renderWorksheet(v){
       <div class="super-head">
         <span class="chev">${I.chev}</span>
         <span class="sname">${esc(sg.name)}</span>
+        ${sg.reg?`<span class="flag-ico" title="Регион: ${sg.reg.name}">${I.flags[sg.reg.f]}</span>`:''}
         <span class="scount">${sg.groups.length} групп${sg.groups.length===1?'а':'ы'} · ${totalKeys} ключей</span>
       </div></td></tr>`;
     const groupsHtml = sg.groups.map(g=>{ gi++; return groupBlock(g,gi,si); }).join('');
@@ -1466,7 +1482,7 @@ function renderDashboard(v){
             <h1>Блог DL</h1>
             <span class="ph-states">
               <span class="state-ico" data-tip="Поисковая система: Яндекс">${I.ya}</span>
-              <span class="state-ico flag" data-tip="Регион: Москва">🇷🇺</span>
+              <span class="state-ico flag" data-tip="Регион: Москва"><span class="flag-ico">${I.flags.ru}</span></span>
               <span class="state-ico dot" data-tip="Мониторинг активен (открыт)"></span>
               <span class="state-ico" data-tip="Расписание: 1 раз в месяц · следующий срез 01.08.2026">${I.cal}</span>
             </span>
@@ -1573,6 +1589,9 @@ function sampledModalDates(){
 function renderSerpModal(){
   const {gi,ki,dates,range} = serpState;
   const k = GROUPS[gi].keys[ki];
+  /* «Последние N»: N последних доступных срезов (с учётом периода и частоты) одним кликом */
+  const lastNIds = n => sampledModalDates().slice(-n).map(md=>md.id);
+  const isLastN = n => { const ids = lastNIds(n); return ids.length===dates.length && ids.every(id=>dates.includes(id)); };
   const chips = sampledModalDates().map(md=>
     `<button class="dchip ${dates.includes(md.id)?'active':''} ${md.arch?'arch':''}" data-id="${md.id}">${md.d}${md.t?` ${md.t}`:''}</button>`).join('');
   const cols = MODAL_DATES.filter(md=>dates.includes(md.id)).map(md=>{
@@ -1596,12 +1615,18 @@ function renderSerpModal(){
           <button class="period">${I.cal} ${fmtRu(range.from)} — ${fmtRu(range.to)}</button>
           <div class="dd-panel cal-pop" id="smCalPop"></div>
         </span>
+        <span class="sm-sep"></span>
+        ${[5,10].map(n=>`<button class="lastn ${isLastN(n)?'active':''}" data-n="${n}" title="Показать ${n} последних срезов">Последние ${n}</button>`).join('')}
         <span class="sm-hint" style="margin:0">расширьте период, чтобы выбрать более старые срезы</span>
       </div>
       <div class="sm-dates">${chips}</div>
     </div>
     <div class="sm-cols">${cols}</div>`;
   document.getElementById('smClose').onclick = closeSerp;
+  smBox.querySelectorAll('.lastn').forEach(b=> b.onclick = ()=>{
+    serpState.dates = lastNIds(+b.dataset.n);
+    renderSerpModal();
+  });
   smBox.querySelectorAll('.dchip').forEach(c=>{
     c.onclick = ()=>{
       const id = c.dataset.id;
