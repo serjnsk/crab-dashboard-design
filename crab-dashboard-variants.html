@@ -295,6 +295,13 @@ tr.kw-row:hover .kw-copy,.kw-copy:focus-visible{opacity:1}
 .freq-d.up{color:var(--up)}.freq-d.down{color:var(--down)}
 .freq-e{font-family:var(--mono);font-size:10.5px;color:var(--text-3);margin-left:6px}
 .freq-e::before{content:"!";color:var(--t50-fg);font-weight:700}
+.freq-b .ex{color:var(--t50-fg);font-weight:700;margin-right:1px}
+/* переключатель вида частотности в шапке (у Google один вид — переключателя нет) */
+th.freq-h .fh-l{display:block}
+.ws-seg{display:inline-flex;gap:1px;border:1px solid var(--border);border-radius:6px;padding:1px;background:var(--bg);margin-top:3px}
+.ws-seg button{font-size:8.5px;font-weight:750;padding:1.5px 6px;border-radius:4px;color:var(--text-3);line-height:1.3;text-transform:none;letter-spacing:0}
+.ws-seg button:hover{color:var(--text)}
+.ws-seg button.active{background:var(--surface);color:var(--text);box-shadow:var(--shadow)}
 .grid td.pos{text-align:center;padding:0 3px;min-width:64px}
 .grid td.pos.last{background:var(--t100-bg)} /* последний срез: нейтральное выделение */
 
@@ -887,6 +894,8 @@ const SUMMARY = [
 const TOTAL_KEYS = [2467,2467,2467,2467,2467,2467,2467,2465];
 const WS_MONTH = '06/2026'; /* месяц данных частотности (Wordstat) — за месяц до последнего среза */
 const WS_PREV = '05/2026';  /* предыдущий месяц — база для динамики частотности */
+const ENGINE = 'ya'; /* у Яндекса два вида частотности — в шапке переключатель; у Google один вид, переключателя нет */
+let WS_MODE = 'base'; /* какая частотность показана: base (базовая) / exact (!точная) */
 
 /* typ: типизация сайтов в ТОП-10 по ключу (категории задаются в настройках проекта) */
 const TYP_META = {
@@ -901,8 +910,8 @@ const WORKSHEET = [
   {
     name:'минус слова adwords', url:'/blog/minus-slova-adwords/', added:'12.11.2025',
     keys:[
-      {kw:'минус слова adwords', typ:{green:3,gray:1}, ws:1300, wse:140, serp:['ads'], pos:[10,11,8,8,5,7,5,5]},
-      {kw:'как добавить минус слова в adwords', typ:{green:2}, ws:720, wse:90, serp:[], pos:[10,8,8,8,'na',6,4,4]},
+      {kw:'минус слова adwords', typ:{green:3,gray:1}, ws:1235000, wse:89400, serp:['ads'], pos:[10,11,8,8,5,7,5,5]},
+      {kw:'как добавить минус слова в adwords', typ:{green:2}, ws:124500, wse:9800, serp:[], pos:[10,8,8,8,'na',6,4,4]},
       {kw:'минус слова google adwords', typ:{green:2,pink:2}, ws:590, wse:70, serp:['ads'], pos:[12,12,11,9,6,8,4,4]},
       {kw:'склонение минус слов для adwords', typ:{green:1}, ws:320, wse:40, serp:[], pos:[10,12,10,9,8,9,7,5]},
       {kw:'минус слова в эдвордсе', typ:{green:2,pink:2}, ws:260, wse:30, serp:[], pos:[4,6,6,6,6,5,3,4]},
@@ -988,8 +997,9 @@ const WORKSHEET = [
     if(done.has(k)) return; done.add(k);
     k.pos = expand(k.pos, k.kw, 3, 1, 100);
     if(k.swap) k.swap = k.swap.map(oi=>map[oi]);
-    /* динамика частотности к прошлому месяцу: детерминированная генерация ±14% */
+    /* динамика частотности к прошлому месяцу: детерминированная генерация ±14%, по каждому виду */
     k.wsd = Math.round((hash('ws:'+k.kw)-.5)*.28*k.ws);
+    k.wsed = Math.round((hash('wse:'+k.kw)-.5)*.28*k.wse);
     /* срезы с рекламой в выдаче: чаще у ключей с ads в SERP-фичах */
     k.adsAt = DATES.map((_,idx)=>idx).filter(idx=> hash('ads:'+k.kw+':'+DATES[idx].iso) < ((k.serp||[]).includes('ads') ? .55 : .12));
   })));
@@ -1094,7 +1104,8 @@ const band = p => {
   for(let i=0;i<HL.length;i++){ if(HL[i]!=null && p<=HL[i]) return B[i]; }
   return p<=100 ? 't100' : null;
 };
-const fmtWs = n => n>=1000 ? (n/1000).toFixed(1).replace('.',',').replace(',0','')+'k' : String(n);
+const fmtWs = n => n>=1e6 ? (n/1e6).toFixed(1).replace('.',',').replace(',0','')+'M'
+  : n>=1000 ? (n/1000).toFixed(1).replace('.',',').replace(',0','')+'k' : String(n);
 const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;');
 
 function spark(vals, w=110, h=26, color='var(--accent)'){
@@ -1334,7 +1345,7 @@ function renderWorksheet(v){
   const dateHead = DATES.map((d,i)=> !VIS.has(i)?'':`<th class="date ${i===LASTV?'last':''}"><span class="d">${d.d}</span><span class="dw">${d.w}</span>${d.t?`<span class="dtm">${d.t}</span>`:''}</th>`).join('');
   const theadHtml = `<thead><tr>
       <th class="kw">Ключ</th><th title="Типизация сайтов в ТОП-10">Топ 10</th>
-      <th title="Элементы выдачи">SERP</th><th title="Частотность ${WS_MONTH}: базовая / !точная">Частотность</th>
+      <th title="Элементы выдачи">SERP</th><th class="freq-h" title="Частотность ${WS_MONTH} с динамикой к ${WS_PREV}"><span class="fh-l">Частотность</span>${ENGINE==='ya'?`<span class="ws-seg" role="group" aria-label="Вид частотности"><button data-m="base" class="${WS_MODE==='base'?'active':''}" title="Базовая частотность">базовая</button><button data-m="exact" class="${WS_MODE==='exact'?'active':''}" title="Точная частотность (оператор «!»)">!точная</button></span>`:''}</th>
       ${v.nowCol?'<th class="now" title="Текущая позиция, изменение за период, тренд">Сейчас · Δ</th>':''}
       ${dateHead}
     </tr></thead>`;
@@ -1356,7 +1367,12 @@ function renderWorksheet(v){
         <td class="kw"><div class="kw-cell" data-kw="${esc(k.kw)}"><a class="eng ya" title="Открыть ключ в Яндексе" href="https://yandex.ru/search/?text=${encodeURIComponent(k.kw)}" target="_blank" rel="noopener">${I.ya}</a><span class="txt" title="Скопировать ключ">${esc(k.kw)}</span><button class="kw-copy" title="Скопировать ключ">${I.copy}</button></div>${rel}</td>
         <td class="typ">${typDots(k.typ)}</td>
         <td class="serp">${serpIcons(k.serp)}</td>
-        <td class="freq"><span class="freq-b" title="Частотность ${WS_MONTH} (базовая)">${fmtWs(k.ws)}</span>${k.wsd?`<span class="freq-d ${k.wsd>0?'up':'down'}" title="Изменение к ${WS_PREV}: ${k.wsd>0?'+':'−'}${Math.abs(k.wsd).toLocaleString('ru-RU')}">${k.wsd>0?'+':'−'}${fmtWs(Math.abs(k.wsd))}</span>`:''}<span class="freq-e" title="Точная частотность ${WS_MONTH}">${fmtWs(k.wse)}</span></td>
+        ${(()=>{ /* показывается один вид частотности — выбирается переключателем в шапке */
+          const ex = WS_MODE==='exact', wv = ex?k.wse:k.ws, wd = ex?k.wsed:k.wsd;
+          const tip = ex?`Точная частотность («!») ${WS_MONTH}: ${wv.toLocaleString('ru-RU')}`:`Базовая частотность ${WS_MONTH}: ${wv.toLocaleString('ru-RU')}`;
+          const dh2 = wd?`<span class="freq-d ${wd>0?'up':'down'}" title="Изменение к ${WS_PREV}: ${wd>0?'+':'−'}${Math.abs(wd).toLocaleString('ru-RU')}">${wd>0?'+':'−'}${fmtWs(Math.abs(wd))}</span>`:'';
+          return `<td class="freq"><span class="freq-b" title="${tip}">${ex?'<b class="ex">!</b>':''}${fmtWs(wv)}</span>${dh2}</td>`;
+        })()}
         ${v.nowCol?`<td class="now">${nowCellHtml(k)}</td>`:''}
         ${cells}</tr>`;
     }).join('');
@@ -2194,6 +2210,11 @@ function show(i){
     };
     cell.querySelector('.txt').onclick = doCopy;
     btn.onclick = doCopy;
+  });
+  /* переключатель вида частотности в шапке колонки */
+  app.querySelectorAll('.ws-seg button').forEach(b=> b.onclick = e=>{
+    e.stopPropagation();
+    if(WS_MODE!==b.dataset.m){ WS_MODE = b.dataset.m; show(cur); }
   });
   /* иконка ⇅ смены релевантной страницы: попап было/стало */
   app.querySelectorAll('.swap[data-swap]').forEach(s=> s.onclick = e=>{
