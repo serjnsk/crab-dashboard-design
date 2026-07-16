@@ -119,11 +119,31 @@ input,select{font:inherit;color:inherit}
 .ava-wrap{position:relative;display:inline-flex;align-items:center;gap:4px;cursor:pointer;padding:4px 0}
 .ava-car{color:var(--text-3);font-size:8px}
 .chrome-darkframe .ava-car{color:#7B8698}
-.ava-menu{position:absolute;top:100%;right:0;min-width:215px;background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow-lg);padding:6px;display:none;z-index:110}
+.ava-menu{position:absolute;top:100%;right:0;min-width:252px;background:var(--surface);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow-lg);padding:6px;display:none;z-index:110}
 .ava-wrap:hover .ava-menu,.ava-wrap:focus-within .ava-menu{display:block}
-.am-item{display:block;width:100%;padding:8px 11px;border-radius:6px;font-size:12.5px;font-weight:550;color:var(--text-2);text-align:left}
+.am-item{display:flex;align-items:center;gap:9px;width:100%;padding:7.5px 11px;border-radius:6px;font-size:12.5px;font-weight:550;color:var(--text-2);text-align:left}
+.am-item svg{flex:none;color:var(--text-3)}
 .am-item:hover{background:var(--bg);color:var(--text)}
+.am-item:hover svg{color:var(--text-2)}
+.am-item.danger{color:var(--down)}
+.am-item.danger svg{color:var(--down)}
+.am-item.danger:hover{background:color-mix(in srgb, var(--down) 9%, transparent)}
 .am-sep{height:1px;background:var(--border);margin:5px 4px}
+/* шапка меню: кто вошёл + тариф */
+.am-head{display:flex;align-items:center;gap:10px;padding:7px 9px 9px}
+.avatar.am-ava{width:34px;height:34px;font-size:12px;flex:none}
+.am-who{display:flex;flex-direction:column;min-width:0;line-height:1.3}
+.am-who b{font-size:12.5px;font-weight:700;color:var(--text)}
+.am-who span{font-size:10.5px;color:var(--text-3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.am-plan{margin-left:auto;flex:none;font-size:9px;font-weight:800;letter-spacing:.06em;color:var(--accent);background:var(--accent-soft);border-radius:5px;padding:2.5px 7px;cursor:default}
+/* блок лимитов с прогрессом */
+.am-usage{display:block;padding:2px 11px 8px;cursor:default}
+.am-u-row{display:flex;justify-content:space-between;align-items:baseline;font-size:10.5px;color:var(--text-3);margin-bottom:5px}
+.am-u-row b{color:var(--text-2);font-weight:700;font-variant-numeric:tabular-nums}
+.am-bar{display:block;height:5px;border-radius:3px;background:var(--bg);overflow:hidden;border:1px solid var(--border)}
+.am-bar i{display:block;height:100%;border-radius:3px;background:linear-gradient(90deg,#3D5AFE,#00B0FF)}
+/* подписи секций */
+.am-label{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--text-3);padding:7px 11px 3px}
 
 /* переключатель темы в шапке: системная / светлая / тёмная */
 .theme-seg{display:inline-flex;background:var(--bg);border:1px solid var(--border);border-radius:9px;padding:2px;gap:1px}
@@ -1209,6 +1229,12 @@ const I = {
   chev:'<svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor"><path d="M1.5 3l3.5 4 3.5-4z"/></svg>',
   copy:'<svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="4.5" y="4.5" width="8" height="8" rx="1.5"/><path d="M9.5 4.5V3a1.5 1.5 0 0 0-1.5-1.5H3A1.5 1.5 0 0 0 1.5 3v5A1.5 1.5 0 0 0 3 9.5h1.5"/></svg>',
   gads:'<svg viewBox="0 0 24 24" aria-label="Google Ads"><rect x="8.7" y="1.5" width="6.6" height="21" rx="3.3" fill="#FBBC04" transform="rotate(-30 12 12)"/><rect x="8.7" y="1.5" width="6.6" height="21" rx="3.3" fill="#4285F4" transform="rotate(30 12 12)"/><circle cx="5" cy="18.7" r="3.4" fill="#34A853"/></svg>',
+  user:'<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="8" cy="5" r="2.7"/><path d="M2.9 13.4c.8-2.5 2.8-3.9 5.1-3.9s4.3 1.4 5.1 3.9"/></svg>',
+  users:'<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="5.6" cy="5.6" r="2.3"/><path d="M1.6 13c.6-2.1 2.2-3.3 4-3.3s3.4 1.2 4 3.3"/><circle cx="11.4" cy="5.6" r="2"/><path d="M11 9.8c1.6.2 2.8 1.3 3.4 3.2"/></svg>',
+  trash:'<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M2.5 4.2h11M6.4 4V2.9h3.2V4M4 4.2l.7 9h6.6l.7-9M6.7 6.7v4M9.3 6.7v4"/></svg>',
+  bolt:'<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M8.8 1.5L3.5 9h3.4l-.7 5.5L11.5 7H8.1l.7-5.5z"/></svg>',
+  tag:'<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M8.4 2.5h5.1v5.1l-5.9 5.9-5.1-5.1 5.9-5.9z"/><circle cx="11" cy="5" r="1" fill="currentColor" stroke="none"/></svg>',
+  logout:'<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M6 2.5H3.5v11H6M10.5 5l3 3-3 3M13.5 8H7"/></svg>',
   check:'<svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 7.5l3 3 6-6.5"/></svg>',
   /* флаги регионов: SVG вместо эмодзи — на Windows эмодзи-флаги не отображаются */
   flags:{
@@ -1551,13 +1577,25 @@ function renderDashboard(v){
     <span class="ava-wrap">
       <span class="avatar">DC</span><span class="ava-car">▾</span>
       <div class="ava-menu" role="menu">
-        <button class="am-item">Профиль</button>
-        <button class="am-item">Пользователи</button>
-        <button class="am-item">Недавно удалённые</button>
-        <button class="am-item">Автоматические теги</button>
-        <button class="am-item">Категории и теги</button>
+        <div class="am-head">
+          <span class="avatar am-ava">DC</span>
+          <span class="am-who"><b>Дмитрий Ч.</b><span>dc@directline.pro</span></span>
+          <span class="am-plan" title="Тариф PRO · продление 12.08.2026">PRO</span>
+        </div>
+        <div class="am-usage" title="Использовано проверок позиций в июле">
+          <span class="am-u-row"><span>Проверки за июль</span><b>12,4k / 20k</b></span>
+          <span class="am-bar"><i style="width:62%"></i></span>
+        </div>
         <div class="am-sep"></div>
-        <button class="am-item">Выйти</button>
+        <div class="am-label">Аккаунт</div>
+        <button class="am-item">${I.user}Профиль</button>
+        <button class="am-item">${I.users}Пользователи</button>
+        <div class="am-label">Данные</div>
+        <button class="am-item">${I.trash}Недавно удалённые</button>
+        <button class="am-item">${I.bolt}Автоматические теги</button>
+        <button class="am-item">${I.tag}Категории и теги</button>
+        <div class="am-sep"></div>
+        <button class="am-item danger">${I.logout}Выйти</button>
       </div>
     </span>`;
   const topbarHtml = chrome==='pd' ? `
@@ -1745,10 +1783,12 @@ function serpForDate(k, md){
   const list = base.slice(0,10);
   if(typeof p==='number' && p<=10){
     list.splice(p-1, 0, {...our});
-    /* демо: часть срезов — наш сайт занимает несколько позиций в выдаче */
-    if(md.seed % 3 === 1){
+    /* наш сайт на нескольких позициях: у ключей с релевантной страницей (relUrl) — всегда,
+       у остальных — в части срезов */
+    if(k.relUrl || md.seed % 3 === 1){
       const p2 = Math.min(10, p + 3 + (md.seed % 2));
-      list.splice(p2-1, 0, {...our, path:'/blog/sklonyator-minus-slov/', title:'Склонятор минус-слов: просклонять список онлайн'});
+      const path2 = k.relUrl || '/blog/sklonyator-minus-slov/';
+      list.splice(p2-1, 0, {...our, path:path2, title:PAGE_TITLES[path2]||'Склонятор минус-слов: просклонять список онлайн'});
     }
   }
   return list.slice(0,10).map((r,i)=>({...r, pos:i+1}));
