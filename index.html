@@ -793,14 +793,17 @@ tr.flash td{animation:rowflash 1.4s ease}
 .drawer-head .dh-meta{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
 .drawer-body{flex:1;overflow-y:auto;padding:8px 0}
 .serp-row{display:flex;gap:9px;padding:10px 16px 10px 12px;border-bottom:1px solid var(--border);align-items:flex-start;position:relative}
-.serp-row.our{background:var(--accent-soft);border-left:3px solid var(--accent);padding-left:9px}
+/* наш сайт: только красная вертикальная черта слева — без заливки и метки */
+.serp-row.our{border-left:3px solid var(--accent);padding-left:9px}
 /* кросс-подсветка одного домена между колонками дат */
 .serp-row.hl{background:var(--t3-bg)}
 /* номер позиции — маленький и незаметный (не основной элемент); подсветка типизации сохранена цветом */
 .serp-pos{flex:none;width:17px;height:17px;margin-top:1px;border-radius:4px;color:#fff;font-size:9px;font-weight:750;display:flex;align-items:center;justify-content:center;font-variant-numeric:tabular-nums;opacity:.9}
 .serp-body{min-width:0}
 .serp-title{font-size:12.8px;font-weight:600;line-height:1.35;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
-.serp-url{font-size:11.5px;color:var(--t3-fg);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* чип «N URL» вне эллипсиса: путь сокращается, чип виден всегда */
+.serp-url{font-size:11.5px;color:var(--t3-fg);margin-top:2px;display:flex;align-items:center;min-width:0}
+.serp-url .su-text{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
 /* фавиконка — акцентный элемент в строке тайтла: цветная буква-заглушка сразу,
    реальная иконка поверх после загрузки */
 .serp-title .fav{position:relative;display:inline-flex;align-items:center;justify-content:center;width:19px;height:19px;border-radius:5px;vertical-align:-4px;margin-right:8px;overflow:hidden;flex:none}
@@ -808,9 +811,6 @@ tr.flash td{animation:rowflash 1.4s ease}
 .serp-title .fav img{position:absolute;inset:0;width:100%;height:100%;opacity:0}
 .serp-title .fav img.ok{opacity:1}
 .serp-url b{font-weight:650}
-/* метка домена (не конкретного URL) — в строке URL сразу после домена,
-   там её не срезает 2-строчный кламп тайтла */
-.our-tag{display:inline-block;font-size:8.5px;font-weight:750;text-transform:uppercase;letter-spacing:.05em;background:var(--accent);color:#fff;border-radius:4px;padding:1px 5px;margin:0 5px;vertical-align:.5px}
 /* наш сайт на нескольких позициях: чип у первого URL, выпадающий список всех URL */
 .our-multi{display:inline-flex;margin-left:7px;vertical-align:-1px}
 .om-btn{display:inline-flex;align-items:center;gap:4px;border:1px solid var(--accent);background:transparent;color:var(--accent);border-radius:9px;padding:1px 8px;font-size:10px;font-weight:750;white-space:nowrap}
@@ -1901,7 +1901,7 @@ function serpColRows(list, oursAll){
       <span class="serp-pos" style="background:${TYP_META[r.typ].color}" title="${TYP_META[r.typ].name} · правый клик — изменить категорию">${r.pos}</span>
       <div class="serp-body">
         <div class="serp-title"><span class="fav" style="background:hsl(${hashStr(r.dom)%360} 42% 46%)"><i>${r.dom[0].toUpperCase()}</i><img src="https://www.google.com/s2/favicons?domain=${r.dom}&amp;sz=32" alt="" loading="lazy" onload="this.classList.add('ok')"></span>${esc(r.title)}</div>
-        <div class="serp-url"><b>${r.dom}</b>${r.our?'<span class="our-tag">наш сайт</span>':''}${r.path}${multi}</div>
+        <div class="serp-url"><span class="su-text"><b>${r.dom}</b>${r.path}</span>${multi}</div>
       </div>
     </div>`;
   }).join('');
