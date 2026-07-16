@@ -751,7 +751,7 @@ tr.flash td{animation:rowflash 1.4s ease}
 .drawer-head .close:hover{background:var(--bg);color:var(--text)}
 .drawer-head .dh-meta{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
 .drawer-body{flex:1;overflow-y:auto;padding:8px 0}
-.serp-row{display:flex;gap:12px;padding:10px 20px;border-bottom:1px solid var(--border);align-items:flex-start}
+.serp-row{display:flex;gap:12px;padding:10px 20px;border-bottom:1px solid var(--border);align-items:flex-start;position:relative}
 .serp-row.our{background:var(--accent-soft);border-left:3px solid var(--accent);padding-left:17px}
 .serp-pos{flex:none;width:26px;height:26px;border-radius:6px;color:#fff;font-size:12px;font-weight:750;display:flex;align-items:center;justify-content:center;font-variant-numeric:tabular-nums}
 .serp-body{min-width:0}
@@ -759,6 +759,18 @@ tr.flash td{animation:rowflash 1.4s ease}
 .serp-url{font-size:11.5px;color:var(--t3-fg);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .serp-url b{font-weight:650}
 .our-tag{display:inline-block;font-size:9.5px;font-weight:750;text-transform:uppercase;letter-spacing:.05em;background:var(--accent);color:#fff;border-radius:4px;padding:1.5px 6px;margin-left:8px;vertical-align:1px}
+/* наш сайт на нескольких позициях: чип у первого URL, выпадающий список всех URL */
+.our-multi{display:inline-flex;margin-left:7px;vertical-align:-1px}
+.om-btn{display:inline-flex;align-items:center;gap:4px;border:1px solid var(--accent);background:transparent;color:var(--accent);border-radius:9px;padding:1px 8px;font-size:10px;font-weight:750;white-space:nowrap}
+.om-btn:hover{background:var(--accent-soft)}
+.om-btn .car{font-size:7px;transition:transform .12s}
+.our-multi.open .om-btn .car{transform:rotate(180deg)}
+.om-panel{position:absolute;left:30px;right:14px;top:calc(100% - 4px);z-index:30;display:none;flex-direction:column;gap:1px;background:var(--surface);border:1px solid var(--border);border-radius:9px;box-shadow:var(--shadow-lg);padding:6px}
+.our-multi.open .om-panel{display:flex}
+.om-item{display:flex;align-items:center;gap:8px;font-size:11px;padding:4px 7px;border-radius:5px;min-width:0}
+.om-item:hover{background:var(--bg)}
+.om-pos{flex:none;min-width:17px;text-align:center;font-size:10px;background:var(--t10-bg);color:var(--t10-fg);border-radius:4px;padding:1.5px 4px;font-weight:750}
+.om-url{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text-2)}
 
 /* ============ SERP MODAL (по центру, мультивыбор дат) ============ */
 .serp-modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:95;padding:24px;pointer-events:none}
@@ -1582,19 +1594,34 @@ function serpForDate(k, md){
   const our = SERP_TOP.find(r=>r.our);
   const p = modalPos(k, md);
   const list = base.slice(0,10);
-  if(typeof p==='number' && p<=10) list.splice(p-1, 0, {...our});
+  if(typeof p==='number' && p<=10){
+    list.splice(p-1, 0, {...our});
+    /* демо: часть срезов — наш сайт занимает несколько позиций в выдаче */
+    if(md.seed % 3 === 1){
+      const p2 = Math.min(10, p + 3 + (md.seed % 2));
+      list.splice(p2-1, 0, {...our, path:'/blog/sklonyator-minus-slov/', title:'Склонятор минус-слов: просклонять список онлайн'});
+    }
+  }
   return list.slice(0,10).map((r,i)=>({...r, pos:i+1}));
 }
 
 function serpColRows(list){
-  return list.map(r=>`
+  const ours = list.filter(r=>r.our);
+  return list.map(r=>{
+    /* наш сайт на нескольких позициях: у первого URL — чип-стрелка со списком всех */
+    const multi = ours.length>1 && r===ours[0] ? `<span class="our-multi">
+        <button class="om-btn" title="Наш сайт занимает ${ours.length} позиции в этой выдаче — показать все URL">${ours.length} URL <span class="car">▾</span></button>
+        <span class="om-panel">${ours.map(o=>`<span class="om-item"><b class="om-pos">${o.pos}</b><span class="om-url">${o.dom}${o.path}</span></span>`).join('')}</span>
+      </span>` : '';
+    return `
     <div class="serp-row ${r.our?'our':''}">
       <span class="serp-pos" style="background:${TYP_META[r.typ].color}" title="${TYP_META[r.typ].name}">${r.pos}</span>
       <div class="serp-body">
         <div class="serp-title">${esc(r.title)}${r.our?'<span class="our-tag">наш сайт</span>':''}</div>
-        <div class="serp-url"><b>${r.dom}</b>${r.path}</div>
+        <div class="serp-url"><b>${r.dom}</b>${r.path}${multi}</div>
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
 
 /* доступные в модалке срезы: диапазон + частота (та же логика, что у периода страницы) */
@@ -1650,6 +1677,12 @@ function renderSerpModal(){
     </div>
     <div class="sm-cols">${cols}</div>`;
   document.getElementById('smClose').onclick = closeSerp;
+  smBox.querySelectorAll('.om-btn').forEach(b=> b.onclick = e=>{
+    e.stopPropagation();
+    const w = b.parentElement, was = w.classList.contains('open');
+    smBox.querySelectorAll('.our-multi.open').forEach(x=>x.classList.remove('open'));
+    if(!was) w.classList.add('open');
+  });
   smBox.querySelectorAll('.lastn').forEach(b=> b.onclick = ()=>{
     serpState.dates = lastNIds(+b.dataset.n);
     renderSerpModal();
@@ -1722,11 +1755,11 @@ function openSerp(gi,ki,di){
 function closeSerp(){ serpModal.classList.remove('open'); drawerBack.classList.remove('open'); }
 drawerBack.onclick = closeSerp;
 document.addEventListener('keydown', e=>{
-  if(e.key==='Escape'){ closeSerp(); document.querySelectorAll('.toc-wrap.open, .dd-wrap.open, .search-wrap.open').forEach(t=>t.classList.remove('open')); }
+  if(e.key==='Escape'){ closeSerp(); document.querySelectorAll('.toc-wrap.open, .dd-wrap.open, .search-wrap.open, .our-multi.open').forEach(t=>t.classList.remove('open')); }
   if((e.metaKey||e.ctrlKey) && e.key.toLowerCase()==='k'){ e.preventDefault(); const i=document.getElementById('gsInput'); if(i) i.focus(); }
 });
 document.addEventListener('click', e=>{
-  document.querySelectorAll('.toc-wrap.open, .dd-wrap.open, .search-wrap.open').forEach(w=>{ if(!w.contains(e.target)) w.classList.remove('open'); });
+  document.querySelectorAll('.toc-wrap.open, .dd-wrap.open, .search-wrap.open, .our-multi.open').forEach(w=>{ if(!w.contains(e.target)) w.classList.remove('open'); });
 });
 
 /* ================= ГЛОБАЛЬНЫЙ ПОИСК ================= */
