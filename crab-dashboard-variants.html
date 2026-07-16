@@ -276,7 +276,13 @@ table.grid{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums
 .eng.ya{background:transparent}
 .eng.ya svg{width:12px;height:13px;display:block}
 .eng.go{background:var(--t3-bg);color:var(--t3-fg)}
-.kw-cell .txt{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500}
+.kw-cell .txt{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500;cursor:copy}
+.kw-cell .eng{cursor:pointer}
+/* копирование ключа: иконка появляется на hover строки, клик по тексту или иконке */
+.kw-copy{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:5px;color:var(--text-3);flex:none;opacity:0;transition:opacity .12s,color .12s}
+tr.kw-row:hover .kw-copy,.kw-copy:focus-visible{opacity:1}
+.kw-copy:hover{color:var(--text);background:var(--border)}
+.kw-copy.copied{opacity:1;color:var(--up)}
 .grid td.typ{white-space:nowrap;text-align:left;min-width:86px}
 .typ-dot{display:inline-flex;align-items:center;justify-content:center;width:17px;height:17px;border-radius:50%;color:#fff;font-size:9.5px;font-weight:750;margin-right:3px;vertical-align:middle}
 .grid td.serp{white-space:nowrap;text-align:center;min-width:60px}
@@ -1030,6 +1036,14 @@ function visibleIdx(){
 }
 function prevVis(i){ for(let j=i-1;j>=0;j--) if(VIS.has(j)) return j; return -1; }
 const fmtRu = iso => iso.split('-').reverse().join('.');
+function copyText(t){
+  if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(t).catch(()=>{}); return; }
+  const ta = document.createElement('textarea');
+  ta.value = t; ta.style.position='fixed'; ta.style.opacity='0';
+  document.body.appendChild(ta); ta.select();
+  try{ document.execCommand('copy'); }catch(e){}
+  ta.remove();
+}
 
 /* ================= HELPERS ================= */
 const band = p => {
@@ -1110,6 +1124,8 @@ const I = {
   cal:'<svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="1.5" y="2.5" width="11" height="10" rx="1.5"/><path d="M1.5 5.5h11M4.5 1v3M9.5 1v3"/></svg>',
   link:'<svg width="11" height="11" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5.5 8.5l3-3M6 3.8l1.2-1.2a2.5 2.5 0 0 1 3.5 3.5L9.5 7.3M8 10.2l-1.2 1.2a2.5 2.5 0 0 1-3.5-3.5L4.5 6.7"/></svg>',
   chev:'<svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor"><path d="M1.5 3l3.5 4 3.5-4z"/></svg>',
+  copy:'<svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="4.5" y="4.5" width="8" height="8" rx="1.5"/><path d="M9.5 4.5V3a1.5 1.5 0 0 0-1.5-1.5H3A1.5 1.5 0 0 0 1.5 3v5A1.5 1.5 0 0 0 3 9.5h1.5"/></svg>',
+  check:'<svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 7.5l3 3 6-6.5"/></svg>',
   /* флаги регионов: SVG вместо эмодзи — на Windows эмодзи-флаги не отображаются */
   flags:{
     ru:'<svg viewBox="0 0 18 12" preserveAspectRatio="none"><rect width="18" height="4" fill="#F5F5F5"/><rect y="4" width="18" height="4" fill="#0039A6"/><rect y="8" width="18" height="4" fill="#D52B1E"/></svg>',
@@ -1290,7 +1306,7 @@ function renderWorksheet(v){
       const rel = k.relUrl ? `<a class="rel-url" href="#" onclick="return false" title="Релевантная страница отличается от целевой URL группы (${g.url})">≠ ${k.relUrl}</a>` : '';
       const cats = keyCats(k).join(' ');
       return `<tr class="kw-row" data-parent="${cgi}" data-super="${si}" data-key="${cgi}:${ki}" data-cats="${cats}">
-        <td class="kw"><div class="kw-cell"><span class="eng ya" title="Яндекс">${I.ya}</span><span class="txt">${esc(k.kw)}</span></div>${rel}</td>
+        <td class="kw"><div class="kw-cell" data-kw="${esc(k.kw)}"><a class="eng ya" title="Открыть ключ в Яндексе" href="https://yandex.ru/search/?text=${encodeURIComponent(k.kw)}" target="_blank" rel="noopener">${I.ya}</a><span class="txt" title="Скопировать ключ">${esc(k.kw)}</span><button class="kw-copy" title="Скопировать ключ">${I.copy}</button></div>${rel}</td>
         <td class="typ">${typDots(k.typ)}</td>
         <td class="serp">${serpIcons(k.serp)}</td>
         <td class="freq"><span class="freq-b" title="Частотность ${WS_MONTH} (базовая)">${fmtWs(k.ws)}</span>${k.wsd?`<span class="freq-d ${k.wsd>0?'up':'down'}" title="Изменение к ${WS_PREV}: ${k.wsd>0?'+':'−'}${Math.abs(k.wsd).toLocaleString('ru-RU')}">${k.wsd>0?'+':'−'}${fmtWs(Math.abs(k.wsd))}</span>`:''}<span class="freq-e" title="Точная частотность ${WS_MONTH}">${fmtWs(k.wse)}</span></td>
@@ -2032,6 +2048,20 @@ function show(i){
       const [gi,ki,di] = c.dataset.serp.split(':').map(Number);
       if(v.detail) renderDetail(gi,ki,di); else openSerp(gi,ki,di);
     };
+  });
+  /* ключ: клик по тексту или иконке копирования — в буфер; иконка ПС — ссылка на поиск */
+  app.querySelectorAll('.kw-cell').forEach(cell=>{
+    const kw = cell.dataset.kw, btn = cell.querySelector('.kw-copy');
+    if(!btn) return;
+    const doCopy = e=>{
+      e.stopPropagation();
+      copyText(kw);
+      btn.classList.add('copied'); btn.innerHTML = I.check;
+      clearTimeout(btn.__t);
+      btn.__t = setTimeout(()=>{ btn.classList.remove('copied'); btn.innerHTML = I.copy; }, 1200);
+    };
+    cell.querySelector('.txt').onclick = doCopy;
+    btn.onclick = doCopy;
   });
   /* панель деталей: выбор ключа кликом по строке */
   if(v.detail){
