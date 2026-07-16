@@ -820,14 +820,7 @@ tr.flash td{animation:rowflash 1.4s ease}
 .serp-title .fav img{position:absolute;inset:0;width:100%;height:100%;opacity:0}
 .serp-title .fav img.ok{opacity:1}
 .serp-url b{font-weight:650}
-/* наш сайт на нескольких позициях: чип у первого URL, выпадающий список всех URL */
-.our-multi{display:inline-flex;margin-left:7px;vertical-align:-1px}
-.om-btn{display:inline-flex;align-items:center;gap:4px;border:1px solid var(--accent);background:transparent;color:var(--accent);border-radius:9px;padding:1px 8px;font-size:10px;font-weight:750;white-space:nowrap}
-.om-btn:hover{background:var(--accent-soft)}
-.om-btn .car{font-size:7px;transition:transform .12s}
-.our-multi.open .om-btn .car{transform:rotate(180deg)}
-.om-panel{position:absolute;left:30px;right:14px;top:calc(100% - 4px);z-index:30;display:none;flex-direction:column;gap:1px;background:var(--surface);border:1px solid var(--border);border-radius:9px;box-shadow:var(--shadow-lg);padding:6px}
-.our-multi.open .om-panel{display:flex}
+/* пункты списка «все URL по ключу» (попап kuPop на странице мониторинга) */
 .om-item{display:flex;align-items:center;gap:8px;font-size:11px;padding:4px 7px;border-radius:5px;min-width:0}
 .om-item:hover{background:var(--bg)}
 .om-pos{flex:none;min-width:17px;text-align:center;font-size:10px;background:var(--t100-bg);color:var(--t100-fg);border-radius:4px;padding:1.5px 4px;font-weight:750;font-variant-numeric:tabular-nums}
@@ -1916,23 +1909,15 @@ function serpForDate(k, md){
 
 /* разметка топов: категория сайта, назначенная правым кликом по позиции (домен → тип) */
 const DOM_TYP = {};
-function serpColRows(list, oursAll){
-  oursAll = oursAll || [];
-  const firstOur = list.find(r=>r.our);
+function serpColRows(list){
   return list.map(r0=>{
     const r = DOM_TYP[r0.dom] ? {...r0, typ:DOM_TYP[r0.dom]} : r0;
-    /* наш сайт несколькими URL: в выдаче стоит лучший, у него чип со ВСЕМИ нашими URL
-       и их актуальными позициями — в т.ч. за пределами показанного топа (20, 58, …) */
-    const multi = oursAll.length>1 && r0===firstOur ? `<span class="our-multi">
-        <button class="om-btn" title="Наш сайт найден по ${oursAll.length} URL — показать все с позициями">${oursAll.length} URL <span class="car">▾</span></button>
-        <span class="om-panel">${oursAll.map(o=>`<span class="om-item" title="${esc(o.title)}"><b class="om-pos ${band(o.pos)||'t100'}">${o.pos}</b><span class="om-url">${SITE_DOM}${o.path}</span></span>`).join('')}</span>
-      </span>` : '';
     return `
     <div class="serp-row ${r.our?'our':''}" data-dom="${r.dom}" data-typ="${r.typ}">
       <span class="serp-pos" style="background:${TYP_META[r.typ].color}" title="${TYP_META[r.typ].name} · правый клик — изменить категорию">${r.pos}</span>
       <div class="serp-body">
         <div class="serp-title"><span class="fav" style="background:hsl(${hashStr(r.dom)%360} 42% 46%)"><i>${r.dom[0].toUpperCase()}</i><img src="https://www.google.com/s2/favicons?domain=${r.dom}&amp;sz=32" alt="" loading="lazy" onload="this.classList.add('ok')"></span>${esc(r.title)}</div>
-        <div class="serp-url"><span class="su-text"><b>${r.dom}</b>${r.path}</span>${multi}</div>
+        <div class="serp-url"><span class="su-text"><b>${r.dom}</b>${r.path}</span></div>
       </div>
     </div>`;
   }).join('');
@@ -1973,7 +1958,7 @@ function renderSerpModal(){
       <div class="sm-col-h"><b>${md.d}</b>${md.t?`<span class="t">${md.t}</span>`:''}<span class="dw2">${md.w}</span>${md.arch?'<span class="t">архив</span>':''}
         <span class="ourpos ${b||'none'}" title="Наша позиция в этом срезе">${p==null?'—':(p==='na'?'н/д':p)}</span></div>
       ${adsStrip}
-      <div class="sm-list">${(sd=>serpColRows(sd.list, sd.ours))(serpForDate(k,md))}</div>
+      <div class="sm-list">${serpColRows(serpForDate(k,md).list)}</div>
     </div>`;
   }).join('');
   smBox.innerHTML = `
@@ -1995,12 +1980,6 @@ function renderSerpModal(){
     </div>
     <div class="sm-cols">${cols}</div>`;
   document.getElementById('smClose').onclick = closeSerp;
-  smBox.querySelectorAll('.om-btn').forEach(b=> b.onclick = e=>{
-    e.stopPropagation();
-    const w = b.parentElement, was = w.classList.contains('open');
-    smBox.querySelectorAll('.our-multi.open').forEach(x=>x.classList.remove('open'));
-    if(!was) w.classList.add('open');
-  });
   smBox.querySelectorAll('.lastn').forEach(b=> b.onclick = ()=>{
     serpState.dates = lastNIds(+b.dataset.n);
     renderSerpModal();
@@ -2075,11 +2054,11 @@ function openSerp(gi,ki,di){
 function closeSerp(){ serpModal.classList.remove('open'); drawerBack.classList.remove('open'); closeTypMenu(); }
 drawerBack.onclick = closeSerp;
 document.addEventListener('keydown', e=>{
-  if(e.key==='Escape'){ closeSerp(); closeSwapPop(); closeComp(); closeTypMenu(); closeKuPop(); document.querySelectorAll('.toc-wrap.open, .dd-wrap.open, .search-wrap.open, .our-multi.open').forEach(t=>t.classList.remove('open')); }
+  if(e.key==='Escape'){ closeSerp(); closeSwapPop(); closeComp(); closeTypMenu(); closeKuPop(); document.querySelectorAll('.toc-wrap.open, .dd-wrap.open, .search-wrap.open').forEach(t=>t.classList.remove('open')); }
   if((e.metaKey||e.ctrlKey) && e.key.toLowerCase()==='k'){ e.preventDefault(); const i=document.getElementById('gsInput'); if(i) i.focus(); }
 });
 document.addEventListener('click', e=>{
-  document.querySelectorAll('.toc-wrap.open, .dd-wrap.open, .search-wrap.open, .our-multi.open').forEach(w=>{ if(!w.contains(e.target)) w.classList.remove('open'); });
+  document.querySelectorAll('.toc-wrap.open, .dd-wrap.open, .search-wrap.open').forEach(w=>{ if(!w.contains(e.target)) w.classList.remove('open'); });
   if(swapPop && swapPop.classList.contains('open') && !swapPop.contains(e.target) && !e.target.closest('.swap')) closeSwapPop();
   if(typMenu && typMenu.classList.contains('open') && !typMenu.contains(e.target)) closeTypMenu();
   if(kuPop && kuPop.classList.contains('open') && !kuPop.contains(e.target) && !e.target.closest('.ku-btn')) closeKuPop();
