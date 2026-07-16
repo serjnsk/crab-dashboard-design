@@ -873,13 +873,18 @@ tr.flash td{animation:rowflash 1.4s ease}
 .flag-ico{display:inline-flex;width:17px;height:12px;border-radius:2.5px;overflow:hidden;box-shadow:0 0 0 1px var(--border);flex:none;cursor:default}
 .flag-ico svg{width:100%;height:100%;display:block}
 .sm-hint{font-size:10.5px;color:var(--text-3);margin-top:7px}
-.sm-cols{display:flex;overflow-x:auto;flex:1;min-height:0}
+/* одна общая полоса прокрутки на все колонки; шапки колонок липкие */
+.sm-cols{display:flex;overflow:auto;flex:1;min-height:0;scrollbar-width:thin;scrollbar-color:var(--border-strong) transparent}
+.sm-cols::-webkit-scrollbar{width:9px;height:9px}
+.sm-cols::-webkit-scrollbar-track{background:transparent}
+.sm-cols::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:5px;border:2px solid var(--surface)}
+.sm-cols::-webkit-scrollbar-thumb:hover{background:var(--text-3)}
 .sm-col{flex:0 0 310px;min-width:310px;border-right:1px solid var(--border);display:flex;flex-direction:column;min-height:0}
 /* один срез: колонка по центру, ширина как у результатов в выдаче Google (~600px) —
    видно реальные переносы тайтлов */
 .sm-cols .sm-col:only-child{flex:0 1 600px;min-width:min(600px, 92vw);margin:0 auto;border-right:none}
 .sm-col:last-child{border-right:none}
-.sm-col-h{display:flex;align-items:center;gap:7px;padding:9px 14px;border-bottom:1px solid var(--border);font-size:12.5px;background:var(--surface-2);flex:none}
+.sm-col-h{display:flex;align-items:center;gap:7px;padding:9px 14px;border-bottom:1px solid var(--border);font-size:12.5px;background:var(--surface-2);flex:none;position:sticky;top:0;z-index:3;height:38px}
 .sm-col-h b{font-variant-numeric:tabular-nums}
 .sm-col-h .t,.sm-col-h .dw2{color:var(--text-3);font-size:10.5px}
 .sm-col-h .ourpos{margin-left:auto;font-weight:750;font-size:12px;border-radius:6px;padding:1.5px 9px;font-variant-numeric:tabular-nums}
@@ -889,14 +894,25 @@ tr.flash td{animation:rowflash 1.4s ease}
 .ourpos.t50{background:var(--t50-bg);color:var(--t50-fg)}
 .ourpos.t100{background:var(--t100-bg);color:var(--t100-fg)}
 .ourpos.none{background:var(--bg);color:var(--text-3)}
-/* полоса «реклама в выдаче» — перед органическими результатами колонки */
-.sm-ads{display:flex;align-items:center;gap:7px;flex:none;padding:6px 14px;font-size:10.5px;font-weight:650;color:var(--t20-fg);background:var(--t20-bg);border-bottom:1px solid var(--border)}
+/* полоса «реклама в выдаче» — перед результатами; есть во всех колонках (фиксированная
+   высота — строки соседних дат не разъезжаются), без рекламы — нейтральная заглушка */
+.sm-ads{display:flex;align-items:center;gap:7px;flex:none;height:30px;padding:0 14px;font-size:10.5px;font-weight:650;color:var(--t20-fg);background:var(--t20-bg);border-bottom:1px solid var(--border);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sm-ads.none{background:transparent;color:var(--text-3);font-weight:500}
 .sm-ads .admark{display:inline-flex;width:11px;height:11px;flex:none}
-.sm-list{overflow-y:auto;min-height:0;scrollbar-width:thin;scrollbar-color:var(--border-strong) transparent}
-.sm-list::-webkit-scrollbar{width:9px}
-.sm-list::-webkit-scrollbar-track{background:transparent}
-.sm-list::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:5px;border:2px solid var(--surface)}
-.sm-list::-webkit-scrollbar-thumb:hover{background:var(--text-3)}
+/* контекстное меню разметки топов (правый клик по позиции) */
+#typMenu{position:fixed;z-index:120;min-width:215px;background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow-lg);padding:6px;display:none}
+#typMenu.open{display:block}
+.tm-title{font-size:10px;color:var(--text-3);padding:5px 9px 6px;font-weight:600}
+.tm-title b{color:var(--text-2)}
+.tm-item{display:flex;align-items:center;gap:8px;width:100%;padding:7px 9px;border-radius:6px;font-size:12px;font-weight:550;color:var(--text-2);text-align:left}
+.tm-item:hover{background:var(--bg);color:var(--text)}
+.tm-item.active{font-weight:700;color:var(--text)}
+.tm-item.active::after{content:"✓";margin-left:auto;color:var(--accent);font-size:11px}
+.tm-dot{width:9px;height:9px;border-radius:50%;flex:none}
+.tm-cfg{color:var(--text-3);font-size:11.5px}
+.sm-list{min-height:0} /* скроллит общий контейнер .sm-cols */
+/* фиксированная высота строки: позиции не «едут» при сравнении нескольких дат */
+.sm-list .serp-row{height:74px;overflow:hidden}
 .sm-list .serp-row{padding:8px 14px}
 .sm-list .serp-row.our{padding-left:11px}
 
@@ -1712,6 +1728,27 @@ function renderDashboard(v){
   </div>`;
 }
 
+/* ================= КОНТЕКСТНОЕ МЕНЮ РАЗМЕТКИ ТОПОВ ================= */
+let typMenu = null;
+function showTypMenu(dom, curTyp, x, y){
+  if(!typMenu){ typMenu = document.createElement('div'); typMenu.id = 'typMenu'; document.body.appendChild(typMenu); }
+  const active = DOM_TYP[dom] || curTyp;
+  typMenu.innerHTML = `<div class="tm-title">Категория сайта · <b>${dom}</b></div>` +
+    Object.entries(TYP_META).map(([key,t])=>
+      `<button class="tm-item ${active===key?'active':''}" data-t="${key}"><span class="tm-dot" style="background:${t.color}"></span>${t.name}</button>`).join('') +
+    `<div class="am-sep"></div><button class="tm-item tm-cfg">Настроить категории…</button>`;
+  typMenu.querySelectorAll('.tm-item[data-t]').forEach(b=> b.onclick = ()=>{
+    DOM_TYP[dom] = b.dataset.t;
+    closeTypMenu();
+    renderSerpModal(); /* бейджи домена перекрашиваются во всех колонках */
+  });
+  typMenu.classList.add('open');
+  const W = 230, H = typMenu.offsetHeight || 220;
+  typMenu.style.left = Math.min(x, innerWidth - W - 10) + 'px';
+  typMenu.style.top = Math.min(y, innerHeight - H - 10) + 'px';
+}
+function closeTypMenu(){ if(typMenu) typMenu.classList.remove('open'); }
+
 /* ================= МОДАЛКА «ПОЗИЦИИ КОНКУРЕНТА» ================= */
 const compModal = document.getElementById('compModal');
 const cmInput = document.getElementById('cmInput');
@@ -1821,17 +1858,20 @@ function serpForDate(k, md){
   return list.slice(0,N).map((r,i)=>({...r, pos:i+1}));
 }
 
+/* разметка топов: категория сайта, назначенная правым кликом по позиции (домен → тип) */
+const DOM_TYP = {};
 function serpColRows(list){
   const ours = list.filter(r=>r.our);
-  return list.map(r=>{
+  return list.map(r0=>{
+    const r = DOM_TYP[r0.dom] ? {...r0, typ:DOM_TYP[r0.dom]} : r0;
     /* наш сайт на нескольких позициях: у первого URL — чип-стрелка со списком всех */
-    const multi = ours.length>1 && r===ours[0] ? `<span class="our-multi">
+    const multi = ours.length>1 && r0===ours[0] ? `<span class="our-multi">
         <button class="om-btn" title="Наш сайт занимает ${ours.length} позиции в этой выдаче — показать все URL">${ours.length} URL <span class="car">▾</span></button>
         <span class="om-panel">${ours.map(o=>`<span class="om-item"><b class="om-pos">${o.pos}</b><span class="om-url">${o.dom}${o.path}</span></span>`).join('')}</span>
       </span>` : '';
     return `
-    <div class="serp-row ${r.our?'our':''}">
-      <span class="serp-pos" style="background:${TYP_META[r.typ].color}" title="${TYP_META[r.typ].name}">${r.pos}</span>
+    <div class="serp-row ${r.our?'our':''}" data-dom="${r.dom}" data-typ="${r.typ}">
+      <span class="serp-pos" style="background:${TYP_META[r.typ].color}" title="${TYP_META[r.typ].name} · правый клик — изменить категорию">${r.pos}</span>
       <div class="serp-body">
         <div class="serp-title"><span class="fav" style="background:hsl(${hashStr(r.dom)%360} 42% 46%)"><i>${r.dom[0].toUpperCase()}</i><img src="https://www.google.com/s2/favicons?domain=${r.dom}&amp;sz=32" alt="" loading="lazy" onload="this.classList.add('ok')"></span>${esc(r.title)}${r.our?'<span class="our-tag">наш сайт</span>':''}</div>
         <div class="serp-url"><b>${r.dom}</b>${r.path}${multi}</div>
@@ -1867,7 +1907,10 @@ function renderSerpModal(){
     /* реклама в этом срезе: для срезов матрицы — из данных ключа, для архивных — детерминированно */
     const hasAds = md.mi!=null ? (k.adsAt||[]).includes(md.mi) : (hashStr('ads:'+k.kw+':'+md.id)%100) < 40;
     const adsN = 2 + (hashStr('adsn:'+k.kw+':'+md.id) % 3);
-    const adsStrip = hasAds ? `<div class="sm-ads" title="Рекламная выдача показывалась над органическими результатами"><span class="admark">${I.gads}</span>Реклама в выдаче · ${adsN} объявлени${adsN===2?'я':adsN>4?'й':'я'} над результатами</div>` : '';
+    /* полоса рекламы есть во всех колонках (одинаковая высота — строки не разъезжаются) */
+    const adsStrip = hasAds
+      ? `<div class="sm-ads" title="Рекламная выдача показывалась над органическими результатами"><span class="admark">${I.gads}</span>Реклама · ${adsN} объявлени${adsN===2?'я':adsN>4?'й':'я'} над результатами</div>`
+      : `<div class="sm-ads none">Без рекламы в выдаче</div>`;
     return `<div class="sm-col">
       <div class="sm-col-h"><b>${md.d}</b>${md.t?`<span class="t">${md.t}</span>`:''}<span class="dw2">${md.w}</span>${md.arch?'<span class="t">архив</span>':''}
         <span class="ourpos ${b||'none'}" title="Наша позиция в этом срезе">${p==null?'—':(p==='na'?'н/д':p)}</span></div>
@@ -1903,6 +1946,11 @@ function renderSerpModal(){
   smBox.querySelectorAll('.lastn').forEach(b=> b.onclick = ()=>{
     serpState.dates = lastNIds(+b.dataset.n);
     renderSerpModal();
+  });
+  /* разметка топов: правый клик по позиции — меню категорий сайта */
+  smBox.querySelectorAll('.serp-row[data-dom]').forEach(row=> row.oncontextmenu = e=>{
+    e.preventDefault();
+    showTypMenu(row.dataset.dom, row.dataset.typ, e.clientX, e.clientY);
   });
   /* календарь диапазона — тот же компонент, что у периода страницы */
   const smCalWrap = document.getElementById('smCalWrap');
@@ -1961,15 +2009,16 @@ function openSerp(gi,ki,di){
   renderSerpModal();
   serpModal.classList.add('open'); drawerBack.classList.add('open');
 }
-function closeSerp(){ serpModal.classList.remove('open'); drawerBack.classList.remove('open'); }
+function closeSerp(){ serpModal.classList.remove('open'); drawerBack.classList.remove('open'); closeTypMenu(); }
 drawerBack.onclick = closeSerp;
 document.addEventListener('keydown', e=>{
-  if(e.key==='Escape'){ closeSerp(); closeSwapPop(); closeComp(); document.querySelectorAll('.toc-wrap.open, .dd-wrap.open, .search-wrap.open, .our-multi.open').forEach(t=>t.classList.remove('open')); }
+  if(e.key==='Escape'){ closeSerp(); closeSwapPop(); closeComp(); closeTypMenu(); document.querySelectorAll('.toc-wrap.open, .dd-wrap.open, .search-wrap.open, .our-multi.open').forEach(t=>t.classList.remove('open')); }
   if((e.metaKey||e.ctrlKey) && e.key.toLowerCase()==='k'){ e.preventDefault(); const i=document.getElementById('gsInput'); if(i) i.focus(); }
 });
 document.addEventListener('click', e=>{
   document.querySelectorAll('.toc-wrap.open, .dd-wrap.open, .search-wrap.open, .our-multi.open').forEach(w=>{ if(!w.contains(e.target)) w.classList.remove('open'); });
   if(swapPop && swapPop.classList.contains('open') && !swapPop.contains(e.target) && !e.target.closest('.swap')) closeSwapPop();
+  if(typMenu && typMenu.classList.contains('open') && !typMenu.contains(e.target)) closeTypMenu();
 });
 
 /* ================= ГЛОБАЛЬНЫЙ ПОИСК ================= */
