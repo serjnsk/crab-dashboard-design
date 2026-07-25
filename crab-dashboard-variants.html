@@ -845,6 +845,38 @@ tr.flash td{animation:rowflash 1.4s ease}
 .swp-acts button:hover,.swp-acts a:hover{color:var(--text);background:var(--border)}
 .swp-acts button.copied{color:var(--up)}
 
+/* ============ ГЛАВНАЯ: СПИСОК ПРОЕКТОВ ============ */
+.home-page .main{border-radius:0;margin:0}
+.home-grid th.hstar, .home-grid td.hstar{width:34px;padding-left:12px}
+.hm-star{color:var(--text-3);font-size:14px;line-height:1;padding:2px}
+.hm-star:hover,.hm-star.on{color:#E8B93B}
+.home-grid td.hname{text-align:left;padding-left:8px}
+.hname .mrow{display:flex;align-items:center;gap:8px;min-width:0}
+.hname .mrow .txt{font-weight:550;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hname .hflag{font-size:12px}
+.hfold{display:inline-flex;color:var(--text-3)}
+.hfold svg{width:14px;height:14px}
+.home-grid td.hnext{white-space:nowrap;color:var(--text-2);font-size:12px;text-align:center;font-variant-numeric:tabular-nums}
+.hdot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--border-strong);margin-right:6px;vertical-align:1px}
+.hdot.on{background:var(--t10-heat)}
+.home-grid td.bd{text-align:center;font-variant-numeric:tabular-nums;min-width:62px;font-size:12.5px}
+.bd .bnum{font-weight:650}
+.bd .bnum.z{color:var(--text-3);font-weight:500}
+.bd sup{font-size:9px;font-weight:750;margin-left:2px}
+.bd sup.up{color:var(--up)}
+.bd sup.down{color:var(--down)}
+.ps{font-size:10px;font-weight:750;border-radius:5px;padding:2.5px 7px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.ps.g{background:var(--t10-bg);color:var(--t10-fg)}
+.ps.m{background:var(--t20-bg);color:var(--t20-fg)}
+.ps.b{background:var(--t50-bg);color:var(--t50-fg)}
+.home-grid td.ps-c,.home-grid td.team-c{text-align:center}
+.team-ava{display:inline-flex;width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,#3D5AFE,#00B0FF);color:#fff;font-size:10px;font-weight:700;align-items:center;justify-content:center}
+tr.hh-hide, tr.vh{display:none}
+tr.h-m{cursor:pointer}
+.tool-ico.fav.on{color:#E8B93B;border-color:#E8B93B;background:rgba(232,185,59,.1)}
+.home-page .grid tr.group-row td{box-shadow:none} /* полоса-стрипе только на странице мониторинга */
+.home-page .super-head,.home-page .group-head{position:static;width:auto;max-width:none}
+
 /* ============ SERP MODAL (по центру, мультивыбор дат) ============ */
 /* модалка «Позиции конкурента»: адрес сайта + действие/отмена */
 .comp-modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:96;padding:24px;background:rgba(12,17,26,.45)}
@@ -1251,6 +1283,7 @@ function keyCats(k){
 const I = {
   foldG:`<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 3L8 6l3.5-3"/><path d="M4.5 13L8 10l3.5 3"/></svg>`,
   foldS:`<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 2.5L8 5.5l3.5-3"/><path d="M2.5 8h11"/><path d="M4.5 13.5L8 10.5l3.5 3"/></svg>`,
+  folder:`<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M1.5 4.5A1.5 1.5 0 0 1 3 3h3l1.5 2H13a1.5 1.5 0 0 1 1.5 1.5v5A1.5 1.5 0 0 1 13 13H3a1.5 1.5 0 0 1-1.5-1.5v-7z"/></svg>`,
   monitor:`<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1.5" y="2.5" width="13" height="9" rx="1.5"/><path d="M6 14h4M8 11.5V14"/></svg>`,
   sun:`<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="3"/><path d="M8 1v1.8M8 13.2V15M1 8h1.8M13.2 8H15M2.9 2.9l1.3 1.3M11.8 11.8l1.3 1.3M13.1 2.9l-1.3 1.3M4.2 11.8l-1.3 1.3"/></svg>`,
   moon:`<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13.5 9.5A6 6 0 0 1 6.5 2.5a6 6 0 1 0 7 7z"/></svg>`,
@@ -1298,6 +1331,269 @@ const I = {
 /* ================= RENDER ================= */
 const app = document.getElementById('app');
 let curV = null; /* конфиг активного варианта — читается рендерами ячеек */
+let PAGE = 'home'; /* 'home' — список проектов, 'mon' — страница позиций */
+
+/* общая шапка приложения (главная и страница мониторинга) */
+function buildTopbar(chrome){
+  const themeSeg = `
+    <span class="theme-seg" role="group" aria-label="Тема интерфейса">
+      <button class="ts-btn" data-mode="system" title="Как в системе">${I.monitor}</button>
+      <button class="ts-btn" data-mode="light" title="Светлая тема">${I.sun}</button>
+      <button class="ts-btn" data-mode="dark" title="Тёмная тема">${I.moon}</button>
+    </span>`;
+  const searchHtml = `
+    <span class="search-wrap" id="searchWrap">
+      <span class="gsearch">${I.search}<input id="gsInput" placeholder="Поиск по проектам и мониторингам" autocomplete="off"><span class="kbd">⌘K</span></span>
+      <div class="gs-panel">
+        <div class="gs-tabs">
+          <button class="gs-tab ${GS_TAB==='all'?'active':''}" data-t="all">Все</button>
+          <button class="gs-tab ${GS_TAB==='fav'?'active':''}" data-t="fav">Избранное</button>
+        </div>
+        <div class="gs-list" id="gsList"></div>
+      </div>
+    </span>`;
+  const avaHtml = `
+    <span class="ava-wrap">
+      <span class="avatar">DC</span><span class="ava-car">▾</span>
+      <div class="ava-menu" role="menu">
+        <div class="am-head">
+          <span class="avatar am-ava">DC</span>
+          <span class="am-who"><b>Дмитрий Ч.</b><span>dc@directline.pro</span></span>
+        </div>
+        <div class="am-team" title="Команда пользователя">${I.users}Команда<b>SEO · DirectLine</b></div>
+        <div class="am-stats">
+          <span class="am-stat" title="Проекты, доступные пользователю"><b>24</b><span>видит проектов</span></span>
+          <span class="am-stat" title="Проекты, где пользователь — создатель"><b>7</b><span>создал</span></span>
+        </div>
+        <div class="am-sep"></div>
+        <div class="am-label">Аккаунт</div>
+        <button class="am-item">${I.user}Профиль</button>
+        <button class="am-item">${I.users}Пользователи</button>
+        <div class="am-label">Данные</div>
+        <button class="am-item">${I.trash}Недавно удалённые</button>
+        <button class="am-item">${I.bolt}Автоматические теги</button>
+        <button class="am-item">${I.tag}Категории и теги</button>
+        <div class="am-sep"></div>
+        <button class="am-item danger">${I.logout}Выйти</button>
+      </div>
+    </span>`;
+  return chrome==='pd' ? `
+  <header class="topbar">
+    <span class="spacer"></span>
+    ${searchHtml}
+    <span class="spacer"></span>
+    <button class="tb-ico" title="Помощь">?</button>
+    ${themeSeg}
+    ${avaHtml}
+  </header>` : `
+  <header class="topbar">
+    <button class="logo" title="На главную — список проектов"><span class="mark">${I.crab}</span>CRAB</button>
+    <span class="spacer"></span>
+    ${searchHtml}
+    ${themeSeg}
+    ${avaHtml}
+  </header>`;
+}
+
+/* общие обработчики шапки: тема, поиск, переход на главную по лого */
+function bindChrome(){
+  document.querySelectorAll('.ts-btn').forEach(b=> b.onclick = ()=>{
+    userTheme = b.dataset.mode==='system' ? null : b.dataset.mode;
+    applyTheme();
+  });
+  const gsWrap = document.getElementById('searchWrap');
+  if(gsWrap){
+    const inp = gsWrap.querySelector('#gsInput');
+    inp.onfocus = ()=>{ gsWrap.classList.add('open'); renderGsList(); };
+    inp.oninput = renderGsList;
+    gsWrap.querySelectorAll('.gs-tab').forEach(t=> t.onclick = e=>{
+      e.stopPropagation();
+      GS_TAB = t.dataset.t;
+      gsWrap.querySelectorAll('.gs-tab').forEach(x=>x.classList.toggle('active', x===t));
+      renderGsList();
+    });
+  }
+  const logo = document.querySelector('.topbar .logo');
+  if(logo) logo.onclick = goHome;
+  document.querySelectorAll('.crumb-home').forEach(a=> a.onclick = e=>{ e.preventDefault(); goHome(); });
+}
+function goHome(){ PAGE='home'; renderHome(); }
+function goMon(){ PAGE='mon'; show(cur); }
+
+/* ================= ГЛАВНАЯ: СПИСОК ПРОЕКТОВ ================= */
+const HOME = [
+ {group:'Gambling RO диаспора', projects:[
+   {name:'AT | cazinouri-online.at', ps:[100,99], team:'A',
+    mons:[{eng:'go',flag:'🇦🇹',name:'RO-AT',next:'24.07.26',active:false,keys:7,urls:1,bands:[0,0,0,2,0],deltas:[0,0,-1,2,0],fav:false}]},
+   {name:'BE | cazinouri-online.be', ps:[100,99], team:'A',
+    mons:[{eng:'go',flag:'🇧🇪',name:'RO-BE',next:'24.07.26',active:false,keys:18,urls:1,bands:[0,0,0,0,0],deltas:[0,0,0,0,0],fav:false}]},
+   {name:'ES | cazinouri-online.es', ps:[100,97], team:'A',
+    mons:[{eng:'go',flag:'🇪🇸',name:'RO-ES',next:'20.07.26',active:false,keys:7,urls:1,bands:[0,0,0,0,0],deltas:[0,0,0,0,0],fav:false}]},
+   {name:'FR | cazinouri-online.fr', ps:[100,99], team:'A',
+    mons:[{eng:'go',flag:'🇫🇷',name:'RO-FR',next:'24.07.26',active:false,keys:8,urls:1,bands:[0,0,0,0,0],deltas:[0,0,0,0,0],fav:false}]}
+ ]},
+ {group:'DirectLine', projects:[
+   {name:'directline.pro', ps:[96,88], team:'D',
+    mons:[
+     {eng:'ya',flag:'🇷🇺',name:'Блог DL (1 раз в месяц)',next:'01.08.26',active:true,keys:2465,urls:291,bands:[302,787,407,668,285],deltas:[-14,-45,20,21,-22],fav:true},
+     {eng:'go',flag:'🇷🇺',name:'Блог DL (1 раз в месяц)',next:'01.08.26',active:true,keys:2465,urls:291,bands:[298,760,410,662,300],deltas:[6,-12,4,-8,3],fav:false},
+     {eng:'go',flag:'🇷🇺',name:'Test DuckDuckGo',next:'19.07.26',active:false,keys:1,urls:1,bands:[0,0,0,0,0],deltas:[0,0,0,0,0],fav:false}
+    ]}
+ ]},
+ {group:'1serj', projects:[
+   {name:'TR-Бренды', ps:[88,48], team:'C',
+    mons:[{eng:'go',flag:'🇹🇷',name:'TR-Бренды',next:'25.07.26',active:true,keys:16,urls:0,bands:[0,0,0,0,0],deltas:[-1,-2,0,0,0],fav:true}]}
+ ]}
+];
+let HOME_FAV_ONLY = false, HOME_Q = '';
+
+function psBadge(ps){
+  const worst = Math.min(ps[0], ps[1]);
+  const cls = worst>=90 ? 'g' : worst>=50 ? 'm' : 'b';
+  return `<span class="ps ${cls}" title="Google PageSpeed: desktop / mobile">${ps[0]} / ${ps[1]}</span>`;
+}
+function homeBandCell(n,d){
+  const sup = d ? `<sup class="${d>0?'up':'down'}">${d>0?'+':''}${d}</sup>` : '';
+  return `<td class="bd"><span class="bnum ${n===0?'z':''}">${n}</span>${sup}</td>`;
+}
+
+function renderHome(){
+  app.className = 'home-page chrome-darkframe sum-mode-abs';
+  const nProj = HOME.reduce((n,g)=>n+g.projects.length,0);
+  const nMons = HOME.reduce((n,g)=>n+g.projects.reduce((m,p)=>m+p.mons.length,0),0);
+  let rows = '';
+  HOME.forEach((g,gi)=>{
+    const agg=[0,0,0,0,0], aggD=[0,0,0,0,0];
+    let monCount=0;
+    g.projects.forEach(p=>p.mons.forEach(m=>{ monCount++; m.bands.forEach((b,i)=>{agg[i]+=b; aggD[i]+=m.deltas[i];}); }));
+    rows += `<tr class="group-gap big" aria-hidden="true"><td colspan="12"></td></tr>
+      <tr class="super-row h-g" data-hg="${gi}"><td></td><td class="hname"><div class="super-head"><span class="chev">${I.chev}</span><span class="hfold">${I.folder}</span><span class="sname">${esc(g.group)}</span><span class="scount">${g.projects.length} проект(а) · ${monCount} мониторинг(а)</span></div></td>
+      <td></td>${agg.map((n,i)=>homeBandCell(n,aggD[i])).join('')}<td colspan="4"></td></tr>`;
+    g.projects.forEach((p,pi)=>{
+      rows += `<tr class="group-row h-p" data-hp="${gi}-${pi}" data-hgp="${gi}"><td></td><td class="hname"><div class="group-head"><span class="chev">${I.chev}</span><span class="gname">${esc(p.name)}</span></div></td>
+        <td colspan="8"></td><td class="ps-c">${psBadge(p.ps)}</td><td class="team-c"><span class="team-ava" title="Команда проекта">${p.team}</span></td></tr>`;
+      p.mons.forEach((m,mi)=>{
+        rows += `<tr class="kw-row h-m" data-hgp="${gi}" data-hpp="${gi}-${pi}" data-mi="${gi}-${pi}-${mi}" data-search="${(g.group+' '+p.name+' '+m.name).toLowerCase()}">
+          <td class="hstar"><button class="hm-star ${m.fav?'on':''}" title="${m.fav?'Убрать из избранного':'В избранное'}">${m.fav?'★':'☆'}</button></td>
+          <td class="hname"><span class="mrow"><span class="eng ${m.eng}">${m.eng==='ya'?I.ya:'G'}</span><span class="hflag">${m.flag}</span><span class="txt">${esc(m.name)}</span></span></td>
+          <td class="hnext"><span class="hdot ${m.active?'on':''}" title="${m.active?'Мониторинг активен':'Мониторинг не активен'}"></span>${m.next}</td>
+          ${m.bands.map((b,i)=>homeBandCell(b,m.deltas[i])).join('')}
+          <td class="bd"><span class="bnum ${m.keys===0?'z':''}">${m.keys.toLocaleString('ru-RU')}</span></td>
+          <td class="bd"><span class="bnum ${m.urls===0?'z':''}">${m.urls}</span></td>
+          <td></td><td></td></tr>`;
+      });
+    });
+  });
+  app.innerHTML = `
+  ${buildTopbar('std')}
+  <div class="shell">
+    <main class="main">
+      <div class="page-head">
+        <div class="ph-left">
+          <div class="ph-title"><h1>Проекты</h1></div>
+          <span class="ph-meta">${HOME.length} группы · ${nProj} проектов · ${nMons} мониторингов</span>
+        </div>
+        <div class="ph-actions">
+          <button class="btn secondary icon" title="Настройки списка">${I.gear}</button>
+          <button class="btn primary">+ Новый проект</button>
+        </div>
+      </div>
+      <div class="toolbar">
+        <span class="f-input">${I.search}<input id="homeQ" placeholder="Поиск по проектам" aria-label="Поиск по проектам" value="${esc(HOME_Q)}"></span>
+        <span class="f-select">Мониторинги: <b>все открытые</b> <span class="car">▼</span></span>
+        <span class="f-select">Доступ: <b>все</b> <span class="car">▼</span></span>
+        <span class="f-select">Команда: <b>все</b> <span class="car">▼</span></span>
+        <button class="tool-ico fav ${HOME_FAV_ONLY?'on':''}" id="homeFav" title="Показать только избранные">★</button>
+        <span class="spacer"></span>
+        <button class="tool-ico" id="homeFoldG" title="Свернуть / развернуть группы проектов">${I.foldS}</button>
+        <button class="tool-ico" id="homeFoldP" title="Свернуть / развернуть проекты">${I.foldG}</button>
+      </div>
+      <div class="worksheet"><div class="table-wrap"><table class="grid home-grid">
+        <thead><tr>
+          <th class="hstar"></th><th class="hname" style="text-align:left;padding-left:8px">Проект / мониторинг</th><th>След. срез</th>
+          <th>ТОП 1–3</th><th>1–10</th><th>11–20</th><th>21–50</th><th>51–100</th>
+          <th>Ключей</th><th>URLs</th><th title="Google PageSpeed целевых URL">PageSpeed</th><th>Команда</th>
+        </tr></thead>
+        <tbody>${rows}</tbody></table></div></div>
+    </main>
+  </div>`;
+  applyTheme();
+  bindChrome();
+  bindHome();
+  applyHomeFilter();
+}
+
+function applyHomeFilter(){
+  const q = HOME_Q.toLowerCase();
+  app.querySelectorAll('tr.h-m').forEach(r=>{
+    const ok = (!HOME_FAV_ONLY || r.querySelector('.hm-star').classList.contains('on'))
+      && (r.dataset.search||'').includes(q);
+    r.classList.toggle('vh', !ok);
+  });
+  app.querySelectorAll('tr.h-p').forEach(p=>{
+    const any = [...app.querySelectorAll(`tr.h-m[data-hpp="${p.dataset.hp}"]`)].some(r=>!r.classList.contains('vh'));
+    p.classList.toggle('vh', !any);
+  });
+  app.querySelectorAll('tr.h-g').forEach(g=>{
+    const any = [...app.querySelectorAll(`tr.h-p[data-hgp="${g.dataset.hg}"]`)].some(r=>!r.classList.contains('vh'));
+    g.classList.toggle('vh', !any);
+    const gap = g.previousElementSibling;
+    if(gap && gap.classList.contains('group-gap')) gap.classList.toggle('vh', !any);
+  });
+}
+
+function bindHome(){
+  /* поиск и фильтр избранного */
+  const q = document.getElementById('homeQ');
+  if(q) q.oninput = ()=>{ HOME_Q = q.value; applyHomeFilter(); };
+  const fav = document.getElementById('homeFav');
+  if(fav) fav.onclick = ()=>{ HOME_FAV_ONLY = !HOME_FAV_ONLY; fav.classList.toggle('on', HOME_FAV_ONLY); applyHomeFilter(); };
+  /* звёзды мониторингов */
+  app.querySelectorAll('.hm-star').forEach(s=> s.onclick = e=>{
+    e.stopPropagation();
+    const [gi,pi,mi] = s.closest('tr').dataset.mi.split('-').map(Number);
+    const m = HOME[gi].projects[pi].mons[mi];
+    m.fav = !m.fav;
+    s.classList.toggle('on', m.fav);
+    s.textContent = m.fav ? '★' : '☆';
+    applyHomeFilter();
+  });
+  /* сворачивание групп и проектов */
+  app.querySelectorAll('tr.h-g').forEach(g=>{
+    g.style.cursor='pointer';
+    g.onclick = ()=>{
+      g.classList.toggle('collapsed');
+      const on = g.classList.contains('collapsed');
+      app.querySelectorAll(`tr[data-hgp="${g.dataset.hg}"]`).forEach(r=>r.classList.toggle('hh-hide', on));
+    };
+  });
+  app.querySelectorAll('tr.h-p').forEach(p=>{
+    p.style.cursor='pointer';
+    p.onclick = ()=>{
+      p.classList.toggle('collapsed');
+      const on = p.classList.contains('collapsed');
+      app.querySelectorAll(`tr.h-m[data-hpp="${p.dataset.hp}"]`).forEach(r=>r.classList.toggle('hh-hide', on));
+    };
+  });
+  /* тумблеры свернуть всё */
+  const fg = document.getElementById('homeFoldG');
+  if(fg) fg.onclick = ()=>{
+    const collapse = !!app.querySelector('tr.h-g:not(.collapsed)');
+    app.querySelectorAll('tr.h-g').forEach(g=>g.classList.toggle('collapsed', collapse));
+    app.querySelectorAll('tr[data-hgp]').forEach(r=>r.classList.toggle('hh-hide', collapse));
+  };
+  const fp = document.getElementById('homeFoldP');
+  if(fp) fp.onclick = ()=>{
+    const collapse = !!app.querySelector('tr.h-p:not(.collapsed)');
+    app.querySelectorAll('tr.h-p').forEach(p=>p.classList.toggle('collapsed', collapse));
+    app.querySelectorAll('tr.h-m').forEach(r=>r.classList.toggle('hh-hide', collapse));
+  };
+  /* клик по мониторингу → страница позиций */
+  app.querySelectorAll('tr.h-m').forEach(r=> r.onclick = e=>{
+    if(e.target.closest('.hm-star')) return;
+    goMon();
+  });
+}
 
 function trendHtml(diff, invert=false){
   if(!diff) return '<span class="trend" style="color:var(--text-3)">— без изменений</span>';
@@ -1598,7 +1894,7 @@ function renderDashboard(v){
 
   const chrome = v.chrome || 'std';
   const NAV = [['home','Проект',false],['pos','Позиции',true],['eye','Видимость',false],['gear','Настройки',false]];
-  const crumbsHtml = `<nav class="crumbs"><a href="#" onclick="return false">Проекты</a><span class="sep">/</span><a href="#" onclick="return false">directline.pro</a><span class="sep">/</span><span class="cur">Блог DL</span></nav>`;
+  const crumbsHtml = `<nav class="crumbs"><a href="#" class="crumb-home">Проекты</a><span class="sep">/</span><a href="#" onclick="return false">directline.pro</a><span class="sep">/</span><span class="cur">Блог DL</span></nav>`;
   /* hover по «Позиции» раскрывает список мониторингов проекта — их может быть много */
   const MONS = [
     ['ya','Блог DL (1 раз в месяц)',true],['go','Блог DL (1 раз в месяц)',false],
@@ -1613,64 +1909,7 @@ function renderDashboard(v){
   </div>`;
   /* единая логика рамы для всех вариантов: шапка = логотип+поиск+профиль,
      хлебные крошки — всегда рядом с H1 в контенте, сайдбар с flyout мониторингов */
-  const themeSeg = `
-    <span class="theme-seg" role="group" aria-label="Тема интерфейса">
-      <button class="ts-btn" data-mode="system" title="Как в системе">${I.monitor}</button>
-      <button class="ts-btn" data-mode="light" title="Светлая тема">${I.sun}</button>
-      <button class="ts-btn" data-mode="dark" title="Тёмная тема">${I.moon}</button>
-    </span>`;
-  const searchHtml = `
-    <span class="search-wrap" id="searchWrap">
-      <span class="gsearch">${I.search}<input id="gsInput" placeholder="Поиск по проектам и мониторингам" autocomplete="off"><span class="kbd">⌘K</span></span>
-      <div class="gs-panel">
-        <div class="gs-tabs">
-          <button class="gs-tab ${GS_TAB==='all'?'active':''}" data-t="all">Все</button>
-          <button class="gs-tab ${GS_TAB==='fav'?'active':''}" data-t="fav">Избранное</button>
-        </div>
-        <div class="gs-list" id="gsList"></div>
-      </div>
-    </span>`;
-  const avaHtml = `
-    <span class="ava-wrap">
-      <span class="avatar">DC</span><span class="ava-car">▾</span>
-      <div class="ava-menu" role="menu">
-        <div class="am-head">
-          <span class="avatar am-ava">DC</span>
-          <span class="am-who"><b>Дмитрий Ч.</b><span>dc@directline.pro</span></span>
-        </div>
-        <div class="am-team" title="Команда пользователя">${I.users}Команда<b>SEO · DirectLine</b></div>
-        <div class="am-stats">
-          <span class="am-stat" title="Проекты, доступные пользователю"><b>24</b><span>видит проектов</span></span>
-          <span class="am-stat" title="Проекты, где пользователь — создатель"><b>7</b><span>создал</span></span>
-        </div>
-        <div class="am-sep"></div>
-        <div class="am-label">Аккаунт</div>
-        <button class="am-item">${I.user}Профиль</button>
-        <button class="am-item">${I.users}Пользователи</button>
-        <div class="am-label">Данные</div>
-        <button class="am-item">${I.trash}Недавно удалённые</button>
-        <button class="am-item">${I.bolt}Автоматические теги</button>
-        <button class="am-item">${I.tag}Категории и теги</button>
-        <div class="am-sep"></div>
-        <button class="am-item danger">${I.logout}Выйти</button>
-      </div>
-    </span>`;
-  const topbarHtml = chrome==='pd' ? `
-  <header class="topbar">
-    <span class="spacer"></span>
-    ${searchHtml}
-    <span class="spacer"></span>
-    <button class="tb-ico" title="Помощь">?</button>
-    ${themeSeg}
-    ${avaHtml}
-  </header>` : `
-  <header class="topbar">
-    <span class="logo"><span class="mark">${I.crab}</span>CRAB</span>
-    <span class="spacer"></span>
-    ${searchHtml}
-    ${themeSeg}
-    ${avaHtml}
-  </header>`;
+  const topbarHtml = buildTopbar(chrome);
   const sidenavHtml = `
     <nav class="sidenav">
       ${chrome==='pd'?`<span class="pd-logo" title="CRAB">${I.crab}</span>`:''}
@@ -2257,11 +2496,7 @@ function show(i){
     app.classList.add('sum-mode-'+b.dataset.m);
     app.querySelectorAll('.sm-mode').forEach(x=>x.classList.toggle('active', x===b));
   });
-  /* переключатель темы в шапке: системная / светлая / тёмная */
-  app.querySelectorAll('.ts-btn').forEach(b=> b.onclick = ()=>{
-    userTheme = b.dataset.mode==='system' ? null : b.dataset.mode;
-    applyTheme();
-  });
+  bindChrome(); /* тема, поиск, лого/крошка «Проекты» → главная */
   /* collapse groups */
   app.querySelectorAll('.group-row').forEach(gr=>{
     gr.style.cursor='pointer';
@@ -2283,19 +2518,6 @@ function show(i){
       app.querySelectorAll(`tr[data-super="${si}"]`).forEach(r=>r.classList.toggle('s-hide',on));
     };
   });
-  /* глобальный поиск */
-  const gsWrap = app.querySelector('#searchWrap');
-  if(gsWrap){
-    const inp = gsWrap.querySelector('#gsInput');
-    inp.onfocus = ()=>{ gsWrap.classList.add('open'); renderGsList(); };
-    inp.oninput = renderGsList;
-    gsWrap.querySelectorAll('.gs-tab').forEach(t=> t.onclick = e=>{
-      e.stopPropagation();
-      GS_TAB = t.dataset.t;
-      gsWrap.querySelectorAll('.gs-tab').forEach(x=>x.classList.toggle('active', x===t));
-      renderGsList();
-    });
-  }
   /* дропдауны тулбара: подсветка, срезы, период */
   app.querySelectorAll('.dd-wrap > .f-select, .dd-wrap > .period').forEach(btn=>{
     btn.onclick = e=>{
@@ -2446,5 +2668,5 @@ function show(i){
   closeSerp();
 }
 
-show(0);
+goHome(); /* вход — главная (список проектов); клик по мониторингу открывает страницу позиций */
 </script>
