@@ -890,7 +890,7 @@ tr.h-m{cursor:pointer}
 /* иерархия «группа → проект → мониторинг»: «Сетка» + «Графит-бары» (запечено) */
 .home-grid{table-layout:fixed;width:100%} /* стабильные колонки — ничего не дёргается при сворачивании */
 .home-page tr.group-gap.big td{height:0;border-bottom:none}
-.home-page tr.h-g td{height:46px;background:#39434F;border-top:none;border-bottom:none}
+.home-page tr.h-g td{height:46px;background:#39434F;border-top:none;border-bottom:none;position:sticky;top:calc(52px + var(--thead-h));z-index:5} /* графит-бар липнет при прокрутке */
 .home-page tr.h-g .super-head{padding-left:0}
 .home-page tr.h-g .super-head .sname{font-size:14.5px;color:#EDF1F7}
 .home-page tr.h-g .scount{color:#97A2B4}
@@ -910,6 +910,23 @@ tr.h-m{cursor:pointer}
 .home-page tr.h-p .gname{font-size:14px}
 .home-page tr.h-m td.hname{padding-left:64px} /* мониторинг — глубже проекта (контролы внутри строки) */
 .mrow .hsel-box{flex:none;margin-right:2px}
+/* шестерёнки — только по hover строки, без «чехарды» */
+.home-grid .hg-btn{opacity:0}
+.home-grid tr:hover .hg-btn,.home-grid .hg-btn:focus-visible{opacity:1}
+/* чекбоксы уровней */
+.super-head .hsel-box{margin-right:4px;border-color:#69758A;background:transparent}
+.super-head .hsel-box:hover{border-color:#fff}
+.group-head .hsel-box{margin-right:4px}
+/* фавиконка проекта (буква-заглушка + реальная иконка после загрузки) */
+.pfav{position:relative;display:inline-flex;align-items:center;justify-content:center;width:17px;height:17px;border-radius:5px;overflow:hidden;flex:none;color:#fff}
+.pfav i{font-style:normal;font-size:10px;font-weight:800}
+.pfav img{position:absolute;inset:0;width:100%;height:100%;opacity:0}
+.pfav img.ok{opacity:1;background:var(--surface)}
+/* статус: календарик + активность + дата */
+.hcal{display:inline-flex;color:var(--text-3);margin-right:6px;vertical-align:-1px}
+.hcal svg{width:11px;height:11px}
+/* поиск по проектам — шире */
+.home-page .f-input input{width:230px}
 .home-page tr.h-m td{height:40px}
 
 /* ============ SERP MODAL (по центру, мультивыбор дат) ============ */
@@ -1360,7 +1377,18 @@ const I = {
   /* флаги регионов: SVG вместо эмодзи — на Windows эмодзи-флаги не отображаются */
   flags:{
     ru:'<svg viewBox="0 0 18 12" preserveAspectRatio="none"><rect width="18" height="4" fill="#F5F5F5"/><rect y="4" width="18" height="4" fill="#0039A6"/><rect y="8" width="18" height="4" fill="#D52B1E"/></svg>',
-    de:'<svg viewBox="0 0 18 12" preserveAspectRatio="none"><rect width="18" height="4" fill="#1B1B1B"/><rect y="4" width="18" height="4" fill="#DD0000"/><rect y="8" width="18" height="4" fill="#FFCE00"/></svg>'
+    de:'<svg viewBox="0 0 18 12" preserveAspectRatio="none"><rect width="18" height="4" fill="#1B1B1B"/><rect y="4" width="18" height="4" fill="#DD0000"/><rect y="8" width="18" height="4" fill="#FFCE00"/></svg>',
+    at:'<svg viewBox="0 0 18 12" preserveAspectRatio="none"><rect width="18" height="4" fill="#ED2939"/><rect y="4" width="18" height="4" fill="#fff"/><rect y="8" width="18" height="4" fill="#ED2939"/></svg>',
+    be:'<svg viewBox="0 0 18 12" preserveAspectRatio="none"><rect width="6" height="12" fill="#1B1B1B"/><rect x="6" width="6" height="12" fill="#FFD90C"/><rect x="12" width="6" height="12" fill="#F31830"/></svg>',
+    es:'<svg viewBox="0 0 18 12" preserveAspectRatio="none"><rect width="18" height="3" fill="#AA151B"/><rect y="3" width="18" height="6" fill="#F1BF00"/><rect y="9" width="18" height="3" fill="#AA151B"/></svg>',
+    fr:'<svg viewBox="0 0 18 12" preserveAspectRatio="none"><rect width="6" height="12" fill="#002395"/><rect x="6" width="6" height="12" fill="#fff"/><rect x="12" width="6" height="12" fill="#ED2939"/></svg>',
+    it:'<svg viewBox="0 0 18 12" preserveAspectRatio="none"><rect width="6" height="12" fill="#009246"/><rect x="6" width="6" height="12" fill="#fff"/><rect x="12" width="6" height="12" fill="#CE2B37"/></svg>',
+    nl:'<svg viewBox="0 0 18 12" preserveAspectRatio="none"><rect width="18" height="4" fill="#AE1C28"/><rect y="4" width="18" height="4" fill="#fff"/><rect y="8" width="18" height="4" fill="#21468B"/></svg>',
+    dk:'<svg viewBox="0 0 18 12" preserveAspectRatio="none"><rect width="18" height="12" fill="#C8102E"/><rect x="5" width="2" height="12" fill="#fff"/><rect y="5" width="18" height="2" fill="#fff"/></svg>',
+    ch:'<svg viewBox="0 0 18 12" preserveAspectRatio="none"><rect width="18" height="12" fill="#DA291C"/><rect x="8" y="2.5" width="2" height="7" fill="#fff"/><rect x="5.5" y="5" width="7" height="2" fill="#fff"/></svg>',
+    ee:'<svg viewBox="0 0 18 12" preserveAspectRatio="none"><rect width="18" height="4" fill="#0072CE"/><rect y="4" width="18" height="4" fill="#1B1B1B"/><rect y="8" width="18" height="4" fill="#fff"/></svg>',
+    tr:'<svg viewBox="0 0 18 12" preserveAspectRatio="none"><rect width="18" height="12" fill="#E30A17"/><circle cx="7" cy="6" r="3" fill="#fff"/><circle cx="7.8" cy="6" r="2.4" fill="#E30A17"/><circle cx="11.5" cy="6" r="1.1" fill="#fff"/></svg>',
+    sa:'<svg viewBox="0 0 18 12" preserveAspectRatio="none"><rect width="18" height="12" fill="#165D31"/><rect x="3" y="7.5" width="12" height="1.4" fill="#fff"/><rect x="3" y="3.5" width="12" height="2" rx="1" fill="#fff" opacity=".85"/></svg>'
   }
 };
 
@@ -1459,26 +1487,63 @@ function goMon(){ PAGE='mon'; show(cur); }
 /* ================= ГЛАВНАЯ: СПИСОК ПРОЕКТОВ ================= */
 const HOME = [
  {group:'Gambling RO диаспора', projects:[
-   {name:'AT | cazinouri-online.at', ps:[100,99], team:'A',
-    mons:[{eng:'go',flag:'🇦🇹',name:'RO-AT',next:'24.07.26',active:false,keys:7,urls:1,bands:[0,0,0,2,0],deltas:[0,0,-1,2,0],fav:false}]},
-   {name:'BE | cazinouri-online.be', ps:[100,99], team:'A',
-    mons:[{eng:'go',flag:'🇧🇪',name:'RO-BE',next:'24.07.26',active:false,keys:18,urls:1,bands:[0,0,0,0,0],deltas:[0,0,0,0,0],fav:false}]},
-   {name:'ES | cazinouri-online.es', ps:[100,97], team:'A',
-    mons:[{eng:'go',flag:'🇪🇸',name:'RO-ES',next:'20.07.26',active:false,keys:7,urls:1,bands:[0,0,0,0,0],deltas:[0,0,0,0,0],fav:false}]},
-   {name:'FR | cazinouri-online.fr', ps:[100,99], team:'A',
-    mons:[{eng:'go',flag:'🇫🇷',name:'RO-FR',next:'24.07.26',active:false,keys:8,urls:1,bands:[0,0,0,0,0],deltas:[0,0,0,0,0],fav:false}]}
+   {name:'AT | cazinouri-online.at', dom:'cazinouri-online.at', ps:[100,99], team:'A',
+    mons:[{eng:'go',flag:'at',name:'RO-AT',next:'24.07.26',active:false,keys:7,urls:1,bands:[0,0,0,2,0],deltas:[0,0,-1,2,0],fav:false}]},
+   {name:'BE | cazinouri-online.be', dom:'cazinouri-online.be', ps:[100,99], team:'A',
+    mons:[{eng:'go',flag:'be',name:'RO-BE',next:'24.07.26',active:false,keys:18,urls:1,bands:[0,0,0,0,0],deltas:[0,0,0,0,0],fav:false}]},
+   {name:'ES | cazinouri-online.es', dom:'cazinouri-online.es', ps:[100,97], team:'A',
+    mons:[{eng:'go',flag:'es',name:'RO-ES',next:'20.07.26',active:false,keys:7,urls:1,bands:[0,0,0,0,0],deltas:[0,0,0,0,0],fav:false}]},
+   {name:'FR | cazinouri-online.fr', dom:'cazinouri-online.fr', ps:[100,99], team:'A',
+    mons:[{eng:'go',flag:'fr',name:'RO-FR',next:'24.07.26',active:false,keys:8,urls:1,bands:[0,0,0,0,0],deltas:[0,0,0,0,0],fav:false}]},
+   {name:'IT | cazinouri-online.it', dom:'cazinouri-online.it', ps:[100,99], team:'A',
+    mons:[{eng:'go',flag:'it',name:'RO-IT',next:'24.07.26',active:false,keys:8,urls:1,bands:[0,0,0,2,0],deltas:[0,0,-1,2,0],fav:false}]},
+   {name:'NL | cazinouri-online.nl', dom:'cazinouri-online.nl', ps:[100,99], team:'A',
+    mons:[{eng:'go',flag:'nl',name:'RO-NL',next:'24.07.26',active:false,keys:6,urls:1,bands:[0,0,0,0,0],deltas:[0,0,0,0,0],fav:false}]}
  ]},
  {group:'DirectLine', projects:[
-   {name:'directline.pro', ps:[96,88], team:'D',
+   {name:'directline.pro', dom:'directline.pro', ps:[96,88], team:'D',
     mons:[
-     {eng:'ya',flag:'🇷🇺',name:'Блог DL (1 раз в месяц)',next:'01.08.26',active:true,keys:2465,urls:291,bands:[302,787,407,668,285],deltas:[-14,-45,20,21,-22],fav:true},
-     {eng:'go',flag:'🇷🇺',name:'Блог DL (1 раз в месяц)',next:'01.08.26',active:true,keys:2465,urls:291,bands:[298,760,410,662,300],deltas:[6,-12,4,-8,3],fav:false},
-     {eng:'go',flag:'🇷🇺',name:'Test DuckDuckGo',next:'19.07.26',active:false,keys:1,urls:1,bands:[0,0,0,0,0],deltas:[0,0,0,0,0],fav:false}
+     {eng:'ya',flag:'ru',name:'Блог DL (1 раз в месяц)',next:'01.08.26',active:true,keys:2465,urls:291,bands:[302,787,407,668,285],deltas:[-14,-45,20,21,-22],fav:true},
+     {eng:'go',flag:'ru',name:'Блог DL (1 раз в месяц)',next:'01.08.26',active:true,keys:2465,urls:291,bands:[298,760,410,662,300],deltas:[6,-12,4,-8,3],fav:false},
+     {eng:'go',flag:'ru',name:'Блог mobile (1 раз в месяц)',next:'01.08.26',active:true,keys:2465,urls:291,bands:[276,741,398,671,310],deltas:[-4,-9,6,2,-5],fav:false},
+     {eng:'ya',flag:'ru',name:'Раздел сервисы',next:'28.07.26',active:true,keys:184,urls:22,bands:[41,96,38,31,12],deltas:[3,7,-4,1,0],fav:false},
+     {eng:'go',flag:'ru',name:'Раздел сервисы',next:'28.07.26',active:true,keys:184,urls:22,bands:[35,88,41,35,14],deltas:[-2,4,2,-3,1],fav:false},
+     {eng:'go',flag:'ru',name:'Test DuckDuckGo',next:'19.07.26',active:false,keys:1,urls:1,bands:[0,0,0,0,0],deltas:[0,0,0,0,0],fav:false}
     ]}
  ]},
+ {group:'Флористика EU', projects:[
+   {name:'eflowers.dk', dom:'eflowers.dk', ps:[92,71], team:'F',
+    mons:[{eng:'go',flag:'dk',name:'Дания (DK) - основной',next:'22.07.26',active:true,keys:340,urls:48,bands:[62,148,71,44,15],deltas:[4,-11,6,2,-1],fav:false}]},
+   {name:'blumen365.at', dom:'blumen365.at', ps:[89,64], team:'F',
+    mons:[{eng:'go',flag:'at',name:'Австрия (DE) - основной - OLD',next:'23.07.26',active:true,keys:512,urls:60,bands:[88,201,104,79,40],deltas:[-6,9,-3,5,2],fav:false}]},
+   {name:'expressflowers.ch', dom:'expressflowers.ch', ps:[94,80], team:'F',
+    mons:[{eng:'go',flag:'ch',name:'Швейцария (DE) - основной',next:'22.07.26',active:true,keys:287,urls:35,bands:[51,120,66,38,12],deltas:[2,5,-8,0,1],fav:false}]},
+   {name:'lilledesaatmine.ee', dom:'lilledesaatmine.ee', ps:[85,58], team:'F',
+    mons:[{eng:'go',flag:'ee',name:'Эстония (EE) - основной OLD',next:'26.07.26',active:false,keys:96,urls:14,bands:[12,31,18,22,8],deltas:[0,-2,3,1,0],fav:false}]},
+   {name:'saudi.florist', dom:'saudi.florist', ps:[90,66], team:'F',
+    mons:[{eng:'go',flag:'sa',name:'Saudi (EN)',next:'24.07.26',active:true,keys:154,urls:19,bands:[18,52,34,29,11],deltas:[1,6,-2,4,-3],fav:false}]}
+ ]},
+ {group:'AI компаньоны', projects:[
+   {name:'ai-companion.app', dom:'ai-companion.app', ps:[97,91], team:'B',
+    mons:[
+     {eng:'go',flag:'ru',name:'Основной (EN)',next:'21.07.26',active:true,keys:820,urls:96,bands:[106,293,137,104,33],deltas:[25,12,-19,11,1],fav:true},
+     {eng:'ya',flag:'ru',name:'Основной (RU)',next:'21.07.26',active:true,keys:640,urls:80,bands:[74,210,118,92,28],deltas:[-8,15,4,-6,2],fav:false}
+    ]},
+   {name:'soulmate.chat', dom:'soulmate.chat', ps:[93,84], team:'B',
+    mons:[{eng:'go',flag:'ru',name:'Блог (EN)',next:'25.07.26',active:true,keys:210,urls:31,bands:[22,68,41,36,17],deltas:[3,-5,7,2,0],fav:false}]}
+ ]},
+ {group:'Crypto Casinos', projects:[
+   {name:'cryptoslots.io', dom:'cryptoslots.io', ps:[78,52], team:'C',
+    mons:[
+     {eng:'go',flag:'ru',name:'Global (EN)',next:'23.07.26',active:true,keys:445,urls:52,bands:[31,94,88,102,46],deltas:[-3,8,-12,6,4],fav:false},
+     {eng:'go',flag:'de',name:'DACH (DE)',next:'23.07.26',active:true,keys:198,urls:24,bands:[9,38,44,51,20],deltas:[1,-4,6,-2,0],fav:false}
+    ]},
+   {name:'btccasino.top', dom:'btccasino.top', ps:[81,49], team:'C',
+    mons:[{eng:'go',flag:'ru',name:'Основной (EN)',next:'27.07.26',active:false,keys:120,urls:16,bands:[4,19,26,31,14],deltas:[0,2,-3,1,-1],fav:false}]}
+ ]},
  {group:'1serj', projects:[
-   {name:'TR-Бренды', ps:[88,48], team:'C',
-    mons:[{eng:'go',flag:'🇹🇷',name:'TR-Бренды',next:'25.07.26',active:true,keys:16,urls:0,bands:[0,0,0,0,0],deltas:[-1,-2,0,0,0],fav:true}]}
+   {name:'TR-Бренды', dom:'tr-brands.com', ps:[88,48], team:'C',
+    mons:[{eng:'go',flag:'tr',name:'TR-Бренды',next:'25.07.26',active:true,keys:16,urls:0,bands:[0,0,0,0,0],deltas:[-1,-2,0,0,0],fav:true}]}
  ]}
 ];
 let HOME_FAV_ONLY = false, HOME_Q = '';
@@ -1504,16 +1569,16 @@ function renderHome(){
     let monCount=0;
     g.projects.forEach(p=>p.mons.forEach(m=>{ monCount++; m.bands.forEach((b,i)=>{agg[i]+=b; aggD[i]+=m.deltas[i];}); }));
     rows += `<tr class="group-gap big" aria-hidden="true"><td colspan="12"></td></tr>
-      <tr class="super-row h-g" data-hg="${gi}"><td class="hgear"><button class="hg-btn" title="Настройки группы проектов">${I.gear}</button></td><td class="hname"><div class="super-head"><span class="chev">${I.chev}</span><span class="hfold">${I.folder}</span><span class="sname">${esc(g.group)}</span><span class="scount">${g.projects.length} проект(а) · ${monCount} мониторинг(а)</span></div></td>
+      <tr class="super-row h-g" data-hg="${gi}"><td class="hgear"><button class="hg-btn" title="Настройки группы проектов">${I.gear}</button></td><td class="hname"><div class="super-head"><button class="hsel-box lvl-g" data-sc="g:${gi}" aria-label="Выбрать группу"></button><span class="chev">${I.chev}</span><span class="hfold">${I.folder}</span><span class="sname">${esc(g.group)}</span><span class="scount">${g.projects.length} проект(а) · ${monCount} мониторинг(а)</span></div></td>
       <td></td>${agg.map((n,i)=>homeBandCell(n,aggD[i],i)).join('')}<td colspan="4"></td></tr>`;
     g.projects.forEach((p,pi)=>{
-      rows += `<tr class="group-row h-p" data-hp="${gi}-${pi}" data-hgp="${gi}"><td class="hgear"><button class="hg-btn" title="Настройки проекта">${I.gear}</button></td><td class="hname"><div class="group-head"><span class="chev">${I.chev}</span><span class="gname">${esc(p.name)}</span></div></td>
+      rows += `<tr class="group-row h-p" data-hp="${gi}-${pi}" data-hgp="${gi}"><td class="hgear"><button class="hg-btn" title="Настройки проекта">${I.gear}</button></td><td class="hname"><div class="group-head"><button class="hsel-box lvl-p" data-sc="p:${gi}-${pi}" aria-label="Выбрать проект"></button><span class="chev">${I.chev}</span><span class="pfav" style="background:hsl(${hashStr(p.dom)%360} 42% 46%)"><i>${p.dom[0].toUpperCase()}</i><img src="https://www.google.com/s2/favicons?domain=${p.dom}&amp;sz=32" alt="" loading="lazy" onload="this.classList.add('ok')"></span><span class="gname">${esc(p.name)}</span></div></td>
         <td colspan="8"></td><td class="ps-c">${psBadge(p.ps)}</td><td class="team-c"><span class="team-ava" title="Команда проекта">${p.team}</span></td></tr>`;
       p.mons.forEach((m,mi)=>{
         rows += `<tr class="kw-row h-m" data-hgp="${gi}" data-hpp="${gi}-${pi}" data-mi="${gi}-${pi}-${mi}" data-search="${(g.group+' '+p.name+' '+m.name).toLowerCase()}">
           <td class="hgear"><button class="hg-btn" title="Настройки мониторинга">${I.gear}</button></td>
-          <td class="hname"><span class="mrow"><button class="hsel-box" aria-label="Выбрать мониторинг"></button><button class="hm-star ${m.fav?'on':''}" title="${m.fav?'Убрать из избранного':'В избранное'}">${m.fav?'★':'☆'}</button><span class="eng ${m.eng}">${m.eng==='ya'?I.ya:I.go}</span><span class="hflag">${m.flag}</span><span class="txt">${esc(m.name)}</span></span></td>
-          <td class="hnext"><span class="hdot ${m.active?'on':''}" title="${m.active?'Мониторинг активен':'Мониторинг не активен'}"></span>${m.next}</td>
+          <td class="hname"><span class="mrow"><button class="hsel-box" data-sc="m" aria-label="Выбрать мониторинг"></button><button class="hm-star ${m.fav?'on':''}" title="${m.fav?'Убрать из избранного':'В избранное'}">${m.fav?'★':'☆'}</button><span class="eng ${m.eng}">${m.eng==='ya'?I.ya:I.go}</span><span class="flag-ico hflag" title="Регион мониторинга">${I.flags[m.flag]||''}</span><span class="txt">${esc(m.name)}</span></span></td>
+          <td class="hnext"><span class="hcal">${I.cal}</span><span class="hdot ${m.active?'on':''}" title="${m.active?'Мониторинг активен':'Мониторинг не активен'}"></span>${m.next}</td>
           ${m.bands.map((b,i)=>homeBandCell(b,m.deltas[i],i)).join('')}
           <td class="bd"><span class="bnum ${m.keys===0?'z':''}">${m.keys.toLocaleString('ru-RU')}</span></td>
           <td class="bd"><span class="bnum ${m.urls===0?'z':''}">${m.urls}</span></td>
@@ -1531,7 +1596,6 @@ function renderHome(){
           <span class="ph-meta">${HOME.length} группы · ${nProj} проектов · ${nMons} мониторингов</span>
         </div>
         <div class="ph-actions">
-          <button class="btn secondary icon" title="Настройки списка">${I.gear}</button>
           <button class="btn primary">+ Новый проект</button>
         </div>
       </div>
@@ -1548,7 +1612,7 @@ function renderHome(){
       </div>
       <div class="worksheet"><div class="table-wrap"><table class="grid home-grid">
         <thead><tr>
-          <th class="hgear" style="width:42px"></th><th class="hname" style="text-align:left;padding-left:8px">Проект / мониторинг</th><th style="width:108px">След. срез</th>
+          <th class="hgear" style="width:42px"></th><th class="hname" style="text-align:left;padding-left:8px">Проект / мониторинг</th><th style="width:122px">Статус</th>
           <th style="width:74px">ТОП 1–3</th><th style="width:70px">1–10</th><th style="width:70px">11–20</th><th style="width:70px">21–50</th><th style="width:70px">51–100</th>
           <th style="width:82px">Ключей</th><th style="width:62px">URLs</th><th style="width:102px" title="Google PageSpeed целевых URL">PageSpeed</th><th style="width:78px">Команда</th>
         </tr></thead>
@@ -1600,7 +1664,7 @@ function bindHome(){
   app.querySelectorAll('tr.h-g').forEach(g=>{
     g.style.cursor='pointer';
     g.onclick = e=>{
-      if(e.target.closest('.hg-btn')) return;
+      if(e.target.closest('.hg-btn')||e.target.closest('.hsel-box')) return;
       g.classList.toggle('collapsed');
       const on = g.classList.contains('collapsed');
       app.querySelectorAll(`tr[data-hgp="${g.dataset.hg}"]`).forEach(r=>r.classList.toggle('hh-hide', on));
@@ -1609,7 +1673,7 @@ function bindHome(){
   app.querySelectorAll('tr.h-p').forEach(p=>{
     p.style.cursor='pointer';
     p.onclick = e=>{
-      if(e.target.closest('.hg-btn')) return;
+      if(e.target.closest('.hg-btn')||e.target.closest('.hsel-box')) return;
       p.classList.toggle('collapsed');
       const on = p.classList.contains('collapsed');
       app.querySelectorAll(`tr.h-m[data-hpp="${p.dataset.hp}"]`).forEach(r=>r.classList.toggle('hh-hide', on));
@@ -1628,15 +1692,30 @@ function bindHome(){
     app.querySelectorAll('tr.h-p').forEach(p=>p.classList.toggle('collapsed', collapse));
     app.querySelectorAll('tr.h-m').forEach(r=>r.classList.toggle('hh-hide', collapse));
   };
-  /* массовое выделение мониторингов */
+  /* массовое выделение: все уровни, каскад вниз (группа → проекты+мониторинги, проект → мониторинги) */
   const updateBulk = ()=>{
-    const n = app.querySelectorAll('.hsel-box.checked').length;
+    const g = app.querySelectorAll('.hsel-box.lvl-g.checked').length;
+    const p = app.querySelectorAll('.hsel-box.lvl-p.checked').length;
+    const m = app.querySelectorAll('.hsel-box.checked:not(.lvl-g):not(.lvl-p)').length;
     const chip = document.getElementById('bulkChip');
-    if(chip){ chip.hidden = n===0; chip.querySelector('b').textContent = n; }
+    if(!chip) return;
+    const parts = [];
+    if(g) parts.push(g+' гр.');
+    if(p) parts.push(p+' пр.');
+    if(m) parts.push(m+' мон.');
+    chip.hidden = !parts.length;
+    chip.querySelector('b').textContent = parts.join(' · ');
   };
   app.querySelectorAll('.hsel-box').forEach(cb=> cb.onclick = e=>{
     e.stopPropagation();
-    cb.classList.toggle('checked');
+    const on = !cb.classList.contains('checked');
+    cb.classList.toggle('checked', on);
+    const sc = cb.dataset.sc || '';
+    if(sc.startsWith('g:')){
+      app.querySelectorAll(`tr[data-hgp="${sc.slice(2)}"] .hsel-box`).forEach(x=>x.classList.toggle('checked', on));
+    } else if(sc.startsWith('p:')){
+      app.querySelectorAll(`tr.h-m[data-hpp="${sc.slice(2)}"] .hsel-box`).forEach(x=>x.classList.toggle('checked', on));
+    }
     updateBulk();
   });
   const bc = document.getElementById('bulkClear');
