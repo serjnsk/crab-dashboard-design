@@ -297,7 +297,8 @@ table.grid{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums
 .kw-cell .eng{flex:none;width:16px;height:16px;border-radius:4px;font-size:9.5px;font-weight:800;display:flex;align-items:center;justify-content:center}
 .eng.ya{background:transparent}
 .eng.ya svg{width:12px;height:13px;display:block}
-.eng.go{background:var(--t3-bg);color:var(--t3-fg)}
+.eng.go{background:transparent}
+.eng.go svg{width:13px;height:13px;display:block}
 .kw-cell .txt{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500;cursor:copy}
 .kw-cell .eng{cursor:pointer}
 /* копирование ключа: иконка появляется на hover строки, клик по тексту или иконке */
@@ -847,7 +848,18 @@ tr.flash td{animation:rowflash 1.4s ease}
 
 /* ============ ГЛАВНАЯ: СПИСОК ПРОЕКТОВ ============ */
 .home-page .main{border-radius:0;margin:0}
-.home-grid th.hstar, .home-grid td.hstar{width:34px;padding-left:12px}
+.home-grid th.hsel, .home-grid td.hsel{width:34px;padding-left:14px}
+.home-grid th.hgear, .home-grid td.hgear{width:30px;text-align:center}
+.hsel-box{width:15px;height:15px;border:1.5px solid var(--border-strong);border-radius:4px;background:var(--surface);display:inline-flex;align-items:center;justify-content:center;font-size:10px;color:transparent;vertical-align:middle}
+.hsel-box:hover{border-color:var(--accent)}
+.hsel-box.checked{background:var(--accent);border-color:var(--accent);color:#fff}
+.hsel-box.checked::after{content:"✓";font-weight:800}
+.hg-btn{display:inline-flex;color:var(--text-3);padding:3px;border-radius:5px;opacity:.55}
+.hg-btn svg{width:13px;height:13px}
+.hg-btn:hover{color:var(--text);background:var(--bg);opacity:1}
+.bulk-chip{display:inline-flex;align-items:center;gap:7px;background:var(--accent-soft);border:1px solid var(--accent);color:var(--accent);border-radius:8px;padding:5px 10px;font-size:12px;font-weight:650}
+.bulk-chip[hidden]{display:none}
+.bulk-chip button{color:var(--accent);font-size:11px;font-weight:800}
 .hm-star{color:var(--text-3);font-size:14px;line-height:1;padding:2px}
 .hm-star:hover,.hm-star.on{color:#E8B93B}
 .home-grid td.hname{text-align:left;padding-left:8px}
@@ -874,8 +886,19 @@ tr.flash td{animation:rowflash 1.4s ease}
 tr.hh-hide, tr.vh{display:none}
 tr.h-m{cursor:pointer}
 .tool-ico.fav.on{color:#E8B93B;border-color:#E8B93B;background:rgba(232,185,59,.1)}
-.home-page .grid tr.group-row td{box-shadow:none} /* полоса-стрипе только на странице мониторинга */
+.home-page .grid tr.group-row td{box-shadow:none}
 .home-page .super-head,.home-page .group-head{position:static;width:auto;max-width:none}
+/* иерархия «группа → проект → мониторинг»: лесенка отступов + кромка блока проекта */
+.home-page tr.h-g td{height:54px}
+.home-page tr.h-g .super-head{padding-left:0}
+.home-page tr.h-p td{border-top:10px solid var(--bg)} /* воздух между блоками проектов */
+.home-page .grid tr.h-p td:first-child{box-shadow:inset 3px 0 0 var(--accent)} /* красная кромка шапки проекта… */
+.home-page .grid tr.h-m td:first-child{box-shadow:inset 3px 0 0 var(--border-strong)} /* …продолжается вдоль его мониторингов */
+.home-page tr.h-p td.hname{padding-left:30px} /* проект — глубже группы */
+.home-page tr.h-p .gname{font-size:14px}
+.home-page tr.h-m td.hsel{padding-left:26px} /* мониторинг — глубже проекта */
+.home-page tr.h-m td.hname{padding-left:16px}
+.home-page tr.h-m td{height:40px}
 
 /* ============ SERP MODAL (по центру, мультивыбор дат) ============ */
 /* модалка «Позиции конкурента»: адрес сайта + действие/отмена */
@@ -1287,6 +1310,7 @@ const I = {
   monitor:`<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1.5" y="2.5" width="13" height="9" rx="1.5"/><path d="M6 14h4M8 11.5V14"/></svg>`,
   sun:`<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="3"/><path d="M8 1v1.8M8 13.2V15M1 8h1.8M13.2 8H15M2.9 2.9l1.3 1.3M11.8 11.8l1.3 1.3M13.1 2.9l-1.3 1.3M4.2 11.8l-1.3 1.3"/></svg>`,
   moon:`<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13.5 9.5A6 6 0 0 1 6.5 2.5a6 6 0 1 0 7 7z"/></svg>`,
+  go:`<svg viewBox="0 0 48 48" aria-label="Google"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>`,
   ya:`<svg viewBox="0 0 19 20" fill="none" aria-label="Яндекс"><path d="M11.3736 2.65H9.60319C6.56694 2.65 5.04833 4.0963 5.04833 6.26481C5.04833 8.67407 6.06042 9.87963 8.33736 11.325L10.1088 12.5296L5.04833 20H1L5.80764 13.2528C3.02417 11.325 1.50653 9.63796 1.50653 6.50556C1.50653 2.65 4.28903 0 9.60319 0H14.9164V20H11.3736V2.65Z" fill="#FC3F1D"/></svg>`,
   crab:`<svg viewBox="0 0 64 64" aria-label="CRAB">
     <g stroke="#fff" stroke-width="3.6" stroke-linecap="round">
@@ -1466,16 +1490,17 @@ function renderHome(){
     const agg=[0,0,0,0,0], aggD=[0,0,0,0,0];
     let monCount=0;
     g.projects.forEach(p=>p.mons.forEach(m=>{ monCount++; m.bands.forEach((b,i)=>{agg[i]+=b; aggD[i]+=m.deltas[i];}); }));
-    rows += `<tr class="group-gap big" aria-hidden="true"><td colspan="12"></td></tr>
-      <tr class="super-row h-g" data-hg="${gi}"><td></td><td class="hname"><div class="super-head"><span class="chev">${I.chev}</span><span class="hfold">${I.folder}</span><span class="sname">${esc(g.group)}</span><span class="scount">${g.projects.length} проект(а) · ${monCount} мониторинг(а)</span></div></td>
+    rows += `<tr class="group-gap big" aria-hidden="true"><td colspan="13"></td></tr>
+      <tr class="super-row h-g" data-hg="${gi}"><td></td><td class="hgear"><button class="hg-btn" title="Настройки группы проектов">${I.gear}</button></td><td class="hname"><div class="super-head"><span class="chev">${I.chev}</span><span class="hfold">${I.folder}</span><span class="sname">${esc(g.group)}</span><span class="scount">${g.projects.length} проект(а) · ${monCount} мониторинг(а)</span></div></td>
       <td></td>${agg.map((n,i)=>homeBandCell(n,aggD[i])).join('')}<td colspan="4"></td></tr>`;
     g.projects.forEach((p,pi)=>{
-      rows += `<tr class="group-row h-p" data-hp="${gi}-${pi}" data-hgp="${gi}"><td></td><td class="hname"><div class="group-head"><span class="chev">${I.chev}</span><span class="gname">${esc(p.name)}</span></div></td>
+      rows += `<tr class="group-row h-p" data-hp="${gi}-${pi}" data-hgp="${gi}"><td></td><td class="hgear"><button class="hg-btn" title="Настройки проекта">${I.gear}</button></td><td class="hname"><div class="group-head"><span class="chev">${I.chev}</span><span class="gname">${esc(p.name)}</span></div></td>
         <td colspan="8"></td><td class="ps-c">${psBadge(p.ps)}</td><td class="team-c"><span class="team-ava" title="Команда проекта">${p.team}</span></td></tr>`;
       p.mons.forEach((m,mi)=>{
         rows += `<tr class="kw-row h-m" data-hgp="${gi}" data-hpp="${gi}-${pi}" data-mi="${gi}-${pi}-${mi}" data-search="${(g.group+' '+p.name+' '+m.name).toLowerCase()}">
-          <td class="hstar"><button class="hm-star ${m.fav?'on':''}" title="${m.fav?'Убрать из избранного':'В избранное'}">${m.fav?'★':'☆'}</button></td>
-          <td class="hname"><span class="mrow"><span class="eng ${m.eng}">${m.eng==='ya'?I.ya:'G'}</span><span class="hflag">${m.flag}</span><span class="txt">${esc(m.name)}</span></span></td>
+          <td class="hsel"><button class="hsel-box" aria-label="Выбрать мониторинг"></button></td>
+          <td class="hgear"><button class="hg-btn" title="Настройки мониторинга">${I.gear}</button></td>
+          <td class="hname"><span class="mrow"><button class="hm-star ${m.fav?'on':''}" title="${m.fav?'Убрать из избранного':'В избранное'}">${m.fav?'★':'☆'}</button><span class="eng ${m.eng}">${m.eng==='ya'?I.ya:I.go}</span><span class="hflag">${m.flag}</span><span class="txt">${esc(m.name)}</span></span></td>
           <td class="hnext"><span class="hdot ${m.active?'on':''}" title="${m.active?'Мониторинг активен':'Мониторинг не активен'}"></span>${m.next}</td>
           ${m.bands.map((b,i)=>homeBandCell(b,m.deltas[i])).join('')}
           <td class="bd"><span class="bnum ${m.keys===0?'z':''}">${m.keys.toLocaleString('ru-RU')}</span></td>
@@ -1504,13 +1529,14 @@ function renderHome(){
         <span class="f-select">Доступ: <b>все</b> <span class="car">▼</span></span>
         <span class="f-select">Команда: <b>все</b> <span class="car">▼</span></span>
         <button class="tool-ico fav ${HOME_FAV_ONLY?'on':''}" id="homeFav" title="Показать только избранные">★</button>
+        <span class="bulk-chip" id="bulkChip" hidden>Выбрано <b>0</b><button id="bulkClear" title="Снять выделение">✕</button></span>
         <span class="spacer"></span>
         <button class="tool-ico" id="homeFoldG" title="Свернуть / развернуть группы проектов">${I.foldS}</button>
         <button class="tool-ico" id="homeFoldP" title="Свернуть / развернуть проекты">${I.foldG}</button>
       </div>
       <div class="worksheet"><div class="table-wrap"><table class="grid home-grid">
         <thead><tr>
-          <th class="hstar"></th><th class="hname" style="text-align:left;padding-left:8px">Проект / мониторинг</th><th>След. срез</th>
+          <th class="hsel"></th><th class="hgear"></th><th class="hname" style="text-align:left;padding-left:8px">Проект / мониторинг</th><th>След. срез</th>
           <th>ТОП 1–3</th><th>1–10</th><th>11–20</th><th>21–50</th><th>51–100</th>
           <th>Ключей</th><th>URLs</th><th title="Google PageSpeed целевых URL">PageSpeed</th><th>Команда</th>
         </tr></thead>
@@ -1561,7 +1587,8 @@ function bindHome(){
   /* сворачивание групп и проектов */
   app.querySelectorAll('tr.h-g').forEach(g=>{
     g.style.cursor='pointer';
-    g.onclick = ()=>{
+    g.onclick = e=>{
+      if(e.target.closest('.hg-btn')) return;
       g.classList.toggle('collapsed');
       const on = g.classList.contains('collapsed');
       app.querySelectorAll(`tr[data-hgp="${g.dataset.hg}"]`).forEach(r=>r.classList.toggle('hh-hide', on));
@@ -1569,7 +1596,8 @@ function bindHome(){
   });
   app.querySelectorAll('tr.h-p').forEach(p=>{
     p.style.cursor='pointer';
-    p.onclick = ()=>{
+    p.onclick = e=>{
+      if(e.target.closest('.hg-btn')) return;
       p.classList.toggle('collapsed');
       const on = p.classList.contains('collapsed');
       app.querySelectorAll(`tr.h-m[data-hpp="${p.dataset.hp}"]`).forEach(r=>r.classList.toggle('hh-hide', on));
@@ -1588,9 +1616,25 @@ function bindHome(){
     app.querySelectorAll('tr.h-p').forEach(p=>p.classList.toggle('collapsed', collapse));
     app.querySelectorAll('tr.h-m').forEach(r=>r.classList.toggle('hh-hide', collapse));
   };
+  /* массовое выделение мониторингов */
+  const updateBulk = ()=>{
+    const n = app.querySelectorAll('.hsel-box.checked').length;
+    const chip = document.getElementById('bulkChip');
+    if(chip){ chip.hidden = n===0; chip.querySelector('b').textContent = n; }
+  };
+  app.querySelectorAll('.hsel-box').forEach(cb=> cb.onclick = e=>{
+    e.stopPropagation();
+    cb.classList.toggle('checked');
+    updateBulk();
+  });
+  const bc = document.getElementById('bulkClear');
+  if(bc) bc.onclick = ()=>{
+    app.querySelectorAll('.hsel-box.checked').forEach(cb=>cb.classList.remove('checked'));
+    updateBulk();
+  };
   /* клик по мониторингу → страница позиций */
   app.querySelectorAll('tr.h-m').forEach(r=> r.onclick = e=>{
-    if(e.target.closest('.hm-star')) return;
+    if(e.target.closest('.hm-star')||e.target.closest('.hsel-box')||e.target.closest('.hg-btn')) return;
     goMon();
   });
 }
@@ -1904,7 +1948,7 @@ function renderDashboard(v){
   ];
   const flyout = `<div class="flyout" role="menu">
     <div class="fly-title">Позиции · мониторинги</div>
-    ${MONS.map(([e,n,a])=>`<button class="fly-item ${a?'active':''}"><span class="eng ${e}">${e==='ya'?I.ya:'G'}</span>${esc(n)}</button>`).join('')}
+    ${MONS.map(([e,n,a])=>`<button class="fly-item ${a?'active':''}"><span class="eng ${e}">${e==='ya'?I.ya:I.go}</span>${esc(n)}</button>`).join('')}
     <div class="fly-more">ещё 24 мониторинга…</div>
   </div>`;
   /* единая логика рамы для всех вариантов: шапка = логотип+поиск+профиль,
@@ -2305,7 +2349,7 @@ function renderGsList(){
   const items = SEARCH_ITEMS.filter(it=> (GS_TAB==='all'||it.fav) && (it.proj+' '+it.mon).toLowerCase().includes(q));
   listEl.innerHTML = items.length ? items.map(it=>`
     <div class="gs-item">
-      <span class="eng ${it.eng}">${it.eng==='ya'?I.ya:'G'}</span>
+      <span class="eng ${it.eng}">${it.eng==='ya'?I.ya:I.go}</span>
       <div class="gs-body">
         <div class="gs-t"><b>${it.proj}</b><span class="gs-sep">›</span>${esc(it.mon)}</div>
         <div class="gs-d">${I.link} ${it.proj}</div>
