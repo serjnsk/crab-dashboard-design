@@ -333,7 +333,7 @@ th.freq-h .fh-l{display:block}
 .super-head{display:flex;align-items:center;gap:10px;white-space:nowrap;cursor:pointer}
 .super-head .sname{font-size:16px;font-weight:800;letter-spacing:-.01em}
 .super-head .scount{font-size:11.5px;color:var(--text-3);font-variant-numeric:tabular-nums}
-.super-row.collapsed .chev{transform:rotate(-90deg)}
+.super-row.collapsed .chev{transform:rotate(180deg)}
 
 /* gaps между блоками */
 .grid tr.group-gap td{height:10px;padding:0;border-bottom:none;background:var(--bg)}
@@ -356,8 +356,9 @@ th.freq-h .fh-l{display:block}
 #kuPop.open{display:block}
 #kuPop .tm-title{padding:3px 7px 6px}
 .group-head{display:flex;align-items:center;gap:10px;white-space:nowrap}
-.group-head .chev{color:var(--text-3);font-size:10px;transition:transform .15s;display:inline-block}
-.group-row.collapsed .chev{transform:rotate(-90deg)}
+.group-head .chev{color:var(--text-3);transition:transform .15s;display:inline-flex}
+.chev svg{width:15px;height:15px;display:block} /* chevron-up раскрыто; collapsed — поворот в chevron-down */
+.group-row.collapsed .chev{transform:rotate(180deg)}
 .group-head .gname{font-weight:750;font-size:14.5px}
 .group-head .gcount{font-size:11px;color:var(--text-3);font-variant-numeric:tabular-nums}
 .group-head .gurl{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;color:var(--t3-fg);background:var(--t3-bg);border-radius:6px;padding:2.5px 9px;font-weight:550;max-width:340px;overflow:hidden;text-overflow:ellipsis}
@@ -531,7 +532,7 @@ tr.g-hide,tr.s-hide,tr.v-hide{display:none}
 .module-head .scount{font-size:11.5px;color:var(--text-3);font-variant-numeric:tabular-nums}
 .module-head .gspacer{flex:1}
 .module.collapsed .worksheet{display:none}
-.module.collapsed .module-head .chev{transform:rotate(-90deg)}
+.module.collapsed .module-head .chev{transform:rotate(180deg)}
 
 /* detail rail (Mercury/Mixpanel) */
 .detail-grid{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:14px;align-items:start}
@@ -867,7 +868,7 @@ tr.flash td{animation:rowflash 1.4s ease}
 .hname .hflag{font-size:12px}
 .hfold{display:inline-flex;color:var(--text-3)}
 .hfold svg{width:14px;height:14px}
-.home-grid td.hnext{white-space:nowrap;color:var(--text-2);font-size:12px;text-align:center;font-variant-numeric:tabular-nums}
+.home-grid td.hnext{white-space:nowrap;color:var(--text-2);font-size:12px;text-align:left;padding-left:10px;font-variant-numeric:tabular-nums}
 .hdot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--border-strong);margin-right:6px;vertical-align:1px}
 .hdot.on{background:var(--t10-heat)}
 .home-grid td.bd{text-align:center;font-variant-numeric:tabular-nums;min-width:62px;font-size:12.5px;white-space:nowrap}
@@ -888,17 +889,37 @@ tr.h-m{cursor:pointer}
 .home-page .grid tr.group-row td{box-shadow:none}
 .home-page .super-head,.home-page .group-head{position:static;width:auto;max-width:none}
 /* иерархия «группа → проект → мониторинг»: «Сетка» + «Графит-бары» (запечено) */
-.home-grid{table-layout:fixed;width:100%} /* стабильные колонки — ничего не дёргается при сворачивании */
+.home-grid{table-layout:fixed;width:100%;min-width:1000px} /* стабильные колонки; уже 1000px — горизонтальный скролл, а не ужатие имени */
+/* адаптивность: сжимаются колонки параметров, имя проекта — никогда */
+.home-grid th.c-status{width:122px;text-align:left;padding-left:10px}
+.home-grid th.c-band{width:72px}
+.home-grid th.c-keys{width:92px}
+.home-grid th.c-urls{width:62px}
+.home-grid th.c-ps{width:102px}
+.home-grid th.c-team{width:78px}
+@media (max-width:1460px){
+  .home-grid th.c-band{width:58px}
+  .home-grid th.c-status{width:104px}
+  .home-grid th.c-keys{width:78px}
+  .home-grid th.c-urls{width:52px}
+  .home-grid th.c-ps{width:84px}
+  .home-grid th.c-team{width:58px}
+}
+@media (max-width:1180px){
+  .home-grid th.c-ps,.home-grid td.ps-c,.home-grid th.c-team,.home-grid td.team-c{display:none}
+  .home-grid th.c-band{width:52px}
+  .home-grid td.bd{font-size:11.5px;min-width:0}
+}
 .home-page tr.group-gap.big td{height:0;border-bottom:none}
-.home-page tr.h-g td{height:46px;background:#39434F;border-top:none;border-bottom:none;position:sticky;top:calc(52px + var(--thead-h));z-index:5} /* графит-бар липнет при прокрутке */
+.home-page tr.h-g td{height:46px;background:#39434F;border-top:none;border-bottom:none} /* при прокрутке липнет только шапка столбцов */
 .home-page tr.h-g .super-head{padding-left:0}
 .home-page tr.h-g .super-head .sname{font-size:14.5px;color:#EDF1F7}
 .home-page tr.h-g .scount{color:#97A2B4}
 .home-page tr.h-g .chev,.home-page tr.h-g .hfold{color:#B8C2D0}
-.home-page tr.h-g .chev svg{width:13px;height:13px} /* крупнее кнопка раскрытия */
+.home-page tr.h-g .chev svg{width:16px;height:16px} /* крупнее кнопка раскрытия */
 .home-page tr.h-g .hfold svg{width:15px;height:15px}
 .home-page tr.h-g .hg-btn{color:#CBD3DF;opacity:1}
-.home-page tr.h-g .hg-btn svg{width:15px;height:15px} /* шестерёнка белая и крупнее */
+.home-page tr.h-g .hg-btn svg{width:14px;height:14px} /* единый размер со всеми уровнями — ровная колонка */
 .home-page tr.h-g .hg-btn:hover{color:#fff;background:#4A5462}
 .home-page tr.h-g td.bd .bnum{color:#EDF1F7}
 .home-page tr.h-g td.bd .bnum.z{color:#97A2B4} /* нули читаются на графите */
@@ -910,9 +931,8 @@ tr.h-m{cursor:pointer}
 .home-page tr.h-p .gname{font-size:14px}
 .home-page tr.h-m td.hname{padding-left:64px} /* мониторинг — глубже проекта (контролы внутри строки) */
 .mrow .hsel-box{flex:none;margin-right:2px}
-/* шестерёнки — только по hover строки, без «чехарды» */
-.home-grid .hg-btn{opacity:0}
-.home-grid tr:hover .hg-btn,.home-grid .hg-btn:focus-visible{opacity:1}
+/* шестерёнки: видимы всегда, единый размер — ровная колонка */
+.home-grid .hg-btn svg{width:14px;height:14px}
 /* чекбоксы уровней */
 .super-head .hsel-box{margin-right:4px;border-color:#69758A;background:transparent}
 .super-head .hsel-box:hover{border-color:#fff}
@@ -1364,7 +1384,7 @@ const I = {
   dl:'<svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 2v7M4 6.5L7 9.5 10 6.5M2 12h10"/></svg>',
   cal:'<svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="1.5" y="2.5" width="11" height="10" rx="1.5"/><path d="M1.5 5.5h11M4.5 1v3M9.5 1v3"/></svg>',
   link:'<svg width="11" height="11" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5.5 8.5l3-3M6 3.8l1.2-1.2a2.5 2.5 0 0 1 3.5 3.5L9.5 7.3M8 10.2l-1.2 1.2a2.5 2.5 0 0 1-3.5-3.5L4.5 6.7"/></svg>',
-  chev:'<svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor"><path d="M1.5 3l3.5 4 3.5-4z"/></svg>',
+  chev:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z"/></svg>',
   copy:'<svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="4.5" y="4.5" width="8" height="8" rx="1.5"/><path d="M9.5 4.5V3a1.5 1.5 0 0 0-1.5-1.5H3A1.5 1.5 0 0 0 1.5 3v5A1.5 1.5 0 0 0 3 9.5h1.5"/></svg>',
   gads:'<svg viewBox="0 0 24 24" aria-label="Google Ads"><rect x="8.7" y="1.5" width="6.6" height="21" rx="3.3" fill="#FBBC04" transform="rotate(-30 12 12)"/><rect x="8.7" y="1.5" width="6.6" height="21" rx="3.3" fill="#4285F4" transform="rotate(30 12 12)"/><circle cx="5" cy="18.7" r="3.4" fill="#34A853"/></svg>',
   user:'<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="8" cy="5" r="2.7"/><path d="M2.9 13.4c.8-2.5 2.8-3.9 5.1-3.9s4.3 1.4 5.1 3.9"/></svg>',
@@ -1566,23 +1586,24 @@ function renderHome(){
   let rows = '';
   HOME.forEach((g,gi)=>{
     const agg=[0,0,0,0,0], aggD=[0,0,0,0,0];
-    let monCount=0;
-    g.projects.forEach(p=>p.mons.forEach(m=>{ monCount++; m.bands.forEach((b,i)=>{agg[i]+=b; aggD[i]+=m.deltas[i];}); }));
+    let monCount=0, gKeys=0, gUrls=0;
+    g.projects.forEach(p=>p.mons.forEach(m=>{ monCount++; gKeys+=m.keys; gUrls+=m.urls; m.bands.forEach((b,i)=>{agg[i]+=b; aggD[i]+=m.deltas[i];}); }));
     rows += `<tr class="group-gap big" aria-hidden="true"><td colspan="12"></td></tr>
-      <tr class="super-row h-g" data-hg="${gi}"><td class="hgear"><button class="hg-btn" title="Настройки группы проектов">${I.gear}</button></td><td class="hname"><div class="super-head"><button class="hsel-box lvl-g" data-sc="g:${gi}" aria-label="Выбрать группу"></button><span class="chev">${I.chev}</span><span class="hfold">${I.folder}</span><span class="sname">${esc(g.group)}</span><span class="scount">${g.projects.length} проект(а) · ${monCount} мониторинг(а)</span></div></td>
-      <td></td>${agg.map((n,i)=>homeBandCell(n,aggD[i],i)).join('')}<td colspan="4"></td></tr>`;
+      <tr class="super-row h-g" data-hg="${gi}"><td class="hgear"><button class="hg-btn" title="Настройки группы проектов">${I.gear}</button></td><td class="hnext"></td><td class="hname"><div class="super-head"><button class="hsel-box lvl-g" data-sc="g:${gi}" aria-label="Выбрать группу"></button><span class="chev">${I.chev}</span><span class="hfold">${I.folder}</span><span class="sname">${esc(g.group)}</span><span class="scount">${g.projects.length} проект(а) · ${monCount} мониторинг(а)</span></div></td>
+      ${agg.map((n,i)=>homeBandCell(n,aggD[i],i)).join('')}<td class="bd"><span class="bnum ${gKeys===0?'z':''}">${gKeys.toLocaleString('ru-RU')}</span></td><td class="bd"><span class="bnum ${gUrls===0?'z':''}">${gUrls}</span></td><td class="ps-c"></td><td class="team-c"></td></tr>`;
     g.projects.forEach((p,pi)=>{
-      rows += `<tr class="group-row h-p" data-hp="${gi}-${pi}" data-hgp="${gi}"><td class="hgear"><button class="hg-btn" title="Настройки проекта">${I.gear}</button></td><td class="hname"><div class="group-head"><button class="hsel-box lvl-p" data-sc="p:${gi}-${pi}" aria-label="Выбрать проект"></button><span class="chev">${I.chev}</span><span class="pfav" style="background:hsl(${hashStr(p.dom)%360} 42% 46%)"><i>${p.dom[0].toUpperCase()}</i><img src="https://www.google.com/s2/favicons?domain=${p.dom}&amp;sz=32" alt="" loading="lazy" onload="this.classList.add('ok')"></span><span class="gname">${esc(p.name)}</span></div></td>
-        <td colspan="8"></td><td class="ps-c">${psBadge(p.ps)}</td><td class="team-c"><span class="team-ava" title="Команда проекта">${p.team}</span></td></tr>`;
+      const pKeys = p.mons.reduce((n,m)=>n+m.keys,0), pUrls = p.mons.reduce((n,m)=>n+m.urls,0);
+      rows += `<tr class="group-row h-p" data-hp="${gi}-${pi}" data-hgp="${gi}"><td class="hgear"><button class="hg-btn" title="Настройки проекта">${I.gear}</button></td><td class="hnext"></td><td class="hname"><div class="group-head"><button class="hsel-box lvl-p" data-sc="p:${gi}-${pi}" aria-label="Выбрать проект"></button><span class="chev">${I.chev}</span><span class="pfav" style="background:hsl(${hashStr(p.dom)%360} 42% 46%)"><i>${p.dom[0].toUpperCase()}</i><img src="https://www.google.com/s2/favicons?domain=${p.dom}&amp;sz=32" alt="" loading="lazy" onload="this.classList.add('ok')"></span><span class="gname">${esc(p.name)}</span></div></td>
+        <td colspan="5"></td><td class="bd"><span class="bnum ${pKeys===0?'z':''}">${pKeys.toLocaleString('ru-RU')}</span></td><td class="bd"><span class="bnum ${pUrls===0?'z':''}">${pUrls}</span></td><td class="ps-c">${psBadge(p.ps)}</td><td class="team-c"><span class="team-ava" title="Команда проекта">${p.team}</span></td></tr>`;
       p.mons.forEach((m,mi)=>{
         rows += `<tr class="kw-row h-m" data-hgp="${gi}" data-hpp="${gi}-${pi}" data-mi="${gi}-${pi}-${mi}" data-search="${(g.group+' '+p.name+' '+m.name).toLowerCase()}">
           <td class="hgear"><button class="hg-btn" title="Настройки мониторинга">${I.gear}</button></td>
-          <td class="hname"><span class="mrow"><button class="hsel-box" data-sc="m" aria-label="Выбрать мониторинг"></button><button class="hm-star ${m.fav?'on':''}" title="${m.fav?'Убрать из избранного':'В избранное'}">${m.fav?'★':'☆'}</button><span class="eng ${m.eng}">${m.eng==='ya'?I.ya:I.go}</span><span class="flag-ico hflag" title="Регион мониторинга">${I.flags[m.flag]||''}</span><span class="txt">${esc(m.name)}</span></span></td>
           <td class="hnext"><span class="hcal">${I.cal}</span><span class="hdot ${m.active?'on':''}" title="${m.active?'Мониторинг активен':'Мониторинг не активен'}"></span>${m.next}</td>
+          <td class="hname"><span class="mrow"><button class="hsel-box" data-sc="m" aria-label="Выбрать мониторинг"></button><button class="hm-star ${m.fav?'on':''}" title="${m.fav?'Убрать из избранного':'В избранное'}">${m.fav?'★':'☆'}</button><span class="eng ${m.eng}">${m.eng==='ya'?I.ya:I.go}</span><span class="flag-ico hflag" title="Регион мониторинга">${I.flags[m.flag]||''}</span><span class="txt">${esc(m.name)}</span></span></td>
           ${m.bands.map((b,i)=>homeBandCell(b,m.deltas[i],i)).join('')}
           <td class="bd"><span class="bnum ${m.keys===0?'z':''}">${m.keys.toLocaleString('ru-RU')}</span></td>
           <td class="bd"><span class="bnum ${m.urls===0?'z':''}">${m.urls}</span></td>
-          <td></td><td></td></tr>`;
+          <td class="ps-c"></td><td class="team-c"></td></tr>`;
       });
     });
   });
@@ -1612,9 +1633,9 @@ function renderHome(){
       </div>
       <div class="worksheet"><div class="table-wrap"><table class="grid home-grid">
         <thead><tr>
-          <th class="hgear" style="width:42px"></th><th class="hname" style="text-align:left;padding-left:8px">Проект / мониторинг</th><th style="width:122px">Статус</th>
-          <th style="width:74px">ТОП 1–3</th><th style="width:70px">1–10</th><th style="width:70px">11–20</th><th style="width:70px">21–50</th><th style="width:70px">51–100</th>
-          <th style="width:82px">Ключей</th><th style="width:62px">URLs</th><th style="width:102px" title="Google PageSpeed целевых URL">PageSpeed</th><th style="width:78px">Команда</th>
+          <th class="hgear"></th><th class="c-status">Статус</th><th class="hname" style="text-align:left;padding-left:8px">Проект / мониторинг</th>
+          <th class="c-band">ТОП 1–3</th><th class="c-band">1–10</th><th class="c-band">11–20</th><th class="c-band">21–50</th><th class="c-band">51–100</th>
+          <th class="c-keys">Всего ключей</th><th class="c-urls">URLs</th><th class="c-ps" title="Google PageSpeed целевых URL">PageSpeed</th><th class="c-team">Команда</th>
         </tr></thead>
         <tbody>${rows}</tbody></table></div></div>
     </main>
