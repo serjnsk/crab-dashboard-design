@@ -881,9 +881,18 @@ tr.flash td{animation:rowflash 1.4s ease}
 .hfold{display:inline-flex;color:var(--text-3)}
 .hfold svg{width:14px;height:14px}
 .home-grid td.hnext{white-space:nowrap;color:var(--text-2);font-size:12px;text-align:left;padding-left:10px;font-variant-numeric:tabular-nums}
-.hdot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--border-strong);margin-right:6px;vertical-align:1px}
-.hdot.on{background:var(--t10-heat)}
+/* 4 статуса мониторинга: белый / зелёный / жёлтый / красный */
+.hdot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:0;cursor:default}
+.hdot.idle{background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--border-strong)}
+.hdot.done{background:var(--t10-heat)}
+.hdot.queue{background:var(--t20-heat)}
+.hdot.error{background:var(--accent)}
 .home-grid td.bd{text-align:center;font-variant-numeric:tabular-nums;min-width:62px;font-size:12.5px;white-space:nowrap}
+/* числовые ячейки всех уровней: одинаковые паддинги — колонки выровнены по вертикали */
+.home-grid tr.super-row td.bd,.home-grid tr.group-row td.bd,
+.home-grid tr.super-row td.hnext,.home-grid tr.group-row td.hnext,
+.home-grid tr.super-row td.ps-c,.home-grid tr.group-row td.ps-c,
+.home-grid tr.super-row td.team-c,.home-grid tr.group-row td.team-c{padding:0 8px}
 .bd .bnum{font-weight:650}
 .bd .bnum.z{color:var(--text-3);font-weight:500}
 .bd sup{font-size:9px;font-weight:750;margin-left:2px}
@@ -922,7 +931,7 @@ tr.h-m{cursor:pointer}
   .home-grid th.c-band{width:52px}
   .home-grid td.bd{font-size:11.5px;min-width:0}
 }
-.home-page tr.group-gap.big td{height:0;border-bottom:none}
+.home-page tr.group-gap.big td{height:4px;border-bottom:none;background:var(--bg)} /* просвет между графит-барами — структура в свёрнутом виде */
 .home-page tr.h-g td{height:46px;background:#39434F;border-top:none;border-bottom:none} /* при прокрутке липнет только шапка столбцов */
 .home-page tr.h-g .super-head{padding-left:0}
 .home-page tr.h-g .super-head .sname{font-size:14.5px;color:#EDF1F7}
@@ -938,7 +947,7 @@ tr.h-m{cursor:pointer}
 .home-page tr.h-g td.bd sup.up{color:#63D398}
 .home-page tr.h-g td.bd sup.down{color:#F09287}
 .home-page tr.h-p td{background:var(--surface-2);border-top:1px solid var(--border)}
-.home-page .grid tr.h-m td:first-child{box-shadow:inset 3px 0 0 var(--border-strong)} /* кромка вдоль мониторингов проекта */
+.home-page .grid tr.h-p td:first-child{box-shadow:inset 3px 0 0 #39434F} /* проект — старшая иерархия: вертикальная черта слева */
 .home-page tr.h-p td.hname{padding-left:46px} /* проект — глубже группы (текст правее текста группы) */
 .home-page tr.h-p .gname{font-size:14px}
 .home-page tr.h-m td.hname{padding-left:64px} /* мониторинг — глубже проекта (контролы внутри строки) */
@@ -1522,65 +1531,72 @@ function goMon(){ PAGE='mon'; show(cur); }
 const HOME = [
  {group:'Gambling RO диаспора', projects:[
    {name:'AT | cazinouri-online.at', dom:'cazinouri-online.at', ps:[100,99], team:'A',
-    mons:[{eng:'go',flag:'at',name:'RO-AT',next:'24.07.26',active:false,keys:7,urls:1,bands:[0,0,0,2,0],deltas:[0,0,-1,2,0],fav:false}]},
+    mons:[{eng:'go',flag:'at',name:'RO-AT',next:'24.07.26',st:'idle',sched:'Еженедельно',keys:7,urls:1,bands:[0,0,0,2,0],deltas:[0,0,-1,2,0],fav:false}]},
    {name:'BE | cazinouri-online.be', dom:'cazinouri-online.be', ps:[100,99], team:'A',
-    mons:[{eng:'go',flag:'be',name:'RO-BE',next:'24.07.26',active:false,keys:18,urls:1,bands:[0,0,0,0,0],deltas:[0,0,0,0,0],fav:false}]},
+    mons:[{eng:'go',flag:'be',name:'RO-BE',next:'24.07.26',st:'idle',sched:'Еженедельно',keys:18,urls:1,bands:[0,0,0,0,0],deltas:[0,0,0,0,0],fav:false}]},
    {name:'ES | cazinouri-online.es', dom:'cazinouri-online.es', ps:[100,97], team:'A',
-    mons:[{eng:'go',flag:'es',name:'RO-ES',next:'20.07.26',active:false,keys:7,urls:1,bands:[0,0,0,0,0],deltas:[0,0,0,0,0],fav:false}]},
+    mons:[{eng:'go',flag:'es',name:'RO-ES',next:'20.07.26',st:'queue',sched:'Еженедельно',keys:7,urls:1,bands:[0,0,0,0,0],deltas:[0,0,0,0,0],fav:false}]},
    {name:'FR | cazinouri-online.fr', dom:'cazinouri-online.fr', ps:[100,99], team:'A',
-    mons:[{eng:'go',flag:'fr',name:'RO-FR',next:'24.07.26',active:false,keys:8,urls:1,bands:[0,0,0,0,0],deltas:[0,0,0,0,0],fav:false}]},
+    mons:[{eng:'go',flag:'fr',name:'RO-FR',next:'24.07.26',st:'idle',sched:'Еженедельно',keys:8,urls:1,bands:[0,0,0,0,0],deltas:[0,0,0,0,0],fav:false}]},
    {name:'IT | cazinouri-online.it', dom:'cazinouri-online.it', ps:[100,99], team:'A',
-    mons:[{eng:'go',flag:'it',name:'RO-IT',next:'24.07.26',active:false,keys:8,urls:1,bands:[0,0,0,2,0],deltas:[0,0,-1,2,0],fav:false}]},
+    mons:[{eng:'go',flag:'it',name:'RO-IT',next:'24.07.26',st:'idle',sched:'Еженедельно',keys:8,urls:1,bands:[0,0,0,2,0],deltas:[0,0,-1,2,0],fav:false}]},
    {name:'NL | cazinouri-online.nl', dom:'cazinouri-online.nl', ps:[100,99], team:'A',
-    mons:[{eng:'go',flag:'nl',name:'RO-NL',next:'24.07.26',active:false,keys:6,urls:1,bands:[0,0,0,0,0],deltas:[0,0,0,0,0],fav:false}]}
+    mons:[{eng:'go',flag:'nl',name:'RO-NL',next:'24.07.26',st:'idle',sched:'Еженедельно',keys:6,urls:1,bands:[0,0,0,0,0],deltas:[0,0,0,0,0],fav:false}]}
  ]},
  {group:'DirectLine', projects:[
    {name:'directline.pro', dom:'directline.pro', ps:[96,88], team:'D',
     mons:[
-     {eng:'ya',flag:'ru',name:'Блог DL (1 раз в месяц)',next:'01.08.26',active:true,keys:2465,urls:291,bands:[302,787,407,668,285],deltas:[-14,-45,20,21,-22],fav:true},
-     {eng:'go',flag:'ru',name:'Блог DL (1 раз в месяц)',next:'01.08.26',active:true,keys:2465,urls:291,bands:[298,760,410,662,300],deltas:[6,-12,4,-8,3],fav:false},
-     {eng:'go',flag:'ru',name:'Блог mobile (1 раз в месяц)',next:'01.08.26',active:true,keys:2465,urls:291,bands:[276,741,398,671,310],deltas:[-4,-9,6,2,-5],fav:false},
-     {eng:'ya',flag:'ru',name:'Раздел сервисы',next:'28.07.26',active:true,keys:184,urls:22,bands:[41,96,38,31,12],deltas:[3,7,-4,1,0],fav:false},
-     {eng:'go',flag:'ru',name:'Раздел сервисы',next:'28.07.26',active:true,keys:184,urls:22,bands:[35,88,41,35,14],deltas:[-2,4,2,-3,1],fav:false},
-     {eng:'go',flag:'ru',name:'Test DuckDuckGo',next:'19.07.26',active:false,keys:1,urls:1,bands:[0,0,0,0,0],deltas:[0,0,0,0,0],fav:false}
+     {eng:'ya',flag:'ru',name:'Блог DL (1 раз в месяц)',next:'01.08.26',st:'done',sched:'Ежемесячно',keys:2465,urls:291,bands:[302,787,407,668,285],deltas:[-14,-45,20,21,-22],fav:true},
+     {eng:'go',flag:'ru',name:'Блог DL (1 раз в месяц)',next:'01.08.26',st:'done',sched:'Ежемесячно',keys:2465,urls:291,bands:[298,760,410,662,300],deltas:[6,-12,4,-8,3],fav:false},
+     {eng:'go',flag:'ru',name:'Блог mobile (1 раз в месяц)',next:'01.08.26',st:'done',sched:'Ежемесячно',keys:2465,urls:291,bands:[276,741,398,671,310],deltas:[-4,-9,6,2,-5],fav:false},
+     {eng:'ya',flag:'ru',name:'Раздел сервисы',next:'28.07.26',st:'done',sched:'Еженедельно',keys:184,urls:22,bands:[41,96,38,31,12],deltas:[3,7,-4,1,0],fav:false},
+     {eng:'go',flag:'ru',name:'Раздел сервисы',next:'28.07.26',st:'done',sched:'Еженедельно',keys:184,urls:22,bands:[35,88,41,35,14],deltas:[-2,4,2,-3,1],fav:false},
+     {eng:'go',flag:'ru',name:'Test DuckDuckGo',next:'19.07.26',st:'error',sched:'Ежемесячно',keys:1,urls:1,bands:[0,0,0,0,0],deltas:[0,0,0,0,0],fav:false}
     ]}
  ]},
  {group:'Флористика EU', projects:[
    {name:'eflowers.dk', dom:'eflowers.dk', ps:[92,71], team:'F',
-    mons:[{eng:'go',flag:'dk',name:'Дания (DK) - основной',next:'22.07.26',active:true,keys:340,urls:48,bands:[62,148,71,44,15],deltas:[4,-11,6,2,-1],fav:false}]},
+    mons:[{eng:'go',flag:'dk',name:'Дания (DK) - основной',next:'22.07.26',st:'done',sched:'Ежедневно',keys:340,urls:48,bands:[62,148,71,44,15],deltas:[4,-11,6,2,-1],fav:false}]},
    {name:'blumen365.at', dom:'blumen365.at', ps:[89,64], team:'F',
-    mons:[{eng:'go',flag:'at',name:'Австрия (DE) - основной - OLD',next:'23.07.26',active:true,keys:512,urls:60,bands:[88,201,104,79,40],deltas:[-6,9,-3,5,2],fav:false}]},
+    mons:[{eng:'go',flag:'at',name:'Австрия (DE) - основной - OLD',next:'23.07.26',st:'done',sched:'Ежедневно',keys:512,urls:60,bands:[88,201,104,79,40],deltas:[-6,9,-3,5,2],fav:false}]},
    {name:'expressflowers.ch', dom:'expressflowers.ch', ps:[94,80], team:'F',
-    mons:[{eng:'go',flag:'ch',name:'Швейцария (DE) - основной',next:'22.07.26',active:true,keys:287,urls:35,bands:[51,120,66,38,12],deltas:[2,5,-8,0,1],fav:false}]},
+    mons:[{eng:'go',flag:'ch',name:'Швейцария (DE) - основной',next:'22.07.26',st:'done',sched:'Ежедневно',keys:287,urls:35,bands:[51,120,66,38,12],deltas:[2,5,-8,0,1],fav:false}]},
    {name:'lilledesaatmine.ee', dom:'lilledesaatmine.ee', ps:[85,58], team:'F',
-    mons:[{eng:'go',flag:'ee',name:'Эстония (EE) - основной OLD',next:'26.07.26',active:false,keys:96,urls:14,bands:[12,31,18,22,8],deltas:[0,-2,3,1,0],fav:false}]},
+    mons:[{eng:'go',flag:'ee',name:'Эстония (EE) - основной OLD',next:'26.07.26',st:'queue',sched:'Ежедневно',keys:96,urls:14,bands:[12,31,18,22,8],deltas:[0,-2,3,1,0],fav:false}]},
    {name:'saudi.florist', dom:'saudi.florist', ps:[90,66], team:'F',
-    mons:[{eng:'go',flag:'sa',name:'Saudi (EN)',next:'24.07.26',active:true,keys:154,urls:19,bands:[18,52,34,29,11],deltas:[1,6,-2,4,-3],fav:false}]}
+    mons:[{eng:'go',flag:'sa',name:'Saudi (EN)',next:'24.07.26',st:'done',sched:'Ежедневно',keys:154,urls:19,bands:[18,52,34,29,11],deltas:[1,6,-2,4,-3],fav:false}]}
  ]},
  {group:'AI компаньоны', projects:[
    {name:'ai-companion.app', dom:'ai-companion.app', ps:[97,91], team:'B',
     mons:[
-     {eng:'go',flag:'ru',name:'Основной (EN)',next:'21.07.26',active:true,keys:820,urls:96,bands:[106,293,137,104,33],deltas:[25,12,-19,11,1],fav:true},
-     {eng:'ya',flag:'ru',name:'Основной (RU)',next:'21.07.26',active:true,keys:640,urls:80,bands:[74,210,118,92,28],deltas:[-8,15,4,-6,2],fav:false}
+     {eng:'go',flag:'ru',name:'Основной (EN)',next:'21.07.26',st:'done',sched:'Ежедневно',keys:820,urls:96,bands:[106,293,137,104,33],deltas:[25,12,-19,11,1],fav:true},
+     {eng:'ya',flag:'ru',name:'Основной (RU)',next:'21.07.26',st:'done',sched:'Ежедневно',keys:640,urls:80,bands:[74,210,118,92,28],deltas:[-8,15,4,-6,2],fav:false}
     ]},
    {name:'soulmate.chat', dom:'soulmate.chat', ps:[93,84], team:'B',
-    mons:[{eng:'go',flag:'ru',name:'Блог (EN)',next:'25.07.26',active:true,keys:210,urls:31,bands:[22,68,41,36,17],deltas:[3,-5,7,2,0],fav:false}]}
+    mons:[{eng:'go',flag:'ru',name:'Блог (EN)',next:'25.07.26',st:'done',sched:'Еженедельно',keys:210,urls:31,bands:[22,68,41,36,17],deltas:[3,-5,7,2,0],fav:false}]}
  ]},
  {group:'Crypto Casinos', projects:[
    {name:'cryptoslots.io', dom:'cryptoslots.io', ps:[78,52], team:'C',
     mons:[
-     {eng:'go',flag:'ru',name:'Global (EN)',next:'23.07.26',active:true,keys:445,urls:52,bands:[31,94,88,102,46],deltas:[-3,8,-12,6,4],fav:false},
-     {eng:'go',flag:'de',name:'DACH (DE)',next:'23.07.26',active:true,keys:198,urls:24,bands:[9,38,44,51,20],deltas:[1,-4,6,-2,0],fav:false}
+     {eng:'go',flag:'ru',name:'Global (EN)',next:'23.07.26',st:'done',sched:'Ежедневно',keys:445,urls:52,bands:[31,94,88,102,46],deltas:[-3,8,-12,6,4],fav:false},
+     {eng:'go',flag:'de',name:'DACH (DE)',next:'23.07.26',st:'done',sched:'Ежедневно',keys:198,urls:24,bands:[9,38,44,51,20],deltas:[1,-4,6,-2,0],fav:false}
     ]},
    {name:'btccasino.top', dom:'btccasino.top', ps:[81,49], team:'C',
-    mons:[{eng:'go',flag:'ru',name:'Основной (EN)',next:'27.07.26',active:false,keys:120,urls:16,bands:[4,19,26,31,14],deltas:[0,2,-3,1,-1],fav:false}]}
+    mons:[{eng:'go',flag:'ru',name:'Основной (EN)',next:'27.07.26',st:'idle',sched:'Еженедельно',keys:120,urls:16,bands:[4,19,26,31,14],deltas:[0,2,-3,1,-1],fav:false}]}
  ]},
  {group:'1serj', projects:[
    {name:'TR-Бренды', dom:'tr-brands.com', ps:[88,48], team:'C',
-    mons:[{eng:'go',flag:'tr',name:'TR-Бренды',next:'25.07.26',active:true,keys:16,urls:0,bands:[0,0,0,0,0],deltas:[-1,-2,0,0,0],fav:true}]}
+    mons:[{eng:'go',flag:'tr',name:'TR-Бренды',next:'25.07.26',st:'done',sched:'Еженедельно',keys:16,urls:0,bands:[0,0,0,0,0],deltas:[-1,-2,0,0,0],fav:true}]}
  ]}
 ];
 let HOME_FAV_ONLY = false, HOME_Q = '';
+/* статусы мониторинга (точка в колонке «Статус») */
+const ST_TIP = {
+  idle:'Не мониторился сегодня',
+  done:'Сегодня успешно промониторился',
+  queue:'В очереди на мониторинг',
+  error:'Ошибка мониторинга'
+};
 
 function psBadge(ps){
   const worst = Math.min(ps[0], ps[1]);
@@ -1613,7 +1629,7 @@ function renderHome(){
         rows += `<tr class="kw-row h-m" data-hgp="${gi}" data-hpp="${gi}-${pi}" data-mi="${gi}-${pi}-${mi}" data-search="${(g.group+' '+p.name+' '+m.name).toLowerCase()}">
           <td class="hact"><span class="acts"><button class="hsel-box" data-sc="m" aria-label="Выбрать мониторинг"></button><button class="hm-star ${m.fav?'on':''}" title="${m.fav?'Убрать из избранного':'В избранное'}">${m.fav?'★':'☆'}</button><button class="hg-btn" title="Настройки мониторинга">${I.gear}</button></span></td>
           <td class="hname"><span class="mrow"><span class="eng ${m.eng}">${m.eng==='ya'?I.ya:I.go}</span><span class="flag-ico hflag" title="Регион мониторинга">${I.flags[m.flag]||''}</span><span class="txt">${esc(m.name)}</span></span></td>
-          <td class="hnext"><span class="hcal">${I.cal}</span><span class="hdot ${m.active?'on':''}" title="${m.active?'Мониторинг активен':'Мониторинг не активен'}"></span>${m.next}</td>
+          <td class="hnext"><span class="hcal" data-tip="Открыт | ${m.sched}">${I.cal}</span><span class="hdot ${m.st}" data-tip="${ST_TIP[m.st]}"></span>${m.next}</td>
           ${m.bands.map((b,i)=>homeBandCell(b,m.deltas[i],i)).join('')}
           <td class="bd"><span class="bnum ${m.keys===0?'z':''}">${m.keys.toLocaleString('ru-RU')}</span></td>
           <td class="bd"><span class="bnum ${m.urls===0?'z':''}">${m.urls}</span></td>
@@ -1647,7 +1663,7 @@ function renderHome(){
       </div>
       <div class="worksheet"><div class="table-wrap"><table class="grid home-grid">
         <thead><tr>
-          <th class="hact"></th><th class="hname" style="text-align:left;padding-left:8px">Проект / мониторинг</th><th class="c-status">Статус</th>
+          <th class="hact"></th><th class="hname"></th><th class="c-status">Статус</th>
           <th class="c-band">ТОП 1–3</th><th class="c-band">1–10</th><th class="c-band">11–20</th><th class="c-band">21–50</th><th class="c-band">51–100</th>
           <th class="c-keys" title="Всего ключей в мониторинге">Всего</th><th class="c-urls">URLs</th><th class="c-ps" title="Google PageSpeed целевых URL">PageSpeed</th><th class="c-team">Команда</th>
         </tr></thead>
