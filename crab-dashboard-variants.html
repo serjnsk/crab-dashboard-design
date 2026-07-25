@@ -848,8 +848,7 @@ tr.flash td{animation:rowflash 1.4s ease}
 
 /* ============ ГЛАВНАЯ: СПИСОК ПРОЕКТОВ ============ */
 .home-page .main{border-radius:0;margin:0}
-.home-grid th.hsel, .home-grid td.hsel{width:34px;padding-left:14px}
-.home-grid th.hgear, .home-grid td.hgear{width:30px;text-align:center}
+.home-grid th.hgear, .home-grid td.hgear{width:42px;text-align:center}
 .hsel-box{width:15px;height:15px;border:1.5px solid var(--border-strong);border-radius:4px;background:var(--surface);display:inline-flex;align-items:center;justify-content:center;font-size:10px;color:transparent;vertical-align:middle}
 .hsel-box:hover{border-color:var(--accent)}
 .hsel-box.checked{background:var(--accent);border-color:var(--accent);color:#fff}
@@ -871,7 +870,7 @@ tr.flash td{animation:rowflash 1.4s ease}
 .home-grid td.hnext{white-space:nowrap;color:var(--text-2);font-size:12px;text-align:center;font-variant-numeric:tabular-nums}
 .hdot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--border-strong);margin-right:6px;vertical-align:1px}
 .hdot.on{background:var(--t10-heat)}
-.home-grid td.bd{text-align:center;font-variant-numeric:tabular-nums;min-width:62px;font-size:12.5px}
+.home-grid td.bd{text-align:center;font-variant-numeric:tabular-nums;min-width:62px;font-size:12.5px;white-space:nowrap}
 .bd .bnum{font-weight:650}
 .bd .bnum.z{color:var(--text-3);font-weight:500}
 .bd sup{font-size:9px;font-weight:750;margin-left:2px}
@@ -888,67 +887,30 @@ tr.h-m{cursor:pointer}
 .tool-ico.fav.on{color:#E8B93B;border-color:#E8B93B;background:rgba(232,185,59,.1)}
 .home-page .grid tr.group-row td{box-shadow:none}
 .home-page .super-head,.home-page .group-head{position:static;width:auto;max-width:none}
-/* иерархия «группа → проект → мониторинг»: база — «Сетка» (плотно, жирная линия секции) */
+/* иерархия «группа → проект → мониторинг»: «Сетка» + «Графит-бары» (запечено) */
+.home-grid{table-layout:fixed;width:100%} /* стабильные колонки — ничего не дёргается при сворачивании */
 .home-page tr.group-gap.big td{height:0;border-bottom:none}
-.home-page tr.h-g td{height:44px;background:var(--surface-2);border-top:2px solid var(--border-strong);border-bottom:1px solid var(--border)}
+.home-page tr.h-g td{height:46px;background:#39434F;border-top:none;border-bottom:none}
 .home-page tr.h-g .super-head{padding-left:0}
-.home-page tr.h-g .super-head .sname{font-size:14.5px}
-.home-page tr.h-p td{border-top:1px solid var(--border)}
-.home-page .grid tr.h-p td:first-child{box-shadow:inset 3px 0 0 var(--accent)} /* красная кромка шапки проекта… */
-.home-page .grid tr.h-m td:first-child{box-shadow:inset 3px 0 0 var(--border-strong)} /* …продолжается вдоль его мониторингов */
-.home-page tr.h-p td.hname{padding-left:30px} /* проект — глубже группы */
+.home-page tr.h-g .super-head .sname{font-size:14.5px;color:#EDF1F7}
+.home-page tr.h-g .scount{color:#97A2B4}
+.home-page tr.h-g .chev,.home-page tr.h-g .hfold{color:#B8C2D0}
+.home-page tr.h-g .chev svg{width:13px;height:13px} /* крупнее кнопка раскрытия */
+.home-page tr.h-g .hfold svg{width:15px;height:15px}
+.home-page tr.h-g .hg-btn{color:#CBD3DF;opacity:1}
+.home-page tr.h-g .hg-btn svg{width:15px;height:15px} /* шестерёнка белая и крупнее */
+.home-page tr.h-g .hg-btn:hover{color:#fff;background:#4A5462}
+.home-page tr.h-g td.bd .bnum{color:#EDF1F7}
+.home-page tr.h-g td.bd .bnum.z{color:#97A2B4} /* нули читаются на графите */
+.home-page tr.h-g td.bd sup.up{color:#63D398}
+.home-page tr.h-g td.bd sup.down{color:#F09287}
+.home-page tr.h-p td{background:var(--surface-2);border-top:1px solid var(--border)}
+.home-page .grid tr.h-m td:first-child{box-shadow:inset 3px 0 0 var(--border-strong)} /* кромка вдоль мониторингов проекта */
+.home-page tr.h-p td.hname{padding-left:46px} /* проект — глубже группы (текст правее текста группы) */
 .home-page tr.h-p .gname{font-size:14px}
-.home-page tr.h-m td.hsel{padding-left:26px} /* мониторинг — глубже проекта */
-.home-page tr.h-m td.hname{padding-left:16px}
+.home-page tr.h-m td.hname{padding-left:64px} /* мониторинг — глубже проекта (контролы внутри строки) */
+.mrow .hsel-box{flex:none;margin-right:2px}
 .home-page tr.h-m td{height:40px}
-
-/* ============ ВАРИАНТЫ ИЕРАРХИИ ВГЛУБЬ (группа ↔ проект ↔ мониторинг) ============ */
-/* 1. Типографика: капс-группы, шкала веса, приглушённый 3-й уровень */
-.hy-type tr.h-g .sname{text-transform:uppercase;letter-spacing:.07em;font-size:13px;font-weight:800}
-.hy-type tr.h-p .gname{font-weight:750}
-.hy-type tr.h-m td{height:36px}
-.hy-type tr.h-m .txt{font-weight:450;color:var(--text-2)}
-.hy-type tr.h-m .bd .bnum{font-weight:550}
-
-/* 2. Лесенка размеров: высота строк и кегль убывают с уровнем, отступы глубже */
-.hy-scale tr.h-g td{height:54px}
-.hy-scale tr.h-g .super-head .sname{font-size:16.5px}
-.hy-scale tr.h-p td{height:44px}
-.hy-scale tr.h-p .gname{font-size:14px}
-.hy-scale tr.h-p td.hname{padding-left:36px}
-.hy-scale tr.h-m td{height:34px}
-.hy-scale tr.h-m .txt{font-size:12px}
-.hy-scale tr.h-m td.hsel{padding-left:44px}
-
-/* 3. Дерево: направляющие-линии отступов, как в файловых деревьях */
-.hy-tree tr.h-p td.hname{padding-left:36px;background-image:linear-gradient(var(--border-strong),var(--border-strong)),linear-gradient(var(--border-strong),var(--border-strong));background-size:1.5px 100%,12px 1.5px;background-position:16px 0,16px 50%;background-repeat:no-repeat}
-.hy-tree tr.h-m td.hname{padding-left:58px;background-image:linear-gradient(var(--border),var(--border)),linear-gradient(var(--border-strong),var(--border-strong)),linear-gradient(var(--border-strong),var(--border-strong));background-size:1.5px 100%,1.5px 100%,12px 1.5px;background-position:16px 0,38px 0,38px 50%;background-repeat:no-repeat}
-.hy-tree tr.h-m td.hsel{padding-left:20px}
-.hy-tree .grid tr.h-p td:first-child,.hy-tree .grid tr.h-m td:first-child{box-shadow:none}
-
-/* 4. Кромки уровней: система левых плашек — графит 6px / красный 3px / серый 2px */
-.hy-edge .grid tr.h-g td:first-child{box-shadow:inset 6px 0 0 color-mix(in srgb, var(--text) 65%, transparent)}
-.hy-edge .grid tr.h-p td:first-child{box-shadow:inset 3px 0 0 var(--accent)}
-.hy-edge .grid tr.h-m td:first-child{box-shadow:inset 2px 0 0 var(--border-strong)}
-.hy-edge tr.h-p td{background:color-mix(in srgb, var(--surface-2) 55%, var(--surface))}
-
-/* 5. Графит-бары: группа — тёмная полоса как рама приложения */
-.hy-bars tr.h-g td{background:#39434F;border-top:none;border-bottom:none;height:46px}
-.hy-bars tr.h-g .sname{color:#EDF1F7}
-.hy-bars tr.h-g .scount,.hy-bars tr.h-g .chev,.hy-bars tr.h-g .hfold,.hy-bars tr.h-g .hg-btn{color:#97A2B4}
-.hy-bars tr.h-g td.bd .bnum{color:#EDF1F7}
-.hy-bars tr.h-g td.bd .bnum.z{color:#6B7686}
-.hy-bars tr.h-g td.bd sup.up{color:#63D398}
-.hy-bars tr.h-g td.bd sup.down{color:#F09287}
-.hy-bars tr.h-p td{background:var(--surface-2)}
-.hy-bars .grid tr.h-p td:first-child{box-shadow:none}
-
-/* плавающий переключатель стиля групп */
-.hs-switch{position:fixed;right:16px;bottom:14px;z-index:90;background:var(--surface);border:1px solid var(--border-strong);border-radius:12px;box-shadow:var(--shadow-lg);padding:8px 10px;display:flex;align-items:center;gap:6px;font-size:11.5px}
-.hs-switch b{color:var(--text-2);font-weight:650;margin-right:2px}
-.hs-btn{border:1px solid var(--border);border-radius:7px;padding:4px 9px;font-size:11.5px;font-weight:650;color:var(--text-2)}
-.hs-btn:hover{color:var(--text);border-color:var(--border-strong)}
-.hs-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
 
 /* ============ SERP MODAL (по центру, мультивыбор дат) ============ */
 /* модалка «Позиции конкурента»: адрес сайта + действие/отмена */
@@ -1530,12 +1492,10 @@ function homeBandCell(n,d,bi){
   const sup = d ? `<sup class="${d>0?'up':'down'}">${d>0?'+':''}${d}</sup>` : '';
   return `<td class="bd ${bi!=null?('b'+bi):''}"><span class="bnum ${n===0?'z':''}">${n}</span>${sup}</td>`;
 }
-/* база уровня групп — «Сетка» (выбор пользователя); вариации построения иерархии вглубь */
-let HY = 'type';
-const HY_OPTS = [['type','Типографика'],['scale','Лесенка'],['tree','Дерево'],['edge','Кромки'],['bars','Графит-бары']];
+/* оформление главной: база «Сетка» + иерархия «Графит-бары» (выбор пользователя, запечено) */
 
 function renderHome(){
-  app.className = `home-page chrome-darkframe sum-mode-abs hy-${HY}`;
+  app.className = 'home-page chrome-darkframe sum-mode-abs';
   const nProj = HOME.reduce((n,g)=>n+g.projects.length,0);
   const nMons = HOME.reduce((n,g)=>n+g.projects.reduce((m,p)=>m+p.mons.length,0),0);
   let rows = '';
@@ -1543,17 +1503,16 @@ function renderHome(){
     const agg=[0,0,0,0,0], aggD=[0,0,0,0,0];
     let monCount=0;
     g.projects.forEach(p=>p.mons.forEach(m=>{ monCount++; m.bands.forEach((b,i)=>{agg[i]+=b; aggD[i]+=m.deltas[i];}); }));
-    rows += `<tr class="group-gap big" aria-hidden="true"><td colspan="13"></td></tr>
-      <tr class="super-row h-g" data-hg="${gi}"><td></td><td class="hgear"><button class="hg-btn" title="Настройки группы проектов">${I.gear}</button></td><td class="hname"><div class="super-head"><span class="chev">${I.chev}</span><span class="hfold">${I.folder}</span><span class="sname">${esc(g.group)}</span><span class="scount">${g.projects.length} проект(а) · ${monCount} мониторинг(а)</span></div></td>
+    rows += `<tr class="group-gap big" aria-hidden="true"><td colspan="12"></td></tr>
+      <tr class="super-row h-g" data-hg="${gi}"><td class="hgear"><button class="hg-btn" title="Настройки группы проектов">${I.gear}</button></td><td class="hname"><div class="super-head"><span class="chev">${I.chev}</span><span class="hfold">${I.folder}</span><span class="sname">${esc(g.group)}</span><span class="scount">${g.projects.length} проект(а) · ${monCount} мониторинг(а)</span></div></td>
       <td></td>${agg.map((n,i)=>homeBandCell(n,aggD[i],i)).join('')}<td colspan="4"></td></tr>`;
     g.projects.forEach((p,pi)=>{
-      rows += `<tr class="group-row h-p" data-hp="${gi}-${pi}" data-hgp="${gi}"><td></td><td class="hgear"><button class="hg-btn" title="Настройки проекта">${I.gear}</button></td><td class="hname"><div class="group-head"><span class="chev">${I.chev}</span><span class="gname">${esc(p.name)}</span></div></td>
+      rows += `<tr class="group-row h-p" data-hp="${gi}-${pi}" data-hgp="${gi}"><td class="hgear"><button class="hg-btn" title="Настройки проекта">${I.gear}</button></td><td class="hname"><div class="group-head"><span class="chev">${I.chev}</span><span class="gname">${esc(p.name)}</span></div></td>
         <td colspan="8"></td><td class="ps-c">${psBadge(p.ps)}</td><td class="team-c"><span class="team-ava" title="Команда проекта">${p.team}</span></td></tr>`;
       p.mons.forEach((m,mi)=>{
         rows += `<tr class="kw-row h-m" data-hgp="${gi}" data-hpp="${gi}-${pi}" data-mi="${gi}-${pi}-${mi}" data-search="${(g.group+' '+p.name+' '+m.name).toLowerCase()}">
-          <td class="hsel"><button class="hsel-box" aria-label="Выбрать мониторинг"></button></td>
           <td class="hgear"><button class="hg-btn" title="Настройки мониторинга">${I.gear}</button></td>
-          <td class="hname"><span class="mrow"><button class="hm-star ${m.fav?'on':''}" title="${m.fav?'Убрать из избранного':'В избранное'}">${m.fav?'★':'☆'}</button><span class="eng ${m.eng}">${m.eng==='ya'?I.ya:I.go}</span><span class="hflag">${m.flag}</span><span class="txt">${esc(m.name)}</span></span></td>
+          <td class="hname"><span class="mrow"><button class="hsel-box" aria-label="Выбрать мониторинг"></button><button class="hm-star ${m.fav?'on':''}" title="${m.fav?'Убрать из избранного':'В избранное'}">${m.fav?'★':'☆'}</button><span class="eng ${m.eng}">${m.eng==='ya'?I.ya:I.go}</span><span class="hflag">${m.flag}</span><span class="txt">${esc(m.name)}</span></span></td>
           <td class="hnext"><span class="hdot ${m.active?'on':''}" title="${m.active?'Мониторинг активен':'Мониторинг не активен'}"></span>${m.next}</td>
           ${m.bands.map((b,i)=>homeBandCell(b,m.deltas[i],i)).join('')}
           <td class="bd"><span class="bnum ${m.keys===0?'z':''}">${m.keys.toLocaleString('ru-RU')}</span></td>
@@ -1589,14 +1548,13 @@ function renderHome(){
       </div>
       <div class="worksheet"><div class="table-wrap"><table class="grid home-grid">
         <thead><tr>
-          <th class="hsel"></th><th class="hgear"></th><th class="hname" style="text-align:left;padding-left:8px">Проект / мониторинг</th><th>След. срез</th>
-          <th>ТОП 1–3</th><th>1–10</th><th>11–20</th><th>21–50</th><th>51–100</th>
-          <th>Ключей</th><th>URLs</th><th title="Google PageSpeed целевых URL">PageSpeed</th><th>Команда</th>
+          <th class="hgear" style="width:42px"></th><th class="hname" style="text-align:left;padding-left:8px">Проект / мониторинг</th><th style="width:108px">След. срез</th>
+          <th style="width:74px">ТОП 1–3</th><th style="width:70px">1–10</th><th style="width:70px">11–20</th><th style="width:70px">21–50</th><th style="width:70px">51–100</th>
+          <th style="width:82px">Ключей</th><th style="width:62px">URLs</th><th style="width:102px" title="Google PageSpeed целевых URL">PageSpeed</th><th style="width:78px">Команда</th>
         </tr></thead>
         <tbody>${rows}</tbody></table></div></div>
     </main>
-  </div>
-  <div class="hs-switch" role="toolbar" aria-label="Вариант иерархии"><b>Иерархия:</b>${HY_OPTS.map(([v2,l])=>`<button class="hs-btn ${HY===v2?'active':''}" data-hy="${v2}">${l}</button>`).join('')}</div>`;
+  </div>`;
   applyTheme();
   bindChrome();
   bindHome();
@@ -1670,13 +1628,6 @@ function bindHome(){
     app.querySelectorAll('tr.h-p').forEach(p=>p.classList.toggle('collapsed', collapse));
     app.querySelectorAll('tr.h-m').forEach(r=>r.classList.toggle('hh-hide', collapse));
   };
-  /* переключатель варианта иерархии */
-  app.querySelectorAll('.hs-btn').forEach(b=> b.onclick = ()=>{
-    HY = b.dataset.hy;
-    HY_OPTS.forEach(([v2])=>app.classList.remove('hy-'+v2));
-    app.classList.add('hy-'+HY);
-    app.querySelectorAll('.hs-btn').forEach(x=>x.classList.toggle('active', x===b));
-  });
   /* массовое выделение мониторингов */
   const updateBulk = ()=>{
     const n = app.querySelectorAll('.hsel-box.checked').length;
