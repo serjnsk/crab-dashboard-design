@@ -905,6 +905,55 @@ tr.h-m{cursor:pointer}
 .home-page tr.h-m td.hname{padding-left:16px}
 .home-page tr.h-m td{height:40px}
 
+/* ============ ВАРИАЦИИ УРОВНЯ ГРУПП НА ГЛАВНОЙ ============ */
+/* 1. Карточки: тонированная шапка с рамкой, блок в рамке */
+.hs-cards tr.group-gap.big td{height:14px}
+.hs-cards tr.h-g td{background:var(--surface-2);border-top:1px solid var(--border-strong);border-bottom:1px solid var(--border);height:46px}
+.hs-cards tr.h-g td:first-child{border-left:1px solid var(--border-strong)}
+.hs-cards tr.h-g td:last-child{border-right:1px solid var(--border-strong)}
+.hs-cards tr.h-p td:first-child,.hs-cards tr.h-m td:first-child{border-left:1px solid var(--border)}
+.hs-cards tr.h-p td:last-child,.hs-cards tr.h-m td:last-child{border-right:1px solid var(--border)}
+.hs-cards tr.h-p td{border-top:6px solid var(--bg)}
+
+/* 2. Сетка: плотно, без воздуха, жирная верхняя линия секции */
+.hs-dense tr.group-gap.big td{height:0;border-bottom:none}
+.hs-dense tr.h-g td{background:var(--surface-2);border-top:2px solid var(--border-strong);border-bottom:1px solid var(--border);height:44px}
+.hs-dense tr.h-g .super-head .sname{font-size:14.5px}
+.hs-dense tr.h-p td{border-top:1px solid var(--border)}
+
+/* 3. Линия: типографический колонтитул на жирной линии */
+.hs-rule tr.group-gap.big td{height:18px}
+.hs-rule tr.h-g td{background:var(--surface);height:42px;border-bottom:2px solid var(--text);border-top:none}
+.hs-rule tr.h-g .hfold{display:none}
+.hs-rule tr.h-p td{border-top:8px solid var(--surface)}
+
+/* 4. Тинт: лавандовые полосы групп (наследие розовых строк старого UI) */
+.hs-tint tr.group-gap.big td{height:10px}
+.hs-tint tr.h-g td{background:color-mix(in srgb, var(--typ-purple) 11%, var(--surface));height:46px;border-top:none;border-bottom:none}
+.hs-tint tr.h-g .hfold{color:var(--typ-purple)}
+.hs-tint tr.h-p td:first-child{box-shadow:inset 3px 0 0 color-mix(in srgb, var(--typ-purple) 45%, transparent)}
+.hs-tint tr.h-m td:first-child{box-shadow:inset 3px 0 0 color-mix(in srgb, var(--typ-purple) 20%, transparent)}
+.hs-tint tr.h-p td{border-top:6px solid var(--bg)}
+
+/* 5. Чипы: плотная база + агрегаты как цветные чипы порогов */
+.hs-chips tr.group-gap.big td{height:6px}
+.hs-chips tr.h-g td{background:var(--surface-2);border-top:1px solid var(--border-strong);border-bottom:1px solid var(--border);height:46px}
+.hs-chips tr.h-g td.bd .bnum{display:inline-block;min-width:36px;padding:2.5px 9px;border-radius:12px;font-size:11.5px}
+.hs-chips tr.h-g td.bd.b0 .bnum{background:var(--t3-bg);color:var(--t3-fg)}
+.hs-chips tr.h-g td.bd.b1 .bnum{background:var(--t10-bg);color:var(--t10-fg)}
+.hs-chips tr.h-g td.bd.b2 .bnum{background:var(--t20-bg);color:var(--t20-fg)}
+.hs-chips tr.h-g td.bd.b3 .bnum{background:var(--t50-bg);color:var(--t50-fg)}
+.hs-chips tr.h-g td.bd.b4 .bnum{background:var(--t100-bg);color:var(--t100-fg)}
+.hs-chips tr.h-g td.bd .bnum.z{background:var(--bg);color:var(--text-3)}
+.hs-chips tr.h-p td{border-top:6px solid var(--bg)}
+
+/* плавающий переключатель стиля групп */
+.hs-switch{position:fixed;right:16px;bottom:14px;z-index:90;background:var(--surface);border:1px solid var(--border-strong);border-radius:12px;box-shadow:var(--shadow-lg);padding:8px 10px;display:flex;align-items:center;gap:6px;font-size:11.5px}
+.hs-switch b{color:var(--text-2);font-weight:650;margin-right:2px}
+.hs-btn{border:1px solid var(--border);border-radius:7px;padding:4px 9px;font-size:11.5px;font-weight:650;color:var(--text-2)}
+.hs-btn:hover{color:var(--text);border-color:var(--border-strong)}
+.hs-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
+
 /* ============ SERP MODAL (по центру, мультивыбор дат) ============ */
 /* модалка «Позиции конкурента»: адрес сайта + действие/отмена */
 .comp-modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:96;padding:24px;background:rgba(12,17,26,.45)}
@@ -1483,13 +1532,16 @@ function psBadge(ps){
   const cls = worst>=90 ? 'g' : worst>=50 ? 'm' : 'b';
   return `<span class="ps ${cls}" title="Google PageSpeed: desktop / mobile">${ps[0]} / ${ps[1]}</span>`;
 }
-function homeBandCell(n,d){
+function homeBandCell(n,d,bi){
   const sup = d ? `<sup class="${d>0?'up':'down'}">${d>0?'+':''}${d}</sup>` : '';
-  return `<td class="bd"><span class="bnum ${n===0?'z':''}">${n}</span>${sup}</td>`;
+  return `<td class="bd ${bi!=null?('b'+bi):''}"><span class="bnum ${n===0?'z':''}">${n}</span>${sup}</td>`;
 }
+/* вариации оформления уровня «группа проектов» на главной */
+let HS = 'cards';
+const HS_OPTS = [['cards','Карточки'],['dense','Сетка'],['rule','Линия'],['tint','Тинт'],['chips','Чипы']];
 
 function renderHome(){
-  app.className = 'home-page chrome-darkframe sum-mode-abs';
+  app.className = `home-page chrome-darkframe sum-mode-abs hs-${HS}`;
   const nProj = HOME.reduce((n,g)=>n+g.projects.length,0);
   const nMons = HOME.reduce((n,g)=>n+g.projects.reduce((m,p)=>m+p.mons.length,0),0);
   let rows = '';
@@ -1499,7 +1551,7 @@ function renderHome(){
     g.projects.forEach(p=>p.mons.forEach(m=>{ monCount++; m.bands.forEach((b,i)=>{agg[i]+=b; aggD[i]+=m.deltas[i];}); }));
     rows += `<tr class="group-gap big" aria-hidden="true"><td colspan="13"></td></tr>
       <tr class="super-row h-g" data-hg="${gi}"><td></td><td class="hgear"><button class="hg-btn" title="Настройки группы проектов">${I.gear}</button></td><td class="hname"><div class="super-head"><span class="chev">${I.chev}</span><span class="hfold">${I.folder}</span><span class="sname">${esc(g.group)}</span><span class="scount">${g.projects.length} проект(а) · ${monCount} мониторинг(а)</span></div></td>
-      <td></td>${agg.map((n,i)=>homeBandCell(n,aggD[i])).join('')}<td colspan="4"></td></tr>`;
+      <td></td>${agg.map((n,i)=>homeBandCell(n,aggD[i],i)).join('')}<td colspan="4"></td></tr>`;
     g.projects.forEach((p,pi)=>{
       rows += `<tr class="group-row h-p" data-hp="${gi}-${pi}" data-hgp="${gi}"><td></td><td class="hgear"><button class="hg-btn" title="Настройки проекта">${I.gear}</button></td><td class="hname"><div class="group-head"><span class="chev">${I.chev}</span><span class="gname">${esc(p.name)}</span></div></td>
         <td colspan="8"></td><td class="ps-c">${psBadge(p.ps)}</td><td class="team-c"><span class="team-ava" title="Команда проекта">${p.team}</span></td></tr>`;
@@ -1509,7 +1561,7 @@ function renderHome(){
           <td class="hgear"><button class="hg-btn" title="Настройки мониторинга">${I.gear}</button></td>
           <td class="hname"><span class="mrow"><button class="hm-star ${m.fav?'on':''}" title="${m.fav?'Убрать из избранного':'В избранное'}">${m.fav?'★':'☆'}</button><span class="eng ${m.eng}">${m.eng==='ya'?I.ya:I.go}</span><span class="hflag">${m.flag}</span><span class="txt">${esc(m.name)}</span></span></td>
           <td class="hnext"><span class="hdot ${m.active?'on':''}" title="${m.active?'Мониторинг активен':'Мониторинг не активен'}"></span>${m.next}</td>
-          ${m.bands.map((b,i)=>homeBandCell(b,m.deltas[i])).join('')}
+          ${m.bands.map((b,i)=>homeBandCell(b,m.deltas[i],i)).join('')}
           <td class="bd"><span class="bnum ${m.keys===0?'z':''}">${m.keys.toLocaleString('ru-RU')}</span></td>
           <td class="bd"><span class="bnum ${m.urls===0?'z':''}">${m.urls}</span></td>
           <td></td><td></td></tr>`;
@@ -1549,7 +1601,8 @@ function renderHome(){
         </tr></thead>
         <tbody>${rows}</tbody></table></div></div>
     </main>
-  </div>`;
+  </div>
+  <div class="hs-switch" role="toolbar" aria-label="Стиль уровня групп"><b>Стиль групп:</b>${HS_OPTS.map(([v2,l])=>`<button class="hs-btn ${HS===v2?'active':''}" data-hs="${v2}">${l}</button>`).join('')}</div>`;
   applyTheme();
   bindChrome();
   bindHome();
@@ -1623,6 +1676,13 @@ function bindHome(){
     app.querySelectorAll('tr.h-p').forEach(p=>p.classList.toggle('collapsed', collapse));
     app.querySelectorAll('tr.h-m').forEach(r=>r.classList.toggle('hh-hide', collapse));
   };
+  /* переключатель стиля уровня групп */
+  app.querySelectorAll('.hs-btn').forEach(b=> b.onclick = ()=>{
+    HS = b.dataset.hs;
+    HS_OPTS.forEach(([v2])=>app.classList.remove('hs-'+v2));
+    app.classList.add('hs-'+HS);
+    app.querySelectorAll('.hs-btn').forEach(x=>x.classList.toggle('active', x===b));
+  });
   /* массовое выделение мониторингов */
   const updateBulk = ()=>{
     const n = app.querySelectorAll('.hsel-box.checked').length;
