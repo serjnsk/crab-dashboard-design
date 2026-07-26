@@ -932,7 +932,10 @@ tr.h-m{cursor:pointer}
   .home-grid td.bd{font-size:11.5px;min-width:0}
   .home-grid th.hname{width:360px} /* в узком режиме имя фиксированно широкое — добавку не размывает по цифрам */
 }
-.home-page tr.group-gap.big td{height:4px;border-bottom:none;background:var(--bg)} /* просвет между графит-барами — структура в свёрнутом виде */
+/* просвет между графит-барами. colspan не должен превышать число ВИДИМЫХ колонок:
+   иначе таблица достраивает фантомные колонки и справа появляется пустая зона */
+.home-page tr.group-gap.big{background:var(--bg)}
+.home-page tr.group-gap.big td{height:4px;border-bottom:none;background:var(--bg)}
 .home-page tr.h-g td{height:46px;background:#39434F;border-top:none;border-bottom:none} /* при прокрутке липнет только шапка столбцов */
 .home-page tr.h-g .super-head{padding-left:0}
 .home-page tr.h-g .super-head .sname{font-size:14.5px;color:#EDF1F7}
@@ -956,35 +959,10 @@ tr.h-m{cursor:pointer}
 .home-grid .hg-btn svg{width:16px;height:16px}
 .acts > *{width:18px;height:18px}
 .acts .hg-btn{padding:0}
-/* ============ ВАРИАНТЫ РАЗМЕЩЕНИЯ СТАТУСА ============ */
-.m-meta{display:none}
-.home-grid th.c-status2,.home-grid td.hnext2{display:none}
-.home-grid th.c-status2{width:122px;text-align:left;padding-left:10px}
-/* A: у имени — точка и дата серой метой после названия мониторинга */
-.st-name .home-grid th.c-status,.st-name .home-grid td.hnext:not(.hnext2){display:none}
-.st-name .m-meta{display:inline-flex;align-items:center;gap:6px;color:var(--text-3);font-size:11.5px;font-variant-numeric:tabular-nums;margin-left:auto;padding-left:14px;flex:none}
-.st-name tr.h-m .mrow{width:100%}
-.st-name tr.h-m .txt{overflow:hidden;text-overflow:ellipsis}
-.st-name .m-meta .hdot{margin-right:0}
-/* B: точка — колонка-миниатюра, всё в тултипах */
-.st-dot .home-grid th.c-status{width:44px;font-size:0;padding-left:0}
-.st-dot .home-grid td.hnext:not(.hnext2) .hcal,.st-dot .home-grid td.hnext:not(.hnext2) .hdate{display:none}
-.st-dot .home-grid td.hnext:not(.hnext2){text-align:center;padding-left:0}
-.st-dot .home-grid td.hnext:not(.hnext2) .hdot{margin-right:0}
-/* C: в конце таблицы */
-.st-end .home-grid th.c-status,.st-end .home-grid td.hnext:not(.hnext2){display:none}
-.st-end .home-grid th.c-status2{display:table-cell}
-.st-end .home-grid td.hnext2{display:table-cell}
-/* D: на месте, но с разделителями от числовой зоны */
-.st-sep .home-grid th.c-status,.st-sep tr.h-m td.hnext:not(.hnext2){border-left:1px solid var(--border-strong);border-right:1px solid var(--border-strong)}
-.st-sep .home-grid td.hnext .hdate{color:var(--text-3)}
-
-/* плавающий переключатель вариантов */
-.hs-switch{position:fixed;right:16px;bottom:14px;z-index:90;background:var(--surface);border:1px solid var(--border-strong);border-radius:12px;box-shadow:var(--shadow-lg);padding:8px 10px;display:flex;align-items:center;gap:6px;font-size:11.5px}
-.hs-switch b{color:var(--text-2);font-weight:650;margin-right:2px}
-.hs-btn{border:1px solid var(--border);border-radius:7px;padding:4px 9px;font-size:11.5px;font-weight:650;color:var(--text-2)}
-.hs-btn:hover{color:var(--text);border-color:var(--border-strong)}
-.hs-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
+/* ============ СТАТУС: колонка за иконками действий, отбита разделителями ============ */
+.home-grid th.c-status,.home-grid td.hnext{border-right:1px solid var(--border-strong)}
+.home-grid td.hnext .hdate{color:var(--text-3)}
+.home-page tr.h-g td.hnext{border-right-color:#4A5462} /* на графите разделитель тише */
 
 /* виртуальная секция «Проекты без групп»: папка приглушена */
 .home-page tr.h-g.ug .hfold{opacity:.45}
@@ -1639,9 +1617,7 @@ const ST_TIP = {
   queue:'В очереди на мониторинг',
   error:'Ошибка мониторинга'
 };
-/* варианты размещения статуса мониторинга */
-let ST_POS = 'name';
-const ST_OPTS = [['name','У имени'],['dot','Точка'],['end','В конце'],['sep','Разделитель']];
+/* статус: колонка сразу за иконками действий, отбита разделителями от остальной таблицы */
 function statusCellHtml(m){
   return `<span class="hcal" data-tip="Открыт | ${m.sched}">${I.cal}</span><span class="hdot ${m.st}" data-tip="${ST_TIP[m.st]}"></span><span class="hdate">${m.next}</span>`;
 }
@@ -1658,7 +1634,7 @@ function homeBandCell(n,d,bi){
 /* оформление главной: база «Сетка» + иерархия «Графит-бары» (выбор пользователя, запечено) */
 
 function renderHome(){
-  app.className = `home-page chrome-darkframe sum-mode-abs st-${ST_POS}`;
+  app.className = 'home-page chrome-darkframe sum-mode-abs';
   const nProj = HOME.reduce((n,g)=>n+g.projects.length,0) + HOME_UNGROUPED.length;
   const nMons = HOME.reduce((n,g)=>n+g.projects.reduce((m,p)=>m+p.mons.length,0),0)
               + HOME_UNGROUPED.reduce((n,p)=>n+p.mons.length,0);
@@ -1673,22 +1649,22 @@ function renderHome(){
     const agg=[0,0,0,0,0], aggD=[0,0,0,0,0];
     let monCount=0, gKeys=0, gUrls=0;
     g.projects.forEach(p=>p.mons.forEach(m=>{ monCount++; gKeys+=m.keys; gUrls+=m.urls; m.bands.forEach((b,i)=>{agg[i]+=b; aggD[i]+=m.deltas[i];}); }));
-    rows += `<tr class="group-gap big" aria-hidden="true"><td colspan="13"></td></tr>
-      <tr class="super-row h-g${sec.virtual?' ug':''}" data-hg="${gi}"><td class="hact"><span class="acts"><button class="hsel-box lvl-g" data-sc="g:${gi}" aria-label="Выбрать группу"></button><span class="aslot"></span><button class="hg-btn" title="Настройки группы проектов">${I.gear}</button></span></td><td class="hname"><div class="super-head"><span class="chev">${I.chev}</span><span class="hfold">${I.folder}</span><span class="sname">${esc(g.group)}</span><span class="scount">${g.projects.length} проект(а) · ${monCount} мониторинг(а)</span></div></td><td class="hnext"></td>
-      ${agg.map((n,i)=>homeBandCell(n,aggD[i],i)).join('')}<td class="bd"><span class="bnum ${gKeys===0?'z':''}">${gKeys.toLocaleString('ru-RU')}</span></td><td class="bd"><span class="bnum ${gUrls===0?'z':''}">${gUrls}</span></td><td class="ps-c"></td><td class="team-c"></td><td class="hnext2"></td></tr>`;
+    rows += `<tr class="group-gap big" aria-hidden="true"><td colspan="11"></td></tr>
+      <tr class="super-row h-g${sec.virtual?' ug':''}" data-hg="${gi}"><td class="hact"><span class="acts"><button class="hsel-box lvl-g" data-sc="g:${gi}" aria-label="Выбрать группу"></button><span class="aslot"></span><button class="hg-btn" title="Настройки группы проектов">${I.gear}</button></span></td><td class="hnext"></td><td class="hname"><div class="super-head"><span class="chev">${I.chev}</span><span class="hfold">${I.folder}</span><span class="sname">${esc(g.group)}</span><span class="scount">${g.projects.length} проект(а) · ${monCount} мониторинг(а)</span></div></td>
+      ${agg.map((n,i)=>homeBandCell(n,aggD[i],i)).join('')}<td class="bd"><span class="bnum ${gKeys===0?'z':''}">${gKeys.toLocaleString('ru-RU')}</span></td><td class="bd"><span class="bnum ${gUrls===0?'z':''}">${gUrls}</span></td><td class="ps-c"></td><td class="team-c"></td></tr>`;
     g.projects.forEach((p,pi)=>{
       const pKeys = p.mons.reduce((n,m)=>n+m.keys,0), pUrls = p.mons.reduce((n,m)=>n+m.urls,0);
-      rows += `<tr class="group-row h-p" data-hp="${gi}-${pi}" data-hgp="${gi}"><td class="hact"><span class="acts"><button class="hsel-box lvl-p" data-sc="p:${gi}-${pi}" aria-label="Выбрать проект"></button><span class="aslot"></span><button class="hg-btn" title="Настройки проекта">${I.gear}</button></span></td><td class="hname"><div class="group-head"><span class="chev">${I.chev}</span><span class="pfav" style="background:hsl(${hashStr(p.dom)%360} 42% 46%)"><i>${p.dom[0].toUpperCase()}</i><img src="https://www.google.com/s2/favicons?domain=${p.dom}&amp;sz=32" alt="" loading="lazy" onload="this.classList.add('ok')"></span><span class="gname">${esc(p.name)}</span></div></td><td class="hnext"></td>
-        <td colspan="5"></td><td class="bd"><span class="bnum ${pKeys===0?'z':''}">${pKeys.toLocaleString('ru-RU')}</span></td><td class="bd"><span class="bnum ${pUrls===0?'z':''}">${pUrls}</span></td><td class="ps-c">${psBadge(p.ps)}</td><td class="team-c"><span class="team-ava" title="Команда проекта">${p.team}</span></td><td class="hnext2"></td></tr>`;
+      rows += `<tr class="group-row h-p" data-hp="${gi}-${pi}" data-hgp="${gi}"><td class="hact"><span class="acts"><button class="hsel-box lvl-p" data-sc="p:${gi}-${pi}" aria-label="Выбрать проект"></button><span class="aslot"></span><button class="hg-btn" title="Настройки проекта">${I.gear}</button></span></td><td class="hnext"></td><td class="hname"><div class="group-head"><span class="chev">${I.chev}</span><span class="pfav" style="background:hsl(${hashStr(p.dom)%360} 42% 46%)"><i>${p.dom[0].toUpperCase()}</i><img src="https://www.google.com/s2/favicons?domain=${p.dom}&amp;sz=32" alt="" loading="lazy" onload="this.classList.add('ok')"></span><span class="gname">${esc(p.name)}</span></div></td>
+        <td colspan="5"></td><td class="bd"><span class="bnum ${pKeys===0?'z':''}">${pKeys.toLocaleString('ru-RU')}</span></td><td class="bd"><span class="bnum ${pUrls===0?'z':''}">${pUrls}</span></td><td class="ps-c">${psBadge(p.ps)}</td><td class="team-c"><span class="team-ava" title="Команда проекта">${p.team}</span></td></tr>`;
       p.mons.forEach((m,mi)=>{
         rows += `<tr class="kw-row h-m" data-hgp="${gi}" data-hpp="${gi}-${pi}" data-mi="${gi}-${pi}-${mi}" data-search="${(g.group+' '+p.name+' '+m.name).toLowerCase()}">
           <td class="hact"><span class="acts"><button class="hsel-box" data-sc="m" aria-label="Выбрать мониторинг"></button><button class="hm-star ${m.fav?'on':''}" title="${m.fav?'Убрать из избранного':'В избранное'}">${m.fav?'★':'☆'}</button><button class="hg-btn" title="Настройки мониторинга">${I.gear}</button></span></td>
-          <td class="hname"><span class="mrow"><span class="eng ${m.eng}">${m.eng==='ya'?I.ya:I.go}</span><span class="flag-ico hflag" title="Регион мониторинга">${I.flags[m.flag]||''}</span><span class="txt">${esc(m.name)}</span><span class="m-meta"><span class="hdot ${m.st}" data-tip="${ST_TIP[m.st]}"></span><span data-tip="Открыт | ${m.sched}">${m.next}</span></span></span></td>
           <td class="hnext">${statusCellHtml(m)}</td>
+          <td class="hname"><span class="mrow"><span class="eng ${m.eng}">${m.eng==='ya'?I.ya:I.go}</span><span class="flag-ico hflag" title="Регион мониторинга">${I.flags[m.flag]||''}</span><span class="txt">${esc(m.name)}</span></span></td>
           ${m.bands.map((b,i)=>homeBandCell(b,m.deltas[i],i)).join('')}
           <td class="bd"><span class="bnum ${m.keys===0?'z':''}">${m.keys.toLocaleString('ru-RU')}</span></td>
           <td class="bd"><span class="bnum ${m.urls===0?'z':''}">${m.urls}</span></td>
-          <td class="ps-c"></td><td class="team-c"></td><td class="hnext hnext2">${statusCellHtml(m)}</td></tr>`;
+          <td class="ps-c"></td><td class="team-c"></td></tr>`;
       });
     });
   });
@@ -1718,14 +1694,13 @@ function renderHome(){
       </div>
       <div class="worksheet"><div class="table-wrap"><table class="grid home-grid">
         <thead><tr>
-          <th class="hact"></th><th class="hname"></th><th class="c-status">Статус</th>
+          <th class="hact"></th><th class="c-status">Статус</th><th class="hname"></th>
           <th class="c-band">ТОП 1–3</th><th class="c-band">1–10</th><th class="c-band">11–20</th><th class="c-band">21–50</th><th class="c-band">51–100</th>
-          <th class="c-keys" title="Всего ключей в мониторинге">Всего</th><th class="c-urls">URLs</th><th class="c-ps" title="Google PageSpeed целевых URL">PageSpeed</th><th class="c-team">Команда</th><th class="c-status2">Статус</th>
+          <th class="c-keys" title="Всего ключей в мониторинге">Всего</th><th class="c-urls">URLs</th><th class="c-ps" title="Google PageSpeed целевых URL">PageSpeed</th><th class="c-team">Команда</th>
         </tr></thead>
         <tbody>${rows}</tbody></table></div></div>
     </main>
-  </div>
-  <div class="hs-switch" role="toolbar" aria-label="Размещение статуса"><b>Статус:</b>${ST_OPTS.map(([v2,l])=>`<button class="hs-btn ${ST_POS===v2?'active':''}" data-st="${v2}">${l}</button>`).join('')}</div>`;
+  </div>`;
   applyTheme();
   bindChrome();
   bindHome();
@@ -1799,13 +1774,6 @@ function bindHome(){
     app.querySelectorAll('tr.h-p').forEach(p=>p.classList.toggle('collapsed', collapse));
     app.querySelectorAll('tr.h-m').forEach(r=>r.classList.toggle('hh-hide', collapse));
   };
-  /* переключатель размещения статуса */
-  app.querySelectorAll('.hs-btn[data-st]').forEach(b=> b.onclick = ()=>{
-    ST_POS = b.dataset.st;
-    ST_OPTS.forEach(([v2])=>app.classList.remove('st-'+v2));
-    app.classList.add('st-'+ST_POS);
-    app.querySelectorAll('.hs-btn[data-st]').forEach(x=>x.classList.toggle('active', x===b));
-  });
   /* массовое выделение: все уровни, каскад вниз (группа → проекты+мониторинги, проект → мониторинги) */
   const updateBulk = ()=>{
     const g = app.querySelectorAll('.hsel-box.lvl-g.checked').length;
