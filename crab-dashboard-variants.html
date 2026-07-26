@@ -877,7 +877,7 @@ tr.flash td{animation:rowflash 1.4s ease}
 .hfold svg{width:14px;height:14px}
 .home-grid td.hnext{white-space:nowrap;color:var(--text-2);font-size:12px;text-align:left;padding-left:10px;font-variant-numeric:tabular-nums}
 /* 4 статуса мониторинга: белый / зелёный / жёлтый / красный */
-.hdot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:0;cursor:default}
+.hdot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:middle;cursor:default}
 .hdot.idle{background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--border-strong)}
 .hdot.done{background:var(--t10-heat)}
 .hdot.queue{background:var(--t20-heat)}
@@ -947,17 +947,17 @@ tr.h-m{cursor:pointer}
 .home-page tr.h-g td.bd sup.down{color:#F09287}
 .home-page tr.h-p td{background:var(--surface-2);border-top:1px solid var(--border)}
 .home-page .grid tr.h-p td:first-child{box-shadow:inset 3px 0 0 #39434F} /* проект — старшая иерархия: вертикальная черта слева */
-.home-page tr.h-p td.hname{padding-left:46px} /* проект — глубже группы (текст правее текста группы) */
+.home-page tr.h-p td.hname{padding-left:14px} /* проект почти на уровне группы — группа выделена графитом, большой отступ не нужен */
 .home-page tr.h-p .gname{font-size:14px}
-.home-page tr.h-m td.hname{padding-left:98px} /* мониторинг стартует под текстом имени проекта (паттерн дерева) */
+.home-page tr.h-m td.hname{padding-left:66px} /* мониторинг стартует под текстом имени проекта (паттерн дерева) */
 /* шестерёнки: видимы всегда, единый размер — ровная колонка */
 .home-grid .hg-btn svg{width:16px;height:16px}
 .acts > *{width:18px;height:18px}
 .acts .hg-btn{padding:0}
-/* ============ СТАТУС: колонка за иконками действий, отбита разделителями ============ */
-.home-grid th.c-status,.home-grid td.hnext{border-right:1px solid var(--border-strong)}
+/* ============ СТАТУС: колонка за иконками действий ============ */
 .home-grid td.hnext .hdate{color:var(--text-3)}
-.home-page tr.h-g td.hnext{border-right-color:#4A5462} /* на графите разделитель тише */
+/* иконки действий и статуса — на одной оптической линии */
+.home-grid td.hnext > *{vertical-align:middle}
 
 /* виртуальная секция «Проекты без групп»: папка приглушена */
 .home-page tr.h-g.ug .hfold{opacity:.45}
@@ -970,7 +970,7 @@ tr.h-m{cursor:pointer}
 .pfav img{position:absolute;inset:0;width:100%;height:100%;opacity:0}
 .pfav img.ok{opacity:1;background:var(--surface)}
 /* статус: календарик + активность + дата */
-.hcal{display:inline-flex;color:var(--text-3);margin-right:6px;vertical-align:-1px}
+.hcal{display:inline-flex;color:var(--text-3);margin-right:6px;vertical-align:middle}
 .hcal svg{width:16px;height:16px}
 /* поиск по проектам — шире */
 .home-page .f-input input{width:230px}
@@ -1643,15 +1643,15 @@ function renderHome(){
     let monCount=0, gKeys=0, gUrls=0;
     g.projects.forEach(p=>p.mons.forEach(m=>{ monCount++; gKeys+=m.keys; gUrls+=m.urls; m.bands.forEach((b,i)=>{agg[i]+=b; aggD[i]+=m.deltas[i];}); }));
     rows += `<tr class="group-gap big" aria-hidden="true"><td colspan="11"></td></tr>
-      <tr class="super-row h-g${sec.virtual?' ug':''}" data-hg="${gi}"><td class="hact"><span class="acts"><button class="hsel-box lvl-g" data-sc="g:${gi}" aria-label="Выбрать группу"></button><span class="aslot"></span><button class="hg-btn" title="Настройки группы проектов">${I.gear}</button></span></td><td class="hnext"></td><td class="hname"><div class="super-head"><span class="chev">${I.chev}</span><span class="hfold">${I.folder}</span><span class="sname">${esc(g.group)}</span><span class="scount">${g.projects.length} проект(а) · ${monCount} мониторинг(а)</span></div></td>
+      <tr class="super-row h-g${sec.virtual?' ug':''}" data-hg="${gi}"><td class="hact"><span class="acts"><button class="hsel-box lvl-g" data-sc="g:${gi}" aria-label="Выбрать группу"></button><button class="hg-btn" title="Настройки группы проектов">${I.gear}</button><span class="aslot"></span></span></td><td class="hnext"></td><td class="hname"><div class="super-head"><span class="chev">${I.chev}</span><span class="hfold">${I.folder}</span><span class="sname">${esc(g.group)}</span><span class="scount">${g.projects.length} проект(а) · ${monCount} мониторинг(а)</span></div></td>
       ${agg.map((n,i)=>homeBandCell(n,aggD[i],i)).join('')}<td class="bd"><span class="bnum ${gKeys===0?'z':''}">${gKeys.toLocaleString('ru-RU')}</span></td><td class="bd"><span class="bnum ${gUrls===0?'z':''}">${gUrls}</span></td><td class="ps-c"></td><td class="team-c"></td></tr>`;
     g.projects.forEach((p,pi)=>{
       const pKeys = p.mons.reduce((n,m)=>n+m.keys,0), pUrls = p.mons.reduce((n,m)=>n+m.urls,0);
-      rows += `<tr class="group-row h-p" data-hp="${gi}-${pi}" data-hgp="${gi}"><td class="hact"><span class="acts"><button class="hsel-box lvl-p" data-sc="p:${gi}-${pi}" aria-label="Выбрать проект"></button><span class="aslot"></span><button class="hg-btn" title="Настройки проекта">${I.gear}</button></span></td><td class="hnext"></td><td class="hname"><div class="group-head"><span class="chev">${I.chev}</span><span class="pfav" style="background:hsl(${hashStr(p.dom)%360} 42% 46%)"><i>${p.dom[0].toUpperCase()}</i><img src="https://www.google.com/s2/favicons?domain=${p.dom}&amp;sz=32" alt="" loading="lazy" onload="this.classList.add('ok')"></span><span class="gname">${esc(p.name)}</span></div></td>
+      rows += `<tr class="group-row h-p" data-hp="${gi}-${pi}" data-hgp="${gi}"><td class="hact"><span class="acts"><button class="hsel-box lvl-p" data-sc="p:${gi}-${pi}" aria-label="Выбрать проект"></button><button class="hg-btn" title="Настройки проекта">${I.gear}</button><span class="aslot"></span></span></td><td class="hnext"></td><td class="hname"><div class="group-head"><span class="chev">${I.chev}</span><span class="pfav" style="background:hsl(${hashStr(p.dom)%360} 42% 46%)"><i>${p.dom[0].toUpperCase()}</i><img src="https://www.google.com/s2/favicons?domain=${p.dom}&amp;sz=32" alt="" loading="lazy" onload="this.classList.add('ok')"></span><span class="gname">${esc(p.name)}</span></div></td>
         <td colspan="5"></td><td class="bd"><span class="bnum ${pKeys===0?'z':''}">${pKeys.toLocaleString('ru-RU')}</span></td><td class="bd"><span class="bnum ${pUrls===0?'z':''}">${pUrls}</span></td><td class="ps-c">${psBadge(p.ps)}</td><td class="team-c"><span class="team-ava" title="Команда проекта">${p.team}</span></td></tr>`;
       p.mons.forEach((m,mi)=>{
         rows += `<tr class="kw-row h-m" data-hgp="${gi}" data-hpp="${gi}-${pi}" data-mi="${gi}-${pi}-${mi}" data-search="${(g.group+' '+p.name+' '+m.name).toLowerCase()}">
-          <td class="hact"><span class="acts"><button class="hsel-box" data-sc="m" aria-label="Выбрать мониторинг"></button><button class="hm-star ${m.fav?'on':''}" title="${m.fav?'Убрать из избранного':'В избранное'}">${m.fav?'★':'☆'}</button><button class="hg-btn" title="Настройки мониторинга">${I.gear}</button></span></td>
+          <td class="hact"><span class="acts"><button class="hsel-box" data-sc="m" aria-label="Выбрать мониторинг"></button><button class="hg-btn" title="Настройки мониторинга">${I.gear}</button><button class="hm-star ${m.fav?'on':''}" title="${m.fav?'Убрать из избранного':'В избранное'}">${m.fav?'★':'☆'}</button></span></td>
           <td class="hnext">${statusCellHtml(m)}</td>
           <td class="hname"><span class="mrow"><span class="eng ${m.eng}">${m.eng==='ya'?I.ya:I.go}</span><span class="flag-ico hflag" title="Регион мониторинга">${I.flags[m.flag]||''}</span><span class="txt">${esc(m.name)}</span></span></td>
           ${m.bands.map((b,i)=>homeBandCell(b,m.deltas[i],i)).join('')}
