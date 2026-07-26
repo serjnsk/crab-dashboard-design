@@ -955,6 +955,8 @@ tr.h-m{cursor:pointer}
 .home-grid .hg-btn svg{width:16px;height:16px}
 .acts > *{width:18px;height:18px}
 .acts .hg-btn{padding:0}
+/* виртуальная секция «Проекты без групп»: папка приглушена */
+.home-page tr.h-g.ug .hfold{opacity:.45}
 /* чекбокс на графитовой полосе группы */
 .home-page tr.h-g .hsel-box{border-color:#69758A;background:transparent}
 .home-page tr.h-g .hsel-box:hover{border-color:#fff}
@@ -1589,6 +1591,15 @@ const HOME = [
     mons:[{eng:'go',flag:'tr',name:'TR-Бренды',next:'25.07.26',st:'done',sched:'Еженедельно',keys:16,urls:0,bands:[0,0,0,0,0],deltas:[-1,-2,0,0,0],fav:true}]}
  ]}
 ];
+/* проекты, не входящие ни в одну группу — модуль «Проекты без групп» под основной таблицей */
+const HOME_UNGROUPED = [
+ {name:'seo-tools.dev', dom:'seo-tools.dev', ps:[99,94], team:'D',
+  mons:[{eng:'ya',flag:'ru',name:'Блог (RU)',next:'27.07.26',st:'done',sched:'Еженедельно',keys:96,urls:12,bands:[14,38,21,15,4],deltas:[2,-3,1,0,1],fav:false}]},
+ {name:'promo-landing.ru', dom:'promo-landing.ru', ps:[76,58], team:'B',
+  mons:[{eng:'go',flag:'ru',name:'Основной',next:'29.07.26',st:'queue',sched:'Ежемесячно',keys:41,urls:6,bands:[3,11,9,8,2],deltas:[0,1,-2,0,0],fav:false}]},
+ {name:'sandbox-test.site', dom:'sandbox-test.site', ps:[64,41], team:'C',
+  mons:[{eng:'go',flag:'ru',name:'Тестовый',next:'19.07.26',st:'error',sched:'Ежедневно',keys:5,urls:1,bands:[0,0,0,0,0],deltas:[0,0,0,0,0],fav:false}]}
+];
 let HOME_FAV_ONLY = false, HOME_Q = '';
 /* статусы мониторинга (точка в колонке «Статус») */
 const ST_TIP = {
@@ -1611,15 +1622,22 @@ function homeBandCell(n,d,bi){
 
 function renderHome(){
   app.className = 'home-page chrome-darkframe sum-mode-abs';
-  const nProj = HOME.reduce((n,g)=>n+g.projects.length,0);
-  const nMons = HOME.reduce((n,g)=>n+g.projects.reduce((m,p)=>m+p.mons.length,0),0);
+  const nProj = HOME.reduce((n,g)=>n+g.projects.length,0) + HOME_UNGROUPED.length;
+  const nMons = HOME.reduce((n,g)=>n+g.projects.reduce((m,p)=>m+p.mons.length,0),0)
+              + HOME_UNGROUPED.reduce((n,p)=>n+p.mons.length,0);
   let rows = '';
-  HOME.forEach((g,gi)=>{
+  /* основные группы + виртуальная секция «Проекты без групп» — одна таблица, одна шапка колонок */
+  const SECTIONS = [
+    ...HOME.map((g,i)=>({ ...g, gi:String(i) })),
+    ...(HOME_UNGROUPED.length ? [{group:'Проекты без групп', projects:HOME_UNGROUPED, gi:'ug', virtual:true}] : [])
+  ];
+  SECTIONS.forEach(sec=>{
+    const g = sec, gi = sec.gi;
     const agg=[0,0,0,0,0], aggD=[0,0,0,0,0];
     let monCount=0, gKeys=0, gUrls=0;
     g.projects.forEach(p=>p.mons.forEach(m=>{ monCount++; gKeys+=m.keys; gUrls+=m.urls; m.bands.forEach((b,i)=>{agg[i]+=b; aggD[i]+=m.deltas[i];}); }));
     rows += `<tr class="group-gap big" aria-hidden="true"><td colspan="12"></td></tr>
-      <tr class="super-row h-g" data-hg="${gi}"><td class="hact"><span class="acts"><button class="hsel-box lvl-g" data-sc="g:${gi}" aria-label="Выбрать группу"></button><span class="aslot"></span><button class="hg-btn" title="Настройки группы проектов">${I.gear}</button></span></td><td class="hname"><div class="super-head"><span class="chev">${I.chev}</span><span class="hfold">${I.folder}</span><span class="sname">${esc(g.group)}</span><span class="scount">${g.projects.length} проект(а) · ${monCount} мониторинг(а)</span></div></td><td class="hnext"></td>
+      <tr class="super-row h-g${sec.virtual?' ug':''}" data-hg="${gi}"><td class="hact"><span class="acts"><button class="hsel-box lvl-g" data-sc="g:${gi}" aria-label="Выбрать группу"></button><span class="aslot"></span><button class="hg-btn" title="Настройки группы проектов">${I.gear}</button></span></td><td class="hname"><div class="super-head"><span class="chev">${I.chev}</span><span class="hfold">${I.folder}</span><span class="sname">${esc(g.group)}</span><span class="scount">${g.projects.length} проект(а) · ${monCount} мониторинг(а)</span></div></td><td class="hnext"></td>
       ${agg.map((n,i)=>homeBandCell(n,aggD[i],i)).join('')}<td class="bd"><span class="bnum ${gKeys===0?'z':''}">${gKeys.toLocaleString('ru-RU')}</span></td><td class="bd"><span class="bnum ${gUrls===0?'z':''}">${gUrls}</span></td><td class="ps-c"></td><td class="team-c"></td></tr>`;
     g.projects.forEach((p,pi)=>{
       const pKeys = p.mons.reduce((n,m)=>n+m.keys,0), pUrls = p.mons.reduce((n,m)=>n+m.urls,0);
