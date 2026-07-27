@@ -1660,7 +1660,7 @@ function renderHome(){
     let monCount=0;
     g.projects.forEach(p=>p.mons.forEach(m=>{ monCount++; m.bands.forEach((b,i)=>{agg[i]+=b; aggD[i]+=m.deltas[i];}); }));
     rows += `<tr class="group-gap big" aria-hidden="true"><td colspan="11"></td></tr>
-      <tr class="super-row h-g${sec.virtual?' ug':''}" data-hg="${gi}"><td class="hact"><span class="acts"><button class="hsel-box lvl-g" data-sc="g:${gi}" aria-label="Выбрать группу"></button><button class="hg-btn" title="Настройки группы проектов">${I.gear}</button><span class="aslot"></span></span></td><td class="hnext"></td><td class="hname"><div class="super-head"><span class="chev">${I.chev}</span><span class="hfold">${I.folder}</span><span class="sname">${esc(g.group)}</span><span class="scount">${g.projects.length} проект(а) · ${monCount} мониторинг(а)</span></div></td>
+      <tr class="super-row h-g${sec.virtual?' ug':''}" data-hg="${gi}"><td class="hact"><span class="acts"><button class="hsel-box lvl-g" data-sc="g:${gi}" aria-label="Выбрать группу"></button><button class="hg-btn" title="Настройки группы проектов">${I.gear}</button><span class="aslot"></span></span></td><td class="hnext"></td><td class="hname"><div class="super-head"><span class="chev">${I.chev}</span><span class="hfold">${I.folder}</span><span class="sname">${esc(g.group)}</span><span class="scount">Проектов: ${g.projects.length} · Мониторингов: ${monCount}</span></div></td>
       ${agg.map((n,i)=>homeBandCell(n,aggD[i],i)).join('')}<td class="bd"></td><td class="bd"></td><td class="bd"></td><td class="bd"></td><td class="ps-c"></td><td class="team-c"></td></tr>`;
     g.projects.forEach((p,pi)=>{
       const pDr = 34 + hashStr(p.dom)%56; /* Domain Rating — метрика домена, живёт на уровне проекта */
@@ -1708,7 +1708,7 @@ function renderHome(){
         <thead><tr>
           <th class="hact"></th><th class="c-status">Статус</th><th class="hname"></th>
           <th class="c-band">ТОП 1–3</th><th class="c-band">1–10</th><th class="c-band">11–20</th><th class="c-band">21–50</th><th class="c-band">51–100</th>
-          <th class="c-keys" title="Всего ключей в мониторинге">Всего</th><th class="c-urls">URLs</th><th class="c-vis" title="Видимость: доля ключей в ТОП-10">Видимость</th><th class="c-dr" title="Domain Rating домена проекта">DR</th><th class="c-ps" title="Google PageSpeed целевых URL">PageSpeed</th><th class="c-team">Команда</th>
+          <th class="c-keys" title="Всего ключей в мониторинге">Ключи</th><th class="c-urls">URLs</th><th class="c-vis" title="Видимость: доля ключей в ТОП-10">Видимость</th><th class="c-dr" title="Domain Rating домена проекта">DR</th><th class="c-ps" title="Google PageSpeed целевых URL">PageSpeed</th><th class="c-team">Команда</th>
         </tr></thead>
         <tbody>${rows}</tbody></table></div></div>
     </main>
