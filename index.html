@@ -1545,8 +1545,50 @@ function bindChrome(){
   if(logo) logo.onclick = goHome;
   document.querySelectorAll('.crumb-home').forEach(a=> a.onclick = e=>{ e.preventDefault(); goHome(); });
 }
-function goHome(){ PAGE='home'; renderHome(); }
-function goMon(){ PAGE='mon'; show(cur); }
+/* ================= РОУТИНГ =================
+   главная            → <base>/
+   страница позиций   → <base>/projects/<ID_PROJECT>/monitoring-list/<ID_MONITORING>
+   На GitHub Pages глубокие пути отдаёт 404.html (копия index.html) — URL сохраняется,
+   роутер читает location.pathname. В standalone-файле (file://) history недоступен —
+   навигация работает в памяти. */
+let CUR_MON = null; /* {p, m} открытого мониторинга */
+const CAN_ROUTE = location.protocol === 'http:' || location.protocol === 'https:';
+const BASE = (()=>{
+  const p = location.pathname, i = p.indexOf('/projects/');
+  if(i >= 0) return p.slice(0, i + 1);
+  return p.endsWith('/') ? p : p.replace(/[^/]*$/, '');
+})();
+const monPath = (pid,mid) => `${BASE}projects/${pid}/monitoring-list/${mid}`;
+function parseRoute(){
+  const m = location.pathname.match(/\/projects\/([^/]+)\/monitoring-list\/([^/]+)\/?$/);
+  return m ? {pid:m[1], mid:m[2]} : null;
+}
+function findMon(pid, mid){
+  for(const p of ALL_PROJECTS){
+    if(String(p.id) !== String(pid)) continue;
+    const m = p.mons.find(x=>String(x.id) === String(mid));
+    if(m) return {p, m};
+  }
+  return null;
+}
+function goHome(){
+  CUR_MON = null; PAGE = 'home';
+  if(CAN_ROUTE && location.pathname !== BASE) history.pushState({}, '', BASE);
+  renderHome();
+}
+function goMon(pid, mid){
+  const f = (pid!=null) ? findMon(pid, mid) : null;
+  CUR_MON = f; PAGE = 'mon';
+  if(CAN_ROUTE && f) history.pushState({}, '', monPath(f.p.id, f.m.id));
+  show(cur);
+}
+function route(){
+  const r = parseRoute();
+  const f = r ? findMon(r.pid, r.mid) : null;
+  if(f){ CUR_MON = f; PAGE = 'mon'; show(cur); }
+  else { CUR_MON = null; PAGE = 'home'; renderHome(); }
+}
+window.addEventListener('popstate', route);
 
 /* ================= ГЛАВНАЯ: СПИСОК ПРОЕКТОВ ================= */
 const HOME = [
@@ -1619,6 +1661,12 @@ const HOME_UNGROUPED = [
  {name:'sandbox-test.site', dom:'sandbox-test.site', ps:[64,41], team:'C',
   mons:[{eng:'go',flag:'ru',name:'Тестовый',next:'19.07.26',st:'error',sched:'Ежедневно',keys:5,urls:1,bands:[0,0,0,0,0],deltas:[0,0,0,0,0],fav:false}]}
 ];
+/* идентификаторы для URL: /projects/<p.id>/monitoring-list/<m.id> */
+const ALL_PROJECTS = [...HOME.flatMap(g=>g.projects), ...HOME_UNGROUPED];
+ALL_PROJECTS.forEach((p,pi)=>{
+  p.id = 101 + pi;
+  p.mons.forEach((m,mi)=>{ m.id = (101 + pi) * 10 + mi + 1; });
+});
 let HOME_FAV_ONLY = false, HOME_Q = '';
 /* статусы мониторинга (точка в колонке «Статус») */
 const ST_TIP = {
@@ -1667,7 +1715,7 @@ function renderHome(){
       rows += `<tr class="group-row h-p" data-hp="${gi}-${pi}" data-hgp="${gi}"><td class="hact"><span class="acts"><button class="hsel-box lvl-p" data-sc="p:${gi}-${pi}" aria-label="Выбрать проект"></button><button class="hg-btn" title="Настройки проекта">${I.gear}</button><span class="aslot"></span></span></td><td class="hnext"></td><td class="hname"><div class="group-head"><span class="chev">${I.chev}</span><span class="pfav" style="background:hsl(${hashStr(p.dom)%360} 42% 46%)"><i>${p.dom[0].toUpperCase()}</i><img src="https://www.google.com/s2/favicons?domain=${p.dom}&amp;sz=32" alt="" loading="lazy" onload="this.classList.add('ok')"></span><span class="gname">${esc(p.name)}</span><a class="p-link" href="https://${p.dom}" target="_blank" rel="noopener" title="Открыть ${p.dom} в новой вкладке">${I.link}</a></div></td>
         <td colspan="5"></td><td class="bd"></td><td class="bd"></td><td class="bd"></td><td class="bd"><span class="dr">${pDr}</span></td><td class="ps-c">${psBadge(p.ps)}</td><td class="team-c"><span class="team-ava" title="Команда проекта">${p.team}</span></td></tr>`;
       p.mons.forEach((m,mi)=>{
-        rows += `<tr class="kw-row h-m" data-hgp="${gi}" data-hpp="${gi}-${pi}" data-mi="${gi}-${pi}-${mi}" data-search="${(g.group+' '+p.name+' '+m.name).toLowerCase()}">
+        rows += `<tr class="kw-row h-m" data-hgp="${gi}" data-hpp="${gi}-${pi}" data-mi="${gi}-${pi}-${mi}" data-pid="${p.id}" data-mid="${m.id}" data-search="${(g.group+' '+p.name+' '+m.name).toLowerCase()}">
           <td class="hact"><span class="acts"><button class="hsel-box" data-sc="m" aria-label="Выбрать мониторинг"></button><button class="hg-btn" title="Настройки мониторинга">${I.gear}</button><button class="hm-star ${m.fav?'on':''}" title="${m.fav?'Убрать из избранного':'В избранное'}">${m.fav?'★':'☆'}</button></span></td>
           <td class="hnext">${statusCellHtml(m)}</td>
           <td class="hname"><span class="mrow"><span class="eng ${m.eng}">${m.eng==='ya'?I.ya:I.go}</span><span class="flag-ico hflag" title="Регион мониторинга">${I.flags[m.flag]||''}</span><span class="txt">${esc(m.name)}</span></span></td>
@@ -1820,7 +1868,7 @@ function bindHome(){
   /* клик по мониторингу → страница позиций */
   app.querySelectorAll('tr.h-m').forEach(r=> r.onclick = e=>{
     if(e.target.closest('.hm-star')||e.target.closest('.hsel-box')||e.target.closest('.hg-btn')) return;
-    goMon();
+    goMon(r.dataset.pid, r.dataset.mid);
   });
 }
 
@@ -2123,7 +2171,9 @@ function renderDashboard(v){
 
   const chrome = v.chrome || 'std';
   const NAV = [['home','Проект',false],['pos','Позиции',true],['eye','Видимость',false],['gear','Настройки',false]];
-  const crumbsHtml = `<nav class="crumbs"><a href="#" class="crumb-home">Проекты</a><span class="sep">/</span><a href="#" onclick="return false">directline.pro</a><span class="sep">/</span><span class="cur">Блог DL</span></nav>`;
+  /* шапка отражает открытый мониторинг; без роутинга — демо-мониторинг «Блог DL» */
+  const MP = CUR_MON || {p:{dom:'directline.pro'}, m:{name:'Блог DL', eng:'ya', flag:'ru', sched:'Ежемесячно', next:'01.08.26'}};
+  const crumbsHtml = `<nav class="crumbs"><a href="#" class="crumb-home">Проекты</a><span class="sep">/</span><a href="#" onclick="return false">${esc(MP.p.dom)}</a><span class="sep">/</span><span class="cur">${esc(MP.m.name)}</span></nav>`;
   /* hover по «Позиции» раскрывает список мониторингов проекта — их может быть много */
   const MONS = [
     ['ya','Блог DL (1 раз в месяц)',true],['go','Блог DL (1 раз в месяц)',false],
@@ -2156,12 +2206,12 @@ function renderDashboard(v){
         <div class="ph-left">
           <div class="ph-title">
             <button class="star" data-tip="В избранное">☆</button>
-            <h1>Блог DL</h1>
+            <h1>${esc(MP.m.name)}</h1>
             <span class="ph-states">
-              <span class="state-ico" data-tip="Поисковая система: Яндекс">${I.ya}</span>
-              <span class="state-ico flag" data-tip="Регион: Москва"><span class="flag-ico">${I.flags.ru}</span></span>
+              <span class="state-ico" data-tip="Поисковая система: ${MP.m.eng==='ya'?'Яндекс':'Google'}">${MP.m.eng==='ya'?I.ya:I.go}</span>
+              <span class="state-ico flag" data-tip="Регион мониторинга"><span class="flag-ico">${I.flags[MP.m.flag]||I.flags.ru}</span></span>
               <span class="state-ico dot" data-tip="Мониторинг активен (открыт)"></span>
-              <span class="state-ico" data-tip="Расписание: 1 раз в месяц · следующий срез 01.08.2026">${I.cal}</span>
+              <span class="state-ico" data-tip="Расписание: ${MP.m.sched||'Ежемесячно'} · следующий срез ${MP.m.next||'01.08.26'}">${I.cal}</span>
             </span>
           </div>
           <span class="ph-meta">Последний срез: 01.07.2026, ср · следующий по расписанию — 01.08.2026</span>
@@ -2905,7 +2955,7 @@ function show(i){
   closeSerp();
 }
 
-goHome(); /* вход — главная (список проектов); клик по мониторингу открывает страницу позиций */
+route(); /* стартовый экран по URL: главная или страница позиций мониторинга */
 </script>
 </body>
 </html>
