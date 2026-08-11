@@ -652,7 +652,7 @@ tr.kw-row.selected td{background:var(--accent-soft)!important}
 .grid td.sum-label{text-align:left;padding-left:14px;font-weight:500;color:var(--text-2)}
 .sum-row .sw{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:7px;vertical-align:1px}
 .grid td.sum{text-align:right;padding:0 12px 0 6px;font-size:12px;white-space:nowrap} /* цифры по правому краю — динамика читается столбцом */
-.sum .num{font-weight:600}
+.sum .num{font-weight:500}
 .sum .num.total{font-weight:500;color:var(--text-3)}
 .sum .pct{color:var(--text-3);font-size:10.5px;margin-left:4px}
 .grid tr.sum-row.hero td{background:var(--surface-2);font-weight:700;color:var(--text)}
@@ -725,16 +725,22 @@ tr.kw-row.selected td{background:var(--accent-soft)!important}
 .h-scroll .grid thead th.date.last{position:sticky;right:0;z-index:11;background:var(--surface)}
 .h-scroll .grid td.pos.last{position:sticky;right:0;z-index:3;background:linear-gradient(var(--t100-bg),var(--t100-bg)) var(--surface)}
 .h-scroll .grid td.sum.lastcol{position:sticky;right:0;z-index:3;background:linear-gradient(var(--accent-soft),var(--accent-soft)) var(--surface)}
-/* фиксация последнего среза видна ТОЛЬКО когда под него реально заезжают колонки (sc-right):
-   минималистично — тонкая граница + тень; в прокрученном до конца состоянии ничего не выделяется */
-.h-scroll.sc-right .grid thead th.date.last,
-.h-scroll.sc-right .grid td.pos.last,
-.h-scroll.sc-right .grid td.sum.lastcol{border-left:2px solid var(--text-3)}
-/* тени на границах прокручиваемой зоны */
+/* фиксация последнего среза видна ТОЛЬКО когда под него реально заезжают колонки (sc-right);
+   рисуем псевдоэлементами: border/box-shadow у sticky-ячеек в collapsed-таблице
+   в части браузеров не едут вместе с ячейкой */
+.h-scroll.sc-right .grid thead th.date.last::before,
+.h-scroll.sc-right .grid td.pos.last::before,
+.h-scroll.sc-right .grid td.sum.lastcol::before{
+  content:'';position:absolute;top:0;bottom:0;left:0;width:3px;
+  background:var(--text-3);pointer-events:none}
+.h-scroll.sc-right .grid thead th.date.last::after,
+.h-scroll.sc-right .grid td.pos.last::after,
+.h-scroll.sc-right .grid td.sum.lastcol::after{
+  content:'';position:absolute;top:0;bottom:0;right:100%;width:16px;
+  background:linear-gradient(to left, rgba(15,23,42,.30), rgba(15,23,42,0));pointer-events:none}
+/* тень на левой границе прокручиваемой зоны */
 .h-scroll.sc-left .grid td.freq,.h-scroll.sc-left .grid thead th:nth-child(4),
 .h-scroll.sc-left .grid td.sum-label{box-shadow:10px 0 12px -10px rgba(15,23,42,.35)}
-.h-scroll.sc-right .grid td.pos.last,.h-scroll.sc-right .grid thead th.date.last,
-.h-scroll.sc-right .grid td.sum.lastcol{box-shadow:-20px 0 18px -8px rgba(15,23,42,.55)}
 
 /* ============ ОГЛАВЛЕНИЕ ГРУПП / СВЕРНУТЬ ВСЁ ============ */
 .toc-wrap{position:relative}
