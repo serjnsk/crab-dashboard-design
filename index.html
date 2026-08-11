@@ -674,7 +674,7 @@ tr.kw-row.selected td{background:var(--accent-soft)!important}
 
 /* ============ ЗАМОРОЖЕННАЯ КОЛОНКА КЛЮЧА (гориз. скролл) ============ */
 .grid thead th.kw{position:sticky;left:0;z-index:11}
-.grid td.kw{position:sticky;left:0;z-index:2;background:var(--surface)}
+.grid td.kw{position:sticky;left:0;z-index:4;background:var(--surface)} /* выше маркеров в ячейках (z2), чтобы те не просвечивали при прокрутке */
 .grid td.sum-label{position:sticky;left:0;z-index:2;background:var(--surface)}
 .grid tr.sum-row.hero td.sum-label{background:var(--surface-2)}
 .super-head{position:sticky;left:14px;width:max-content;max-width:calc(100vw - 220px)}
@@ -720,7 +720,7 @@ tr.kw-row.selected td{background:var(--accent-soft)!important}
 .h-scroll .grid thead th:nth-child(2),.h-scroll .grid td.typ{position:sticky;left:240px;background:var(--surface);width:86px;min-width:86px;max-width:86px}
 .h-scroll .grid thead th:nth-child(3),.h-scroll .grid td.serp{position:sticky;left:326px;background:var(--surface);width:60px;min-width:60px;max-width:60px}
 .h-scroll .grid thead th:nth-child(4),.h-scroll .grid td.freq{position:sticky;left:386px;background:var(--surface);width:90px;min-width:90px}
-.h-scroll .grid td.typ,.h-scroll .grid td.serp,.h-scroll .grid td.freq{z-index:2}
+.h-scroll .grid td.typ,.h-scroll .grid td.serp,.h-scroll .grid td.freq{z-index:4}
 .h-scroll .grid thead th:nth-child(-n+4){z-index:11}
 .h-scroll .grid thead th.date.last{position:sticky;right:0;z-index:11;background:var(--surface)}
 .h-scroll .grid td.pos.last{position:sticky;right:0;z-index:3;background:linear-gradient(var(--t100-bg),var(--t100-bg)) var(--surface)}
