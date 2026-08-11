@@ -284,7 +284,7 @@ input,select{font:inherit;color:inherit}
 .dens-compact{--thead-h:30px}
 .dens-ultra{--thead-h:30px}
 table.grid{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
-.grid thead th{position:sticky;top:52px;z-index:10;background:var(--surface);font-size:11px;font-weight:650;color:var(--text-3);text-transform:uppercase;letter-spacing:.04em;padding:9px 8px;border-bottom:1px solid var(--border-strong);text-align:center;white-space:nowrap}
+.grid thead th{position:sticky;top:52px;z-index:10;background:var(--surface);font-size:11px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.04em;padding:9px 8px;border-bottom:1px solid var(--border-strong);text-align:center;white-space:nowrap}
 .grid thead th.kw{text-align:left;padding-left:14px;min-width:240px}
 .grid thead th.date .d{color:var(--text);font-size:11.5px}
 .grid thead th.date .dw{font-weight:500;color:var(--text-3);margin-left:3px;text-transform:none}
@@ -299,7 +299,7 @@ table.grid{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums
 .eng.ya svg{width:12px;height:13px;display:block}
 .eng.go{background:transparent}
 .eng.go svg{width:13px;height:13px;display:block}
-.kw-cell .txt{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500;cursor:copy}
+.kw-cell .txt{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:14px;font-weight:400;cursor:copy} /* ключи: крупнее и обычным начертанием — читаемее массива жирного мелкого */
 .kw-cell .eng{cursor:pointer}
 /* копирование ключа: иконка появляется на hover строки, клик по тексту или иконке */
 .kw-copy{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:5px;color:var(--text-3);flex:none;opacity:0;transition:opacity .12s,color .12s}
@@ -369,7 +369,7 @@ th.freq-h .fh-l{display:block}
 tr.g-hide,tr.s-hide,tr.v-hide{display:none}
 
 /* ============ POSITION CELL VARIANTS ============ */
-.cell{display:inline-flex;align-items:center;justify-content:center;gap:4px;font-weight:650;cursor:pointer;position:relative}
+.cell{display:inline-flex;align-items:center;justify-content:center;gap:4px;font-weight:500;cursor:pointer;position:relative}
 .cell .d{font-size:9.5px;font-weight:700;line-height:1;align-self:flex-start;margin-top:3px} /* дельта как «степень» — прижата к верху */
 .cell .d.up{color:var(--up)}.cell .d.down{color:var(--down)}
 .cell.none{color:var(--text-3);font-weight:400;cursor:default}
@@ -390,11 +390,12 @@ tr.g-hide,tr.s-hide,tr.v-hide{display:none}
 /* fill — заливка всей ячейки */
 .cells-fill td.pos{padding:0}
 .cells-fill .cell{width:100%;height:100%;border-radius:0}
-.cells-fill .cell.t3{background:var(--t3-bg);color:var(--t3-fg)}
-.cells-fill .cell.t10{background:var(--t10-bg);color:var(--t10-fg)}
-.cells-fill .cell.t20{background:var(--t20-bg);color:var(--t20-fg)}
-.cells-fill .cell.t50{background:var(--t50-bg);color:var(--t50-fg)}
-.cells-fill .cell.t100{background:var(--t100-bg);color:var(--t100-fg)}
+/* цвет несёт заливка, цифра — нейтральная: не дублируем кодировку цветом дважды */
+.cells-fill .cell.t3{background:var(--t3-bg);color:var(--text)}
+.cells-fill .cell.t10{background:var(--t10-bg);color:var(--text)}
+.cells-fill .cell.t20{background:var(--t20-bg);color:var(--text)}
+.cells-fill .cell.t50{background:var(--t50-bg);color:var(--text)}
+.cells-fill .cell.t100{background:var(--t100-bg);color:var(--text)}
 .cells-fill .cell:not(.none):not(.na):hover{filter:brightness(.96)}
 
 /* chip — компактный чип */
@@ -643,10 +644,10 @@ tr.kw-row.selected td{background:var(--accent-soft)!important}
 
 /* ============ СВОДКА В ОБЩЕЙ СЕТКЕ ============ */
 .grid tr.sum-row td{height:34px;border-bottom:1px solid var(--border);font-variant-numeric:tabular-nums}
-.grid td.sum-label{text-align:left;padding-left:14px;font-weight:600;color:var(--text-2)}
+.grid td.sum-label{text-align:left;padding-left:14px;font-weight:500;color:var(--text-2)}
 .sum-row .sw{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:7px;vertical-align:1px}
-.grid td.sum{text-align:center;padding:0 6px;font-size:12px;white-space:nowrap}
-.sum .num{font-weight:650}
+.grid td.sum{text-align:right;padding:0 12px 0 6px;font-size:12px;white-space:nowrap} /* цифры по правому краю — динамика читается столбцом */
+.sum .num{font-weight:600}
 .sum .num.total{font-weight:500;color:var(--text-3)}
 .sum .pct{color:var(--text-3);font-size:10.5px;margin-left:4px}
 .grid tr.sum-row.hero td{background:var(--surface-2);font-weight:700;color:var(--text)}
