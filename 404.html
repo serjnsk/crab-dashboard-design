@@ -1085,6 +1085,112 @@ tr.h-m{cursor:pointer}
 .sm-list .serp-row{padding:8px 14px}
 .sm-list .serp-row.our{padding-left:11px}
 
+/* ============ СТОИМОСТЬ МОНИТОРИНГОВ (только админы) ============ */
+/* KPI: итог за период + разбивка по парсер·тип; доли — одна шкала (синяя), без категориальных цветов */
+.cost-kpis{display:grid;grid-template-columns:minmax(240px,1.35fr) repeat(4,minmax(150px,1fr));gap:10px;margin-bottom:14px}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:12px 14px;display:flex;flex-direction:column;gap:3px;min-width:0}
+.kpi-l{display:flex;align-items:center;gap:6px;font-size:10px;font-weight:750;text-transform:uppercase;letter-spacing:.05em;color:var(--text-3);white-space:nowrap}
+.kpi-v{font-size:19px;font-weight:750;letter-spacing:-.01em;font-variant-numeric:tabular-nums;white-space:nowrap}
+.kpi-v small{font-size:13px;font-weight:600;color:var(--text-3);margin-left:3px}
+.kpi.total .kpi-v{font-size:25px}
+.kpi-s{font-size:11.5px;color:var(--text-3);font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kpi-s b{color:var(--text-2);font-weight:650}
+.kpi .c-sbar{flex:none;width:100%;max-width:none;margin-top:auto}
+.kpi .kpi-s{margin-bottom:6px}
+.kpi.dim{opacity:.5}
+@media (max-width:1180px){.cost-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.kpi.total{grid-column:1/-1}}
+
+/* тулбар: группировка 2 уровня + фильтры */
+.c-grp{display:inline-flex;align-items:center;gap:6px;padding-right:12px;border-right:1px solid var(--border)}
+.c-grp-l{font-size:10px;font-weight:750;text-transform:uppercase;letter-spacing:.05em;color:var(--text-3);margin-right:2px}
+.c-grp-n{display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:50%;background:var(--text-2);color:var(--surface);font-size:9px;font-weight:800;margin-right:2px}
+.c-grp-n.n2{background:var(--border-strong);color:var(--text-2)}
+.c-arrow{color:var(--text-3);font-size:14px}
+.c-reset{font-size:12px;font-weight:650;color:var(--accent);padding:4px 6px;border-radius:6px}
+.c-reset:hover{background:var(--accent-soft)}
+.dd-item.c-chk{font-weight:550}
+.dd-item.c-chk .hsel-box{flex:none;margin-right:3px}
+.dd-item.c-chk .c-sub{margin-left:auto;padding-left:14px}
+.dd-panel.c-multi{max-height:340px;overflow-y:auto;min-width:220px}
+.dd-sep{height:1px;background:var(--border);margin:4px 2px}
+
+/* календарь периода: пресеты слева + два месяца */
+.dd-panel.cc-pop{left:auto;right:0;width:620px;max-width:94vw;padding:14px}
+.cc-body{display:flex;gap:14px}
+.cc-presets{display:flex;flex-direction:column;gap:1px;min-width:150px;padding-right:12px;border-right:1px solid var(--border)}
+.cc-months{flex:1;display:flex;gap:14px;align-items:flex-start;min-width:0}
+.cal-day:disabled{opacity:.3;pointer-events:none}
+.cc-foot{display:flex;align-items:center;gap:10px;border-top:1px solid var(--border);margin-top:12px;padding-top:12px}
+.cc-foot .cc-sel{font-size:12px;color:var(--text-2);font-variant-numeric:tabular-nums}
+.cc-foot .btn{margin-left:auto;padding:7px 16px}
+
+/* таблица: команда/владелец/… → вложенная группа → отдельные сборы */
+.cost-grid{table-layout:fixed;min-width:1300px}
+.cost-grid thead th{text-align:right;padding:9px 12px}
+.cost-grid thead th.c-name{text-align:left;padding-left:16px}
+.cost-grid thead th.c-a{text-align:left}
+.cost-grid th.c-eng{width:130px}.cost-grid th.c-typ{width:96px}.cost-grid th.c-depth{width:72px}
+.cost-grid th.c-parser{width:100px}.cost-grid th.c-owner{width:128px}.cost-grid th.c-n{width:72px}
+.cost-grid th.c-req{width:92px}.cost-grid th.c-ppk{width:78px}.cost-grid th.c-share{width:112px}.cost-grid th.c-cost{width:124px}
+.c-head > .c-sub{flex:none;margin-left:0}
+.c-head > .c-dom{flex:0 10 auto;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.c-mon{flex:0 1 auto}
+.c-sort{display:inline-flex;justify-content:flex-end;align-items:center;gap:4px;font:inherit;color:inherit;text-transform:inherit;letter-spacing:inherit}
+.c-sort:hover{color:var(--text)}
+.c-sort.on{color:var(--text)}
+.c-sort .ar{font-size:8px;color:var(--accent)}
+.cost-grid td{padding:0 12px;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cost-grid td.c-name{text-align:left}
+.cost-grid td.c-a{text-align:left;color:var(--text-2);font-size:12px}
+.cost-grid td.c-a .eng{display:inline-flex;vertical-align:-2px;margin-right:5px}
+.cost-grid td.c-a .eng svg{width:12px;height:12px}
+.c-num{font-weight:600}
+.c-z{color:var(--text-3);font-weight:500}
+.c-sub{font-size:11px;color:var(--text-3);font-weight:500;margin-left:8px}
+.c-head{display:flex;align-items:center;gap:9px;min-width:0}
+.c-head .txt{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.c-head .chev{display:inline-flex;color:var(--text-3);transition:transform .15s;flex:none}
+.ct-row:not(.open) .chev{transform:rotate(180deg)}
+.c-head .eng{display:inline-flex;flex:none}
+.c-head .eng svg{width:13px;height:13px}
+.c-tava{display:inline-flex;width:20px;height:20px;border-radius:50%;background:linear-gradient(135deg,#3D5AFE,#00B0FF);color:#fff;font-size:10px;font-weight:700;align-items:center;justify-content:center;flex:none}
+/* доля от итога — одна шкала */
+.c-share{display:inline-flex;align-items:center;gap:8px;justify-content:flex-end;width:100%}
+.c-sbar{flex:1;max-width:52px;height:4px;border-radius:2px;background:var(--border);overflow:hidden}
+.c-sbar i{display:block;height:100%;background:var(--t3-heat);border-radius:2px}
+.c-pct{min-width:42px;text-align:right}
+/* 1-й уровень — светлая полоса группы: крупный жирный текст, разделитель сверху */
+.cost-grid tr.ct-g1 td{height:46px;background:var(--surface-2);border-top:1px solid var(--border-strong);cursor:pointer}
+.cost-grid tr.ct-g1 td.c-name{padding-left:16px;font-size:14.5px;font-weight:750}
+.cost-grid tr.ct-g1 .c-num{font-weight:750}
+.cost-grid tr.ct-g1:hover td{background:var(--bg)}
+.cost-grid tr.ct-gap td{height:8px;padding:0;border:none;background:var(--surface)}
+/* 2-й уровень — белая строка с серой кромкой слева */
+.cost-grid tr.ct-g2 td{height:40px;background:var(--surface);cursor:pointer}
+.cost-grid tr.ct-g2 td:first-child{box-shadow:inset 3px 0 0 var(--border-strong)}
+.cost-grid tr.ct-g2 td.c-name{padding-left:36px;font-weight:650;font-size:13.5px}
+.cost-grid tr.ct-g2:hover td{background:var(--surface-2)}
+/* сборы */
+.cost-grid tr.ct-run td{height:34px;font-size:12px}
+.cost-grid tr.ct-run td:first-child{box-shadow:inset 3px 0 0 var(--border)}
+.cost-grid tr.ct-run:hover td{background:var(--surface-2)}
+.cost-grid tr.ct-run td.c-name{padding-left:58px}
+.cost-grid tr.ct-run.l1 td.c-name{padding-left:40px}
+.c-ts{color:var(--text-3);font-variant-numeric:tabular-nums;flex:none;font-size:11.5px}
+.c-mon{display:inline-flex;align-items:center;gap:6px;color:var(--text);font-weight:550;min-width:0}
+.c-mon .txt{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.c-mon:hover .txt{color:var(--accent);text-decoration:underline}
+.c-orig{display:block;font-size:10px;color:var(--text-3);line-height:1.15}
+.cost-grid tr.ct-run td.c-cost{line-height:1.2}
+.cost-grid tr.ct-more td{height:34px;text-align:left;padding-left:58px;background:var(--surface)}
+.cost-grid tr.ct-more.l1 td{padding-left:40px}
+.ct-more button{font-size:12px;font-weight:650;color:var(--t3-fg)}
+.ct-more button:hover{text-decoration:underline}
+.cost-grid td.ct-empty{height:120px;text-align:center;color:var(--text-3);font-size:13px}
+/* итог */
+.cost-grid tfoot td{height:44px;background:var(--surface);border-top:1px solid var(--border-strong);border-bottom:none;font-weight:750}
+.cost-grid tfoot td.c-name{padding-left:16px;font-size:13.5px}
+
 /* ============ SWITCHER ============ */
 .switcher{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);z-index:100;background:var(--surface);border:1px solid var(--border-strong);border-radius:14px;box-shadow:var(--shadow-lg);padding:10px 14px;display:flex;flex-direction:column;gap:8px;min-width:520px;max-width:94vw}
 .sw-info{display:flex;align-items:baseline;gap:10px;font-size:12px;color:var(--text-2);min-height:17px}
@@ -1447,6 +1553,7 @@ const I = {
   users:'<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="5.6" cy="5.6" r="2.3"/><path d="M1.6 13c.6-2.1 2.2-3.3 4-3.3s3.4 1.2 4 3.3"/><circle cx="11.4" cy="5.6" r="2"/><path d="M11 9.8c1.6.2 2.8 1.3 3.4 3.2"/></svg>',
   trash:'<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M2.5 4.2h11M6.4 4V2.9h3.2V4M4 4.2l.7 9h6.6l.7-9M6.7 6.7v4M9.3 6.7v4"/></svg>',
   bolt:'<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M8.8 1.5L3.5 9h3.4l-.7 5.5L11.5 7H8.1l.7-5.5z"/></svg>',
+  coin:'<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="8" cy="8" r="6.3"/><path d="M6.6 11.3V4.8h2.2a1.6 1.6 0 0 1 0 3.2H6.6M5.6 9.7h3.3"/></svg>',
   tag:'<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M8.4 2.5h5.1v5.1l-5.9 5.9-5.1-5.1 5.9-5.9z"/><circle cx="11" cy="5" r="1" fill="currentColor" stroke="none"/></svg>',
   logout:'<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M6 2.5H3.5v11H6M10.5 5l3 3-3 3M13.5 8H7"/></svg>',
   check:'<svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 7.5l3 3 6-6.5"/></svg>',
@@ -1471,7 +1578,7 @@ const I = {
 /* ================= RENDER ================= */
 const app = document.getElementById('app');
 let curV = null; /* конфиг активного варианта — читается рендерами ячеек */
-let PAGE = 'home'; /* 'home' — список проектов, 'mon' — страница позиций */
+let PAGE = 'home'; /* 'home' — список проектов, 'mon' — страница позиций, 'costs' — стоимость мониторингов */
 
 /* общая шапка приложения (главная и страница мониторинга) */
 function buildTopbar(chrome){
@@ -1513,6 +1620,8 @@ function buildTopbar(chrome){
         <button class="am-item">${I.trash}Недавно удалённые</button>
         <button class="am-item">${I.bolt}Автоматические теги</button>
         <button class="am-item">${I.tag}Категории и теги</button>
+        <div class="am-label">Администрирование</div>
+        <button class="am-item" data-go="costs">${I.coin}Стоимость мониторингов</button>
         <div class="am-sep"></div>
         <button class="am-item danger">${I.logout}Выйти</button>
       </div>
@@ -1555,18 +1664,22 @@ function bindChrome(){
   }
   const logo = document.querySelector('.topbar .logo');
   if(logo) logo.onclick = goHome;
+  document.querySelectorAll('[data-go="costs"]').forEach(b=> b.onclick = goCosts);
   document.querySelectorAll('.crumb-home').forEach(a=> a.onclick = e=>{ e.preventDefault(); goHome(); });
 }
 /* ================= РОУТИНГ =================
    главная            → <base>/
    страница позиций   → <base>/projects/<ID_PROJECT>/monitoring-list/<ID_MONITORING>
+   стоимость (админ)  → <base>/costs
    На GitHub Pages глубокие пути отдаёт 404.html (копия index.html) — URL сохраняется,
    роутер читает location.pathname. В standalone-файле (file://) history недоступен —
    навигация работает в памяти. */
 let CUR_MON = null; /* {p, m} открытого мониторинга */
 const CAN_ROUTE = location.protocol === 'http:' || location.protocol === 'https:';
 const BASE = (()=>{
-  const p = location.pathname, i = p.indexOf('/projects/');
+  const p = location.pathname;
+  let i = p.indexOf('/projects/');
+  if(i < 0) i = p.search(/\/costs\/?$/);
   if(i >= 0) return p.slice(0, i + 1);
   return p.endsWith('/') ? p : p.replace(/[^/]*$/, '');
 })();
@@ -1595,6 +1708,7 @@ function goMon(pid, mid){
   show(cur);
 }
 function route(){
+  if(/\/costs\/?$/.test(location.pathname)){ CUR_MON = null; renderCosts(); return; }
   const r = parseRoute();
   const f = r ? findMon(r.pid, r.mid) : null;
   if(f){ CUR_MON = f; PAGE = 'mon'; show(cur); }
@@ -2764,6 +2878,403 @@ function updateHsb(){
 window.addEventListener('scroll', updateHsb, {passive:true});
 let __slT;
 window.addEventListener('resize', ()=>{ clearTimeout(__slT); __slT = setTimeout(applySliceDensity, 120); });
+
+/* ================= СТОИМОСТЬ МОНИТОРИНГОВ (только админы) =================
+   Источник — отдельные сборы (run): мониторинг × дата × тип. В продакшене приходят с бэка;
+   здесь детерминированный генератор от расписаний мониторингов главной.
+   Все итоги — в ₽: сборы в $ пересчитаны по курсу на дату сбора (rate хранится в сборе). */
+const C_START = '2026-07-01', C_TODAY = '2026-10-09';
+const C_TEAMS = ['Команда Саши','Команда Кости','Команда Димы','Команда Даши'];
+const C_OWNERS = {
+  'Александр Воробьёв':'Команда Саши', 'Александр Скосаревский':'Команда Саши',
+  'Константин Белов':'Команда Кости', 'Сергей Мозолевский':'Команда Кости',
+  'Дмитрий Казанцев':'Команда Димы', 'Зоригто Дылгыров':'Команда Димы',
+  'Дарья Лисина':'Команда Даши', 'Мария Орлова':'Команда Даши'
+};
+/* владелец проекта — по порядку ALL_PROJECTS */
+const C_PROJ_OWNER = ['Константин Белов','Сергей Мозолевский','Константин Белов','Сергей Мозолевский','Константин Белов','Сергей Мозолевский',
+  'Александр Воробьёв','Дарья Лисина','Мария Орлова','Дарья Лисина','Мария Орлова','Дарья Лисина',
+  'Дмитрий Казанцев','Дмитрий Казанцев','Зоригто Дылгыров','Зоригто Дылгыров','Александр Скосаревский',
+  'Александр Скосаревский','Мария Орлова','Дмитрий Казанцев'];
+/* тарифы за 1 ключ (демо; в продакшене — из «Настроить цены») */
+const C_PRICE = {
+  'Arsenkin|Позиции':      {cur:'RUB', per:r=> r.ya ? (r.depth>50?0.084:0.042) : 0.021*r.depth/10},
+  'Scrapingdog|Позиции':   {cur:'USD', per:r=> r.depth>50?0.0028:0.0014},
+  'Arsenkin|Частотность':  {cur:'RUB', per:()=>0.03},
+  'DataForSEO|Частотность':{cur:'USD', per:()=>0.0002}
+};
+const C_KPI = [['Arsenkin','Позиции'],['Scrapingdog','Позиции'],['Arsenkin','Частотность'],['DataForSEO','Частотность']];
+const usdRate = iso => { const d=(Date.parse(iso)-Date.parse(C_START))/864e5; return Math.round((81.4+Math.sin(d/9)*1.1+d*0.012)*100)/100; };
+const p2 = n => String(n).padStart(2,'0');
+
+const COST_RUNS = (()=>{
+  const runs = [];
+  ALL_PROJECTS.forEach((p,pi)=>{
+    const owner = C_PROJ_OWNER[pi] || 'Мария Орлова';
+    p.mons.forEach(m=>{
+      const h = hashStr('mon'+m.id), ya = m.eng==='ya';
+      const mobile = /mobile/i.test(m.name) || (!ya && h%5===0);
+      const eng = (ya?'Yandex':'Google')+' '+(mobile?'Mobile':'Desktop');
+      const depth = ya ? 50 : [10,30,50,50,100][h%5];
+      const serpParser = ya || h%4===0 ? 'Arsenkin' : 'Scrapingdog';
+      const push = (iso, typ, parser)=>{
+        const s = hashStr(m.id+iso+typ);
+        const keys = Math.max(1, Math.round(m.keys*(1+((s%7)-3)/200)));
+        const r = {ya, depth};
+        const pr = C_PRICE[parser+'|'+typ];
+        const orig = keys*pr.per(r), rate = usdRate(iso);
+        const hh = iso===C_TODAY ? 1+s%9 : s%12;
+        runs.push({iso, ts:`${iso} ${p2(hh)}:${p2((s>>>4)%60)}:${p2((s>>>10)%60)}`, p, m, owner, team:C_OWNERS[owner],
+          eng, ya, typ, depth: typ==='Позиции'?depth:null, keys, parser, cur:pr.cur, orig, rate,
+          rub: pr.cur==='USD' ? orig*rate : orig});
+      };
+      for(let t=Date.parse(C_START); t<=Date.parse(C_TODAY); t+=864e5){
+        const dt = new Date(t), iso = dt.toISOString().slice(0,10), dom = dt.getUTCDate(), dow = dt.getUTCDay();
+        if(m.sched==='Ежедневно' || (m.sched==='Еженедельно' && dow===h%7) || (m.sched==='Ежемесячно' && dom===1))
+          push(iso, 'Позиции', serpParser);
+        if(dom===2 && m.keys>=40) push(iso, 'Частотность', ya?'Arsenkin':'DataForSEO');
+      }
+    });
+  });
+  return runs.sort((a,b)=> a.ts<b.ts ? 1 : -1);
+})();
+
+/* измерения группировки: k — ключ группы, t — текст для сортировки, h — подпись в строке */
+const C_DIMS = {
+  team:   {l:'Команда',           k:r=>r.team,  t:r=>r.team,
+           h:r=>`<span class="c-tava">${r.team.split(' ')[1][0]}</span><span class="txt">${esc(r.team)}</span>`},
+  owner:  {l:'Владелец',          k:r=>r.owner, t:r=>r.owner,
+           h:r=>`<span class="txt" title="${esc(r.team)}">${esc(r.owner)}</span>`},
+  project:{l:'Проект',            k:r=>r.p.id,  t:r=>r.p.name,
+           h:r=>`<span class="pfav" style="background:hsl(${hashStr(r.p.dom)%360} 42% 46%)"><i>${r.p.dom[0].toUpperCase()}</i></span><span class="txt">${esc(r.p.name)}</span>`},
+  mon:    {l:'Мониторинг',        k:r=>r.m.id,  t:r=>r.m.name,
+           h:r=>`<span class="eng">${r.ya?I.ya:I.go}</span><span class="txt">${esc(r.m.name)}<span class="c-sub">${esc(r.p.dom)}</span></span>`},
+  eng:    {l:'Поисковая система', k:r=>r.eng,   t:r=>r.eng,
+           h:r=>`<span class="eng">${r.ya?I.ya:I.go}</span><span class="txt">${r.eng}</span>`},
+  parser: {l:'Парсер',            k:r=>r.parser,t:r=>r.parser,
+           h:r=>`<span class="txt">${r.parser}<span class="c-sub">тариф в ${r.cur==='USD'?'$':'₽'}</span></span>`},
+  typ:    {l:'Тип',               k:r=>r.typ,   t:r=>r.typ, h:r=>`<span class="txt">${r.typ}</span>`},
+  depth:  {l:'Глубина',           k:r=>r.depth??0, t:r=>r.depth??0,
+           h:r=>`<span class="txt">${r.depth==null?'Без глубины (частотность)':'ТОП-'+r.depth}</span>`}
+};
+/* фильтры тулбара */
+const C_FILTERS = [['team','Команда'],['owner','Владелец'],['eng','ПС'],['parser','Парсер'],['typ','Тип']];
+const C_FVAL = {team:r=>r.team, owner:r=>r.owner, eng:r=>r.eng, parser:r=>r.parser, typ:r=>r.typ};
+
+const COST = {
+  from:'2026-10-01', to:C_TODAY, g1:'team', g2:'parser',
+  f:{team:new Set(), owner:new Set(), eng:new Set(), parser:new Set(), typ:new Set()},
+  q:'', sort:{k:'cost', dir:-1}, open:new Set(), more:{}, cal:null
+};
+
+const fRub = n => n.toLocaleString('ru-RU',{minimumFractionDigits:2, maximumFractionDigits:2});
+const fInt = n => n.toLocaleString('ru-RU');
+const fBig = n => n>=1e6 ? (n/1e6).toLocaleString('ru-RU',{maximumFractionDigits:2})+' млн' : fInt(n);
+const fPct = x => (x*100).toLocaleString('ru-RU',{minimumFractionDigits:1, maximumFractionDigits:1})+' %';
+const fTs  = ts => `${ts.slice(8,10)}.${ts.slice(5,7)}.${ts.slice(2,4)} ${ts.slice(11,16)}`;
+const cAgg = rs => { let cost=0, req=0; for(const r of rs){ cost+=r.rub; req+=r.keys; } return {n:rs.length, cost, req, ppk: req ? cost/req*1000 : 0}; };
+
+function costRuns(){
+  const q = COST.q.trim().toLowerCase();
+  return COST_RUNS.filter(r=> r.iso>=COST.from && r.iso<=COST.to
+    && C_FILTERS.every(([f])=> !COST.f[f].size || COST.f[f].has(C_FVAL[f](r)))
+    && (!q || (r.m.name+' '+r.p.name).toLowerCase().includes(q)));
+}
+function costGroups(rs, dim){
+  const D = C_DIMS[dim], map = new Map();
+  rs.forEach(r=>{ const k = String(D.k(r)); if(!map.has(k)) map.set(k, {key:k, first:r, runs:[]}); map.get(k).runs.push(r); });
+  const s = COST.sort;
+  return [...map.values()].map(g=>Object.assign(g, cAgg(g.runs))).sort((a,b)=>{
+    if(s.k==='name'){ const x=D.t(a.first), y=D.t(b.first); return (x<y?-1:x>y?1:0)*-s.dir; }
+    return (a[s.k]-b[s.k])*s.dir;
+  });
+}
+function costRunsSorted(rs){
+  const s = COST.sort;
+  if(s.k==='name') return rs; /* хронология: новые сверху */
+  const v = r => s.k==='cost' ? r.rub : s.k==='ppk' ? r.rub/r.keys : s.k==='n' ? 0 : r.keys;
+  return [...rs].sort((a,b)=>(v(a)-v(b))*s.dir);
+}
+/* атрибут группы показываем, только если он одинаков у всех её сборов */
+function cUniform(rs, f){ const v = f(rs[0]); return rs.every(r=>f(r)===v) ? v : null; }
+const cShort = n => { const [f,l] = n.split(' '); return f[0]+'. '+l; };
+function cAttrCells(rs){
+  const eng = cUniform(rs, r=>r.eng), typ = cUniform(rs, r=>r.typ), dep = cUniform(rs, r=>r.depth),
+        par = cUniform(rs, r=>r.parser), own = cUniform(rs, r=>r.owner);
+  return `<td class="c-a">${eng?`<span class="eng">${rs[0].ya?I.ya:I.go}</span>${eng}`:''}</td>
+    <td class="c-a">${typ||''}</td><td class="c-a">${dep===null && rs.some(r=>r.depth!=null) ? '' : (dep??'—')}</td>
+    <td class="c-a">${par||''}</td><td class="c-a" title="${own?esc(own):''}">${own?esc(cShort(own)):''}</td>`;
+}
+const cShare = (x)=> `<span class="c-share"><span class="c-sbar"><i style="width:${Math.min(100,x*100).toFixed(1)}%"></i></span><span class="c-pct">${fPct(x)}</span></span>`;
+function cNumCells(a, total, run){
+  return `<td>${run?'':`<span class="c-num">${fInt(a.n)}</span>`}</td>
+    <td>${fInt(a.req)}</td>
+    <td class="${a.req?'':'c-z'}">${a.ppk.toLocaleString('ru-RU',{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
+    <td>${cShare(total ? a.cost/total : 0)}</td>`;
+}
+function costRunRow(r, total, lvl, hidden){
+  const a = {n:1, cost:r.rub, req:r.keys, ppk:r.rub/r.keys*1000};
+  const orig = r.cur==='USD' ? `<span class="c-orig" title="Курс на ${fmtRu(r.iso)}: ${r.rate.toLocaleString('ru-RU')} ₽">${r.orig.toLocaleString('ru-RU',{minimumFractionDigits:4,maximumFractionDigits:4})} $ × ${r.rate.toLocaleString('ru-RU')}</span>` : '';
+  return `<tr class="ct-run ${lvl===1?'l1':''}">
+    <td class="c-name"><span class="c-head"><span class="c-ts">${fTs(r.ts)}</span>
+      <a class="c-mon" href="${monPath(r.p.id, r.m.id)}" data-pid="${r.p.id}" data-mid="${r.m.id}" title="${esc(r.p.name)} · ${esc(r.m.name)}"><span class="txt">${esc(r.m.name)}</span></a><span class="c-sub c-dom">${esc(r.p.dom)}</span></span></td>
+    <td class="c-a"><span class="eng">${r.ya?I.ya:I.go}</span>${r.eng}</td><td class="c-a">${r.typ}</td><td class="c-a">${r.depth??'—'}</td>
+    <td class="c-a">${r.parser}</td><td class="c-a" title="${esc(r.owner)} · ${esc(r.team)}">${esc(cShort(r.owner))}</td>
+    ${cNumCells(a, total, true)}
+    <td class="c-cost"><span class="c-num">${fRub(r.rub)}</span>${orig}</td></tr>`;
+}
+function costRunsHtml(rs, key, total, lvl){
+  const lim = COST.more[key] || 25, list = costRunsSorted(rs);
+  let h = list.slice(0, lim).map(r=>costRunRow(r, total, lvl)).join('');
+  if(list.length > lim) h += `<tr class="ct-more ${lvl===1?'l1':''}"><td colspan="11"><button data-more="${esc(key)}">Показать ещё ${Math.min(25, list.length-lim)} · всего ${fInt(list.length)} сборов</button></td></tr>`;
+  return h;
+}
+function cGroupRow(cls, key, g, dim, total, open){
+  return `<tr class="ct-row ${cls} ${open?'open':''}" data-k="${esc(key)}">
+    <td class="c-name"><span class="c-head"><span class="chev">${I.chev}</span>${C_DIMS[dim].h(g.first)}</span></td>
+    ${cAttrCells(g.runs)}${cNumCells(g, total)}
+    <td class="c-cost"><span class="c-num">${fRub(g.cost)}</span></td></tr>`;
+}
+
+function costTableBody(rs, total){
+  if(!rs.length) return `<tr><td class="ct-empty" colspan="11">Нет сборов за выбранный период с такими фильтрами</td></tr>`;
+  let h = '', prev = null;
+  costGroups(rs, COST.g1).forEach((g1,i)=>{
+    const k1 = g1.key, o1 = COST.open.has(k1);
+    if(i && COST.open.has(prev)) h += `<tr class="ct-gap" aria-hidden="true"><td colspan="11"></td></tr>`;
+    prev = k1;
+    h += cGroupRow('ct-g1', k1, g1, COST.g1, total, o1);
+    if(!o1) return;
+    if(!COST.g2){ h += costRunsHtml(g1.runs, k1, total, 1); return; }
+    costGroups(g1.runs, COST.g2).forEach(g2=>{
+      const k2 = k1+'›'+g2.key, o2 = COST.open.has(k2);
+      h += cGroupRow('ct-g2', k2, g2, COST.g2, total, o2);
+      if(o2) h += costRunsHtml(g2.runs, k2, total, 2);
+    });
+  });
+  return h;
+}
+function costKpisHtml(rs, all){
+  const a = all;
+  const tiles = C_KPI.map(([par,typ])=>{
+    const sub = rs.filter(r=>r.parser===par && r.typ===typ), s = cAgg(sub);
+    const usd = C_PRICE[par+'|'+typ].cur==='USD' ? sub.reduce((x,r)=>x+r.orig,0) : null;
+    const share = a.cost ? s.cost/a.cost : 0;
+    return `<div class="kpi ${sub.length?'':'dim'}" title="${par} · ${typ.toLowerCase()}: ${fInt(s.n)} сборов, ${fInt(s.req)} запросов${usd!=null?`, ${usd.toLocaleString('ru-RU',{maximumFractionDigits:2})} $ по тарифу`:''}">
+      <span class="kpi-l">${par} · ${typ==='Позиции'?'позиции':'частотность'}</span>
+      <span class="kpi-v">${fRub(s.cost)}<small>₽</small></span>
+      <span class="kpi-s"><b>${fPct(share)}</b> · ${fInt(s.n)} сб.${usd!=null?` · ${usd.toLocaleString('ru-RU',{maximumFractionDigits:2})} $`:''}</span>
+      <span class="c-sbar"><i style="width:${(share*100).toFixed(1)}%"></i></span></div>`;
+  }).join('');
+  return `<div class="kpi total">
+      <span class="kpi-l">Итого за ${fmtRu(COST.from)} — ${fmtRu(COST.to)}</span>
+      <span class="kpi-v">${fRub(a.cost)}<small>₽</small></span>
+      <span class="kpi-s"><b>${fInt(a.n)}</b> сборов · <b>${fBig(a.req)}</b> запросов · <b>${a.ppk.toLocaleString('ru-RU',{minimumFractionDigits:2,maximumFractionDigits:2})} ₽</b> за 1000</span>
+    </div>${tiles}`;
+}
+function costHeadHtml(){
+  const s = COST.sort;
+  const th = (cls, k, l, tip) => `<th class="${cls}"${tip?` title="${tip}"`:''}>${k ? `<button class="c-sort ${s.k===k?'on':''}" data-sort="${k}">${l}${s.k===k?`<span class="ar">${s.dir<0?'▼':'▲'}</span>`:''}</button>` : l}</th>`;
+  return `<tr>${th('c-name','name', C_DIMS[COST.g1].l + (COST.g2?' › '+C_DIMS[COST.g2].l:'') + ' › сбор')}
+    ${th('c-eng c-a','', 'ПС')}${th('c-typ c-a','', 'Тип')}${th('c-depth c-a','', 'Глубина')}${th('c-parser c-a','', 'Парсер')}${th('c-owner c-a','', 'Владелец')}
+    ${th('c-n','n','Сборов')}${th('c-req','req','Запросов','Ключи × сборы')}${th('c-ppk','ppk','₽/1000','Стоимость 1000 запросов')}
+    ${th('c-share','cost','Доля','Доля от итога за период')}${th('c-cost','cost','Стоимость, ₽')}</tr>`;
+}
+function updateCostsDyn(){
+  const rs = costRuns(), all = cAgg(rs);
+  document.getElementById('costKpis').innerHTML = costKpisHtml(rs, all);
+  document.getElementById('costHead').innerHTML = costHeadHtml();
+  document.getElementById('costBody').innerHTML = costTableBody(rs, all.cost);
+  document.getElementById('costFoot').innerHTML = rs.length ? `<tr><td class="c-name">Итого</td><td colspan="5"></td>${cNumCells(all, all.cost)}<td class="c-cost">${fRub(all.cost)}</td></tr>` : '';
+  bindCostsTable();
+}
+function bindCostsTable(){
+  app.querySelectorAll('.c-sort').forEach(b=> b.onclick = ()=>{
+    const k = b.dataset.sort;
+    COST.sort = COST.sort.k===k ? {k, dir:-COST.sort.dir} : {k, dir: k==='name'?1:-1};
+    updateCostsDyn();
+  });
+  app.querySelectorAll('tr.ct-row').forEach(tr=> tr.onclick = ()=>{
+    const k = tr.dataset.k;
+    COST.open.has(k) ? COST.open.delete(k) : COST.open.add(k);
+    updateCostsDyn();
+  });
+  app.querySelectorAll('[data-more]').forEach(b=> b.onclick = ()=>{ COST.more[b.dataset.more] = (COST.more[b.dataset.more]||25) + 25; updateCostsDyn(); });
+  app.querySelectorAll('.c-mon').forEach(a=> a.onclick = e=>{ e.preventDefault(); goMon(a.dataset.pid, a.dataset.mid); window.scrollTo(0,0); });
+}
+
+/* выпадашки тулбара */
+function cGroupDd(id, n, val, allowNone){
+  const opts = Object.entries(C_DIMS).filter(([k])=> !(n===2 && k===COST.g1));
+  return `<span class="dd-wrap" id="${id}">
+    <button class="f-select"><span class="c-grp-n ${n===2?'n2':''}">${n}</span><b>${val ? C_DIMS[val].l : 'нет'}</b> <span class="car">▼</span></button>
+    <div class="dd-panel">
+      ${opts.map(([k,d])=>`<button class="dd-item ${k===val?'active':''}" data-g="${k}">${d.l}</button>`).join('')}
+      ${allowNone ? `<div class="dd-sep"></div><button class="dd-item ${!val?'active':''}" data-g="">Без 2-го уровня</button>` : ''}
+    </div></span>`;
+}
+function cFilterDd(f, label){
+  const vals = f==='team' ? C_TEAMS : [...new Set(COST_RUNS.map(C_FVAL[f]))].sort();
+  const set = COST.f[f];
+  const cur = !set.size ? 'все' : set.size===1 ? esc([...set][0]) : `${set.size} из ${vals.length}`;
+  return `<span class="dd-wrap" id="cf-${f}">
+    <button class="f-select">${label}: <b>${cur}</b> <span class="car">▼</span></button>
+    <div class="dd-panel c-multi">
+      <button class="dd-item c-chk" data-f="${f}" data-v=""><span class="hsel-box ${set.size?'':'checked'}"></span>Все</button>
+      <div class="dd-sep"></div>
+      ${vals.map(v=>`<button class="dd-item c-chk" data-f="${f}" data-v="${esc(v)}"><span class="hsel-box ${set.has(v)?'checked':''}"></span>${esc(v)}${f==='owner'?`<span class="c-sub">${C_OWNERS[v].replace('Команда ','')}</span>`:''}</button>`).join('')}
+    </div></span>`;
+}
+/* календарь периода: пресеты + 2 месяца */
+const C_ISO = d => `${d.getFullYear()}-${p2(d.getMonth()+1)}-${p2(d.getDate())}`;
+function cPresets(){
+  const t = new Date(C_TODAY+'T12:00'), d = n => { const x = new Date(t); x.setDate(x.getDate()-n); return C_ISO(x); };
+  const mStart = C_TODAY.slice(0,8)+'01';
+  const pm = new Date(t.getFullYear(), t.getMonth()-1, 1), pmEnd = new Date(t.getFullYear(), t.getMonth(), 0);
+  return [['Сегодня', C_TODAY, C_TODAY], ['Вчера', d(1), d(1)], ['Последние 7 дней', d(6), C_TODAY], ['Последние 30 дней', d(29), C_TODAY],
+    ['Этот месяц', mStart, C_TODAY], ['Прошлый месяц', C_ISO(pm), C_ISO(pmEnd)], ['3 квартал', '2026-07-01', '2026-09-30'], ['Всё время', C_START, C_TODAY]];
+}
+function cMonthHtml(y, m){
+  const MN = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+  const c = COST.cal, startDow = (new Date(y,m,1).getDay()+6)%7, dim = new Date(y,m+1,0).getDate();
+  let cells = '';
+  for(let i=0;i<startDow;i++) cells += '<span class="cal-day other"></span>';
+  for(let dd=1; dd<=dim; dd++){
+    const iso = `${y}-${p2(m+1)}-${p2(dd)}`;
+    const inr = iso>=c.from && iso<=c.to, edge = iso===c.from || iso===c.to;
+    cells += `<button class="cal-day ${inr?'inr':''} ${edge?'edge':''}" data-iso="${iso}" ${iso<C_START||iso>C_TODAY?'disabled':''}>${dd}</button>`;
+  }
+  return `<div class="cal-month"><div class="cal-mt">${MN[m]} ${y}</div>
+    <div class="cal-wd">${['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].map(w=>`<span>${w}</span>`).join('')}</div>
+    <div class="cal-grid">${cells}</div></div>`;
+}
+function buildCostCal(){
+  const pop = document.getElementById('ccPop'), c = COST.cal;
+  if(!pop || !c) return;
+  const months = [0,1].map(off=>{ let y=c.y, m=c.m+off; y+=Math.floor(m/12); m=((m%12)+12)%12; return cMonthHtml(y,m); }).join('');
+  pop.innerHTML = `<div class="cc-body">
+      <div class="cc-presets">${cPresets().map(([l,f,t])=>`<button class="dd-item ${c.from===f&&c.to===t?'active':''}" data-f="${f}" data-t="${t}">${l}</button>`).join('')}</div>
+      <div class="cc-months"><button class="cal-nav" data-nav="-1">‹</button>${months}<button class="cal-nav" data-nav="1">›</button></div>
+    </div>
+    <div class="cc-foot"><span class="cc-sel">${fmtRu(c.from)} — ${fmtRu(c.to)}${c.pick?' · выберите конец периода':''}</span><button class="btn primary" id="ccApply">Применить</button></div>`;
+  pop.querySelectorAll('.cal-nav').forEach(b=> b.onclick = e=>{ e.stopPropagation(); c.m += +b.dataset.nav; buildCostCal(); });
+  pop.querySelectorAll('.cc-presets .dd-item').forEach(b=> b.onclick = e=>{ e.stopPropagation(); c.from = b.dataset.f; c.to = b.dataset.t; c.pick = false;
+    const t = new Date(c.to+'T12:00'); c.y = t.getFullYear(); c.m = t.getMonth()-1; /* показать месяц конца периода */
+    buildCostCal(); });
+  pop.querySelectorAll('.cal-day[data-iso]').forEach(d=> d.onclick = e=>{
+    e.stopPropagation();
+    const iso = d.dataset.iso;
+    if(!c.pick){ c.from = c.to = iso; c.pick = true; }
+    else { if(iso<c.from){ c.to = c.from; c.from = iso; } else c.to = iso; c.pick = false; }
+    buildCostCal();
+  });
+  document.getElementById('ccApply').onclick = e=>{
+    e.stopPropagation();
+    COST.from = c.from; COST.to = c.to; COST.more = {};
+    renderCosts();
+  };
+}
+function costCsv(){
+  const rows = [['Завершён','Мониторинг','Проект','Команда','Владелец','Поисковая система','Тип','Глубина','Ключи','Парсер','Стоимость по тарифу','Валюта','Курс','Стоимость, ₽']];
+  costRuns().forEach(r=> rows.push([r.ts, r.m.name, r.p.name, r.team, r.owner, r.eng, r.typ, r.depth??'', r.keys, r.parser,
+    r.orig.toFixed(r.cur==='USD'?4:2).replace('.',','), r.cur, r.cur==='USD'?String(r.rate).replace('.',','):'', r.rub.toFixed(2).replace('.',',')]));
+  const csv = '﻿' + rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(';')).join('\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], {type:'text/csv;charset=utf-8'}));
+  a.download = `crab-costs_${COST.from}_${COST.to}.csv`;
+  a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href), 1000);
+}
+
+function goCosts(){
+  CUR_MON = null; PAGE = 'costs';
+  if(CAN_ROUTE && location.pathname !== BASE+'costs') history.pushState({}, '', BASE+'costs');
+  renderCosts();
+  window.scrollTo(0,0);
+}
+function renderCosts(keepOpen){
+  PAGE = 'costs';
+  app.className = 'home-page costs-page chrome-darkframe';
+  const anyF = COST.q || C_FILTERS.some(([f])=>COST.f[f].size);
+  app.innerHTML = `
+  ${buildTopbar('std')}
+  <div class="shell">
+    <main class="main">
+      <div class="page-crumbs"><nav class="crumbs"><a href="#" class="crumb-home">Проекты</a><span class="sep">/</span><span class="cur">Стоимость мониторингов</span></nav></div>
+      <div class="page-head">
+        <div class="ph-left">
+          <div class="ph-title"><h1>Стоимость мониторингов</h1></div>
+          <span class="ph-meta">Расходы на API парсеров · суммы в ₽, сборы в $ пересчитаны по курсу на дату сбора · видно только администраторам</span>
+        </div>
+        <div class="ph-actions">
+          <span class="dd-wrap" id="ccWrap">
+            <button class="period">${I.cal} ${fmtRu(COST.from)} — ${fmtRu(COST.to)}</button>
+            <div class="dd-panel cc-pop" id="ccPop"></div>
+          </span>
+          <button class="btn secondary" id="costCsv">${I.dl} Скачать CSV</button>
+          <button class="btn secondary" title="Тарифы парсеров за 1000 запросов">${I.gear.replace('<svg','<svg width="13" height="13"')} Настроить цены</button>
+        </div>
+      </div>
+      <div class="cost-kpis" id="costKpis"></div>
+      <div class="toolbar">
+        <span class="c-grp"><span class="c-grp-l">Группировка</span>${cGroupDd('cg1',1,COST.g1,false)}<span class="c-arrow">›</span>${cGroupDd('cg2',2,COST.g2,true)}</span>
+        <span class="f-input">${I.search}<input id="costQ" placeholder="Мониторинг или проект" aria-label="Поиск по мониторингу или проекту" value="${esc(COST.q)}"></span>
+        ${C_FILTERS.map(([f,l])=>cFilterDd(f,l)).join('')}
+        ${anyF ? `<button class="c-reset" id="costReset">Сбросить</button>` : ''}
+        <span class="spacer"></span>
+        <button class="tool-ico" id="costFold" title="Развернуть / свернуть группы 1-го уровня">${I.foldG}</button>
+      </div>
+      <div class="worksheet"><div class="table-wrap"><table class="grid cost-grid">
+        <colgroup><col><col style="width:130px"><col style="width:96px"><col style="width:72px"><col style="width:100px"><col style="width:128px"><col style="width:72px"><col style="width:92px"><col style="width:78px"><col style="width:112px"><col style="width:124px"></colgroup>
+        <thead id="costHead"></thead><tbody id="costBody"></tbody><tfoot id="costFoot"></tfoot>
+      </table></div></div>
+    </main>
+  </div>`;
+  applyTheme();
+  bindChrome();
+  updateCostsDyn();
+  /* дропдауны: открытие/закрытие */
+  app.querySelectorAll('.dd-wrap > .f-select, .dd-wrap > .period').forEach(btn=> btn.onclick = e=>{
+    e.stopPropagation();
+    const w = btn.parentElement, was = w.classList.contains('open');
+    document.querySelectorAll('.dd-wrap.open, .search-wrap.open').forEach(x=>x.classList.remove('open'));
+    if(!was){
+      w.classList.add('open');
+      if(w.id==='ccWrap'){
+        const t = new Date(COST.to+'T12:00');
+        COST.cal = {from:COST.from, to:COST.to, pick:false, y:t.getFullYear(), m:t.getMonth()-1};
+        buildCostCal();
+      }
+    }
+  });
+  if(keepOpen){ const w = document.getElementById(keepOpen); if(w) w.classList.add('open'); }
+  /* группировка */
+  app.querySelectorAll('#cg1 [data-g]').forEach(b=> b.onclick = ()=>{
+    COST.g1 = b.dataset.g;
+    if(COST.g2===COST.g1) COST.g2 = COST.g1==='parser' ? 'team' : 'parser';
+    COST.open.clear(); COST.more = {}; renderCosts();
+  });
+  app.querySelectorAll('#cg2 [data-g]').forEach(b=> b.onclick = ()=>{
+    COST.g2 = b.dataset.g || null; COST.open.clear(); COST.more = {}; renderCosts();
+  });
+  /* фильтры — мультивыбор, панель остаётся открытой */
+  app.querySelectorAll('.c-chk').forEach(b=> b.onclick = e=>{
+    e.stopPropagation();
+    const set = COST.f[b.dataset.f], v = b.dataset.v;
+    if(!v) set.clear(); else set.has(v) ? set.delete(v) : set.add(v);
+    renderCosts('cf-'+b.dataset.f);
+  });
+  const q = document.getElementById('costQ');
+  q.oninput = ()=>{ COST.q = q.value; updateCostsDyn(); };
+  const rs = document.getElementById('costReset');
+  if(rs) rs.onclick = ()=>{ COST.q = ''; C_FILTERS.forEach(([f])=>COST.f[f].clear()); renderCosts(); };
+  document.getElementById('costCsv').onclick = costCsv;
+  document.getElementById('costFold').onclick = ()=>{
+    const tops = [...app.querySelectorAll('tr.ct-g1')].map(t=>t.dataset.k);
+    if(tops.some(k=>COST.open.has(k))) COST.open.clear(); else tops.forEach(k=>COST.open.add(k));
+    updateCostsDyn();
+  };
+}
 
 /* ================= SWITCHER / THEME ================= */
 let cur = 0;
