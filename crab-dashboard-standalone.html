@@ -1086,20 +1086,6 @@ tr.h-m{cursor:pointer}
 .sm-list .serp-row.our{padding-left:11px}
 
 /* ============ СТОИМОСТЬ МОНИТОРИНГОВ (только админы) ============ */
-/* KPI: итог за период + разбивка по парсер·тип; доли — одна шкала (синяя), без категориальных цветов */
-.cost-kpis{display:grid;grid-template-columns:minmax(240px,1.35fr) repeat(4,minmax(150px,1fr));gap:10px;margin-bottom:14px}
-.kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:12px 14px;display:flex;flex-direction:column;gap:3px;min-width:0}
-.kpi-l{display:flex;align-items:center;gap:6px;font-size:10px;font-weight:750;text-transform:uppercase;letter-spacing:.05em;color:var(--text-3);white-space:nowrap}
-.kpi-v{font-size:19px;font-weight:750;letter-spacing:-.01em;font-variant-numeric:tabular-nums;white-space:nowrap}
-.kpi-v small{font-size:13px;font-weight:600;color:var(--text-3);margin-left:3px}
-.kpi.total .kpi-v{font-size:25px}
-.kpi-s{font-size:11.5px;color:var(--text-3);font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.kpi-s b{color:var(--text-2);font-weight:650}
-.kpi .c-sbar{flex:none;width:100%;max-width:none;margin-top:auto}
-.kpi .kpi-s{margin-bottom:6px}
-.kpi.dim{opacity:.5}
-@media (max-width:1180px){.cost-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.kpi.total{grid-column:1/-1}}
-
 /* тулбар: группировка 2 уровня + фильтры */
 .c-grp{display:inline-flex;align-items:center;gap:6px;padding-right:12px;border-right:1px solid var(--border)}
 .c-grp-l{font-size:10px;font-weight:750;text-transform:uppercase;letter-spacing:.05em;color:var(--text-3);margin-right:2px}
@@ -2903,7 +2889,6 @@ const C_PRICE = {
   'Arsenkin|Частотность':  {cur:'RUB', per:()=>0.03},
   'DataForSEO|Частотность':{cur:'USD', per:()=>0.0002}
 };
-const C_KPI = [['Arsenkin','Позиции'],['Scrapingdog','Позиции'],['Arsenkin','Частотность'],['DataForSEO','Частотность']];
 const usdRate = iso => { const d=(Date.parse(iso)-Date.parse(C_START))/864e5; return Math.round((81.4+Math.sin(d/9)*1.1+d*0.012)*100)/100; };
 const p2 = n => String(n).padStart(2,'0');
 
@@ -3054,24 +3039,6 @@ function costTableBody(rs, total){
   });
   return h;
 }
-function costKpisHtml(rs, all){
-  const a = all;
-  const tiles = C_KPI.map(([par,typ])=>{
-    const sub = rs.filter(r=>r.parser===par && r.typ===typ), s = cAgg(sub);
-    const usd = C_PRICE[par+'|'+typ].cur==='USD' ? sub.reduce((x,r)=>x+r.orig,0) : null;
-    const share = a.cost ? s.cost/a.cost : 0;
-    return `<div class="kpi ${sub.length?'':'dim'}" title="${par} · ${typ.toLowerCase()}: ${fInt(s.n)} сборов, ${fInt(s.req)} запросов${usd!=null?`, ${usd.toLocaleString('ru-RU',{maximumFractionDigits:2})} $ по тарифу`:''}">
-      <span class="kpi-l">${par} · ${typ==='Позиции'?'позиции':'частотность'}</span>
-      <span class="kpi-v">${fRub(s.cost)}<small>₽</small></span>
-      <span class="kpi-s"><b>${fPct(share)}</b> · ${fInt(s.n)} сб.${usd!=null?` · ${usd.toLocaleString('ru-RU',{maximumFractionDigits:2})} $`:''}</span>
-      <span class="c-sbar"><i style="width:${(share*100).toFixed(1)}%"></i></span></div>`;
-  }).join('');
-  return `<div class="kpi total">
-      <span class="kpi-l">Итого за ${fmtRu(COST.from)} — ${fmtRu(COST.to)}</span>
-      <span class="kpi-v">${fRub(a.cost)}<small>₽</small></span>
-      <span class="kpi-s"><b>${fInt(a.n)}</b> сборов · <b>${fBig(a.req)}</b> запросов · <b>${a.ppk.toLocaleString('ru-RU',{minimumFractionDigits:2,maximumFractionDigits:2})} ₽</b> за 1000</span>
-    </div>${tiles}`;
-}
 function costHeadHtml(){
   const s = COST.sort;
   const th = (cls, k, l, tip) => `<th class="${cls}"${tip?` title="${tip}"`:''}>${k ? `<button class="c-sort ${s.k===k?'on':''}" data-sort="${k}">${l}${s.k===k?`<span class="ar">${s.dir<0?'▼':'▲'}</span>`:''}</button>` : l}</th>`;
@@ -3082,7 +3049,6 @@ function costHeadHtml(){
 }
 function updateCostsDyn(){
   const rs = costRuns(), all = cAgg(rs);
-  document.getElementById('costKpis').innerHTML = costKpisHtml(rs, all);
   document.getElementById('costHead').innerHTML = costHeadHtml();
   document.getElementById('costBody').innerHTML = costTableBody(rs, all.cost);
   document.getElementById('costFoot').innerHTML = rs.length ? `<tr><td class="c-name">Итого</td><td colspan="5"></td>${cNumCells(all, all.cost)}<td class="c-cost">${fRub(all.cost)}</td></tr>` : '';
@@ -3215,7 +3181,6 @@ function renderCosts(keepOpen){
           <button class="btn secondary" title="Тарифы парсеров за 1000 запросов">${I.gear.replace('<svg','<svg width="13" height="13"')} Настроить цены</button>
         </div>
       </div>
-      <div class="cost-kpis" id="costKpis"></div>
       <div class="toolbar">
         <span class="c-grp"><span class="c-grp-l">Группировка</span>${cGroupDd('cg1',1,COST.g1,false)}<span class="c-arrow">›</span>${cGroupDd('cg2',2,COST.g2,true)}</span>
         <span class="f-input">${I.search}<input id="costQ" placeholder="Мониторинг или проект" aria-label="Поиск по мониторингу или проекту" value="${esc(COST.q)}"></span>
