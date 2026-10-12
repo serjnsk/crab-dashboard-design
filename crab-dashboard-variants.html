@@ -1106,12 +1106,12 @@ tr.h-m{cursor:pointer}
 .cc-foot .btn{margin-left:auto;padding:7px 16px}
 
 /* таблица: команда/владелец/… → вложенная группа → отдельные сборы */
-.cost-grid{table-layout:fixed;min-width:1230px}
+.cost-grid{table-layout:fixed;min-width:1340px}
 .cost-grid thead th{text-align:right;padding:9px 12px}
 .cost-grid thead th.c-name{text-align:left;padding-left:16px}
 .cost-grid thead th.c-a{text-align:left}
 .cost-grid th.c-eng{width:130px}.cost-grid th.c-typ{width:96px}.cost-grid th.c-depth{width:72px}
-.cost-grid th.c-parser{width:100px}.cost-grid th.c-owner{width:128px}
+.cost-grid th.c-parser{width:100px}.cost-grid th.c-owner{width:128px}.cost-grid th.c-n{width:112px}
 .cost-grid th.c-req{width:92px}.cost-grid th.c-ppk{width:78px}.cost-grid th.c-share{width:112px}.cost-grid th.c-cost{width:124px}
 .c-head > .c-sub{flex:none;margin-left:0}
 .c-head > .c-dom{flex:0 10 auto;min-width:0;overflow:hidden;text-overflow:ellipsis}
@@ -2930,7 +2930,7 @@ const C_DIMS = {
   eng:    {l:'Поисковая система', k:r=>r.eng,   t:r=>r.eng,
            h:r=>`<span class="eng">${r.ya?I.ya:I.go}</span><span class="txt">${r.eng}</span>`},
   parser: {l:'Парсер',            k:r=>r.parser,t:r=>r.parser,
-           h:r=>`<span class="txt">${r.parser}<span class="c-sub">тариф в ${r.cur==='USD'?'$':'₽'}</span></span>`},
+           h:r=>`<span class="txt">${r.parser}</span>`},
   typ:    {l:'Тип',               k:r=>r.typ,   t:r=>r.typ, h:r=>`<span class="txt">${r.typ}</span>`},
   depth:  {l:'Глубина',           k:r=>r.depth??0, t:r=>r.depth??0,
            h:r=>`<span class="txt">${r.depth==null?'Без глубины (частотность)':'ТОП-'+r.depth}</span>`}
@@ -2970,7 +2970,7 @@ function costGroups(rs, dim){
 function costRunsSorted(rs){
   const s = COST.sort;
   if(s.k==='name') return rs; /* хронология: новые сверху */
-  const v = r => s.k==='cost' ? r.rub : s.k==='ppk' ? r.rub/r.keys : r.keys;
+  const v = r => s.k==='cost' ? r.rub : s.k==='ppk' ? r.rub/r.keys : s.k==='n' ? 0 : r.keys;
   return [...rs].sort((a,b)=>(v(a)-v(b))*s.dir);
 }
 /* атрибут группы показываем, только если он одинаков у всех её сборов */
@@ -2985,7 +2985,8 @@ function cAttrCells(rs){
 }
 const cShare = (x)=> `<span class="c-share"><span class="c-sbar"><i style="width:${Math.min(100,x*100).toFixed(1)}%"></i></span><span class="c-pct">${fPct(x)}</span></span>`;
 function cNumCells(a, total, run){
-  return `<td>${fInt(a.req)}</td>
+  return `<td>${run?'':`<span class="c-num">${fInt(a.n)}</span>`}</td>
+    <td>${fInt(a.req)}</td>
     <td class="${a.req?'':'c-z'}">${a.ppk.toLocaleString('ru-RU',{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
     <td>${cShare(total ? a.cost/total : 0)}</td>`;
 }
@@ -3003,7 +3004,7 @@ function costRunRow(r, total, lvl, hidden){
 function costRunsHtml(rs, key, total, lvl){
   const lim = COST.more[key] || 25, list = costRunsSorted(rs);
   let h = list.slice(0, lim).map(r=>costRunRow(r, total, lvl)).join('');
-  if(list.length > lim) h += `<tr class="ct-more ${lvl===1?'l1':''}"><td colspan="10"><button data-more="${esc(key)}">Показать ещё ${Math.min(25, list.length-lim)} · всего ${fInt(list.length)} сборов</button></td></tr>`;
+  if(list.length > lim) h += `<tr class="ct-more ${lvl===1?'l1':''}"><td colspan="11"><button data-more="${esc(key)}">Показать ещё ${Math.min(25, list.length-lim)} · всего ${fInt(list.length)} сборов</button></td></tr>`;
   return h;
 }
 function cGroupRow(cls, key, g, dim, total, open){
@@ -3014,11 +3015,11 @@ function cGroupRow(cls, key, g, dim, total, open){
 }
 
 function costTableBody(rs, total){
-  if(!rs.length) return `<tr><td class="ct-empty" colspan="10">Нет сборов за выбранный период с такими фильтрами</td></tr>`;
+  if(!rs.length) return `<tr><td class="ct-empty" colspan="11">Нет сборов за выбранный период с такими фильтрами</td></tr>`;
   let h = '', prev = null;
   costGroups(rs, COST.g1).forEach((g1,i)=>{
     const k1 = g1.key, o1 = COST.open.has(k1);
-    if(i && COST.open.has(prev)) h += `<tr class="ct-gap" aria-hidden="true"><td colspan="10"></td></tr>`;
+    if(i && COST.open.has(prev)) h += `<tr class="ct-gap" aria-hidden="true"><td colspan="11"></td></tr>`;
     prev = k1;
     h += cGroupRow('ct-g1', k1, g1, COST.g1, total, o1);
     if(!o1) return;
@@ -3036,7 +3037,7 @@ function costHeadHtml(){
   const th = (cls, k, l, tip) => `<th class="${cls}"${tip?` title="${tip}"`:''}>${k ? `<button class="c-sort ${s.k===k?'on':''}" data-sort="${k}">${l}${s.k===k?`<span class="ar">${s.dir<0?'▼':'▲'}</span>`:''}</button>` : l}</th>`;
   return `<tr>${th('c-name','name', C_DIMS[COST.g1].l + (COST.g2?' › '+C_DIMS[COST.g2].l:'') + ' › сбор')}
     ${th('c-eng c-a','', 'ПС')}${th('c-typ c-a','', 'Тип')}${th('c-depth c-a','', 'Глубина')}${th('c-parser c-a','', 'Парсер')}${th('c-owner c-a','', 'Владелец')}
-    ${th('c-req','req','Запросов','Ключи × сборы')}${th('c-ppk','ppk','₽/1000','Стоимость 1000 запросов')}
+    ${th('c-n','n','Мониторингов','Сколько раз мониторинги запускались за выбранный период')}${th('c-req','req','Запросов','Ключи × запуски')}${th('c-ppk','ppk','₽/1000','Стоимость 1000 запросов')}
     ${th('c-share','cost','Доля','Доля от итога за период')}${th('c-cost','cost','Стоимость, ₽')}</tr>`;
 }
 function updateCostsDyn(){
@@ -3182,7 +3183,7 @@ function renderCosts(keepOpen){
         <button class="tool-ico" id="costFold" title="Развернуть / свернуть группы 1-го уровня">${I.foldG}</button>
       </div>
       <div class="worksheet"><div class="table-wrap"><table class="grid cost-grid">
-        <colgroup><col><col style="width:130px"><col style="width:96px"><col style="width:72px"><col style="width:100px"><col style="width:128px"><col style="width:92px"><col style="width:78px"><col style="width:112px"><col style="width:124px"></colgroup>
+        <colgroup><col><col style="width:130px"><col style="width:96px"><col style="width:72px"><col style="width:100px"><col style="width:128px"><col style="width:112px"><col style="width:92px"><col style="width:78px"><col style="width:112px"><col style="width:124px"></colgroup>
         <thead id="costHead"></thead><tbody id="costBody"></tbody><tfoot id="costFoot"></tfoot>
       </table></div></div>
     </main>
