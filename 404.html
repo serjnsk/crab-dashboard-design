@@ -937,9 +937,26 @@ tr.h-m{cursor:pointer}
 /* DR — метрика домена, на уровне проекта */
 .dr{font-weight:700;font-variant-numeric:tabular-nums}
 /* ссылка на сайт проекта: открывается в новой вкладке, клик по имени — вход в проект */
-.p-link{display:inline-flex;align-items:center;color:var(--text-3);margin-left:8px;padding:2px;border-radius:4px;opacity:.65}
-.p-link:hover{color:var(--accent);opacity:1;background:var(--bg)}
+/* скрепка — как в боевом интерфейсе: цвет текста, без прозрачности, ~13px от имени (gap 10 + padding) */
+.p-link{display:inline-flex;align-items:center;color:var(--text);padding:2px;border-radius:4px}
+.p-link:hover{color:var(--accent);background:var(--bg)}
 .p-link svg{width:13px;height:13px}
+/* срок регистрации домена: жёлтая (часы) — осталось 7 дней и меньше, красная «!» — день в день,
+   просрочен — другая фигура: залитая красная голова-«труп» (глаза-крестики, язык), чтобы не сливаться с красным глобусом.
+   Вся иконка в статусном цвете: глобус — currentColor, значок (.badge) — ярче, .mark — стрелки/«!» поверх прорези.
+   Жёлтый круг на белом слабый (1.85:1), поэтому стрелки тёмные; линия глобуса #C08B00 = 3:1 (порог для графики) */
+:root{--dexp-warn-line:#C08B00;--dexp-warn:#F5B301;--dexp-warn-mark:#1B2330;--dexp-crit:#D93A2F;--dexp-crit-mark:#FFFFFF}
+:root[data-theme="dark"]{--dexp-warn-line:#F0BC2E;--dexp-warn:#F0BC2E;--dexp-warn-mark:#161B23;--dexp-crit:#E5483D;--dexp-crit-mark:#FFFFFF}
+.dom-exp{display:inline-flex;align-items:center;justify-content:center;width:17px;height:17px;margin-left:-6px;cursor:default;flex:none} /* размер фавиконки .pfav; стоит сразу за ссылкой на сайт */
+.dom-exp.warn{color:var(--dexp-warn-line)}
+.dom-exp.crit,.dom-exp.exp{color:var(--dexp-crit)}
+.dom-exp svg{width:17px;height:17px;display:block}
+.dom-exp.warn .badge{fill:var(--dexp-warn)} .dom-exp.warn .mark{fill:var(--dexp-warn-mark)}
+.dom-exp.crit .badge{fill:var(--dexp-crit)} .dom-exp.crit .mark{fill:var(--dexp-crit-mark)}
+/* подсказка WHOIS — плавающий слой в body: CSS-тултип внутри sticky-ячейки имени перекрывается следующей строкой */
+.dexp-tip{position:fixed;z-index:400;display:grid;grid-template-columns:auto auto;gap:3px 14px;max-width:340px;background:var(--text);color:var(--surface);font-size:12px;line-height:1.35;padding:9px 12px;border-radius:8px;box-shadow:var(--shadow-lg);pointer-events:none}
+.dexp-tip b{grid-column:1/-1;font-weight:650;margin-bottom:3px}
+.dexp-tip .k{opacity:.62}
 .home-grid th.c-ps{width:102px}
 .home-grid th.c-team{width:78px}
 @media (max-width:1460px){
@@ -2186,13 +2203,13 @@ window.addEventListener('popstate', route);
 /* ================= ГЛАВНАЯ: СПИСОК ПРОЕКТОВ ================= */
 const HOME = [
  {group:'Gambling RO диаспора', projects:[
-   {name:'AT | cazinouri-online.at', dom:'cazinouri-online.at', ps:[100,99], team:'A',
+   {name:'AT | cazinouri-online.at', dom:'cazinouri-online.at', exp:'2026-07-19', reg:'Gandi SAS', ps:[100,99], team:'A',
     mons:[{eng:'go',flag:'at',name:'RO-AT',next:'24.07.26',st:'idle',sched:'Еженедельно',keys:7,urls:1,bands:[0,0,0,2,0],deltas:[0,0,-1,2,0],fav:false}]},
    {name:'BE | cazinouri-online.be', dom:'cazinouri-online.be', ps:[100,99], team:'A',
     mons:[{eng:'go',flag:'be',name:'RO-BE',next:'24.07.26',st:'idle',sched:'Еженедельно',keys:18,urls:1,bands:[0,0,0,0,0],deltas:[0,0,0,0,0],fav:false}]},
    {name:'ES | cazinouri-online.es', dom:'cazinouri-online.es', ps:[100,97], team:'A',
     mons:[{eng:'go',flag:'es',name:'RO-ES',next:'20.07.26',st:'queue',sched:'Еженедельно',keys:7,urls:1,bands:[0,0,0,0,0],deltas:[0,0,0,0,0],fav:false}]},
-   {name:'FR | cazinouri-online.fr', dom:'cazinouri-online.fr', ps:[100,99], team:'A',
+   {name:'FR | cazinouri-online.fr', dom:'cazinouri-online.fr', exp:'2026-07-26', reg:'OVHcloud', ps:[100,99], team:'A',
     mons:[{eng:'go',flag:'fr',name:'RO-FR',next:'24.07.26',st:'idle',sched:'Еженедельно',keys:8,urls:1,bands:[0,0,0,0,0],deltas:[0,0,0,0,0],fav:false}]},
    {name:'IT | cazinouri-online.it', dom:'cazinouri-online.it', ps:[100,99], team:'A',
     mons:[{eng:'go',flag:'it',name:'RO-IT',next:'24.07.26',st:'idle',sched:'Еженедельно',keys:8,urls:1,bands:[0,0,0,2,0],deltas:[0,0,-1,2,0],fav:false}]},
@@ -2211,15 +2228,15 @@ const HOME = [
     ]}
  ]},
  {group:'Флористика EU', projects:[
-   {name:'eflowers.dk', dom:'eflowers.dk', ps:[92,71], team:'F',
+   {name:'eflowers.dk', dom:'eflowers.dk', exp:'2026-09-14', reg:'Punktum dk', ps:[92,71], team:'F',
     mons:[{eng:'go',flag:'dk',name:'Дания (DK) - основной',next:'22.07.26',st:'done',sched:'Ежедневно',keys:340,urls:48,bands:[62,148,71,44,15],deltas:[4,-11,6,2,-1],fav:false}]},
-   {name:'blumen365.at', dom:'blumen365.at', ps:[89,64], team:'F',
+   {name:'blumen365.at', dom:'blumen365.at', exp:'2026-07-22', reg:'IONOS SE', ps:[89,64], team:'F',
     mons:[{eng:'go',flag:'at',name:'Австрия (DE) - основной - OLD',next:'23.07.26',st:'done',sched:'Ежедневно',keys:512,urls:60,bands:[88,201,104,79,40],deltas:[-6,9,-3,5,2],fav:false}]},
    {name:'expressflowers.ch', dom:'expressflowers.ch', ps:[94,80], team:'F',
     mons:[{eng:'go',flag:'ch',name:'Швейцария (DE) - основной',next:'22.07.26',st:'done',sched:'Ежедневно',keys:287,urls:35,bands:[51,120,66,38,12],deltas:[2,5,-8,0,1],fav:false}]},
    {name:'lilledesaatmine.ee', dom:'lilledesaatmine.ee', ps:[85,58], team:'F',
     mons:[{eng:'go',flag:'ee',name:'Эстония (EE) - основной OLD',next:'26.07.26',st:'queue',sched:'Ежедневно',keys:96,urls:14,bands:[12,31,18,22,8],deltas:[0,-2,3,1,0],fav:false}]},
-   {name:'saudi.florist', dom:'saudi.florist', ps:[90,66], team:'F',
+   {name:'saudi.florist', dom:'saudi.florist', exp:'2026-07-15', reg:'Namecheap, Inc.', ps:[90,66], team:'F',
     mons:[{eng:'go',flag:'sa',name:'Saudi (EN)',next:'24.07.26',st:'done',sched:'Ежедневно',keys:154,urls:19,bands:[18,52,34,29,11],deltas:[1,6,-2,4,-3],fav:false}]}
  ]},
  {group:'AI компаньоны', projects:[
@@ -2237,7 +2254,7 @@ const HOME = [
      {eng:'go',flag:'ru',name:'Global (EN)',next:'23.07.26',st:'done',sched:'Ежедневно',keys:445,urls:52,bands:[31,94,88,102,46],deltas:[-3,8,-12,6,4],fav:false},
      {eng:'go',flag:'de',name:'DACH (DE)',next:'23.07.26',st:'done',sched:'Ежедневно',keys:198,urls:24,bands:[9,38,44,51,20],deltas:[1,-4,6,-2,0],fav:false}
     ]},
-   {name:'btccasino.top', dom:'btccasino.top', ps:[81,49], team:'C',
+   {name:'btccasino.top', dom:'btccasino.top', exp:'2026-07-19', reg:'NameSilo, LLC', ps:[81,49], team:'C',
     mons:[{eng:'go',flag:'ru',name:'Основной (EN)',next:'27.07.26',st:'idle',sched:'Еженедельно',keys:120,urls:16,bands:[4,19,26,31,14],deltas:[0,2,-3,1,-1],fav:false}]}
  ]},
  {group:'1serj', projects:[
@@ -2249,9 +2266,9 @@ const HOME = [
 const HOME_UNGROUPED = [
  {name:'seo-tools.dev', dom:'seo-tools.dev', ps:[99,94], team:'D',
   mons:[{eng:'ya',flag:'ru',name:'Блог (RU)',next:'27.07.26',st:'done',sched:'Еженедельно',keys:96,urls:12,bands:[14,38,21,15,4],deltas:[2,-3,1,0,1],fav:false}]},
- {name:'promo-landing.ru', dom:'promo-landing.ru', ps:[76,58], team:'B',
+ {name:'promo-landing.ru', dom:'promo-landing.ru', exp:'2026-07-24', reg:'REG.RU', ps:[76,58], team:'B',
   mons:[{eng:'go',flag:'ru',name:'Основной',next:'29.07.26',st:'queue',sched:'Ежемесячно',keys:41,urls:6,bands:[3,11,9,8,2],deltas:[0,1,-2,0,0],fav:false}]},
- {name:'sandbox-test.site', dom:'sandbox-test.site', ps:[64,41], team:'C',
+ {name:'sandbox-test.site', dom:'sandbox-test.site', exp:'2026-07-02', reg:'GoDaddy.com, LLC', ps:[64,41], team:'C',
   mons:[{eng:'go',flag:'ru',name:'Тестовый',next:'19.07.26',st:'error',sched:'Ежедневно',keys:5,urls:1,bands:[0,0,0,0,0],deltas:[0,0,0,0,0],fav:false}]}
 ];
 /* идентификаторы для URL: /projects/<p.id>/monitoring-list/<m.id> */
@@ -2273,6 +2290,54 @@ function statusCellHtml(m){
   return `<span class="hcal" data-tip="Открыт | ${m.sched}">${I.cal}</span><span class="hdot ${m.st}" data-tip="${ST_TIP[m.st]}"></span><span class="hdate">${m.next}</span>`;
 }
 
+/* иконка срока регистрации домена у имени проекта (стикерпак: icons/domain-expiring*.svg) */
+const DOMEXP_GLOBE = '<path d="M11.994 6.506A5.25 5.25 0 1 0 6.506 11.994"/><path d="M1.5 6.75H9A2.25 5.25 0 1 0 6.505 11.969"/>';
+const DOMEXP_DISC = 'M8.25 11.75a3.5 3.5 0 1 0 7 0a3.5 3.5 0 1 0-7 0Z';
+const DOMEXP_MARK = {
+  warn:'M11.125 10.125a.625.625 0 0 1 1.25 0v1h.5a.625.625 0 0 1 0 1.25h-1.125a.625.625 0 0 1-.625-.625Z',
+  crit:'M11.125 10a.625.625 0 0 1 1.25 0v1.125a.625.625 0 0 1-1.25 0Z M11 13.25a.75.75 0 1 0 1.5 0a.75.75 0 1 0-1.5 0Z'
+};
+/* просрочен: залитый круг, вырезаны глаза-крестики и рот с языком */
+const DOMEXP_DEAD = 'M1 8a7 7 0 1 0 14 0a7 7 0 1 0 -14 0Z M5.5 7.349L5.783 7.631A0.6 0.6 0 0 0 6.631 6.783L6.349 6.5L6.631 6.217A0.6 0.6 0 0 0 5.783 5.369L5.5 5.651L5.217 5.369A0.6 0.6 0 0 0 4.369 6.217L4.651 6.5L4.369 6.783A0.6 0.6 0 0 0 5.217 7.631Z M10.5 7.349L10.783 7.631A0.6 0.6 0 0 0 11.631 6.783L11.349 6.5L11.631 6.217A0.6 0.6 0 0 0 10.783 5.369L10.5 5.651L10.217 5.369A0.6 0.6 0 0 0 9.369 6.217L9.651 6.5L9.369 6.783A0.6 0.6 0 0 0 10.217 7.631Z M5.6 10.4H10.6A.6 .6 0 0 1 10.6 11.6H10.55V12.4A1.25 1.25 0 0 1 8.05 12.4V11.6H5.6A.6 .6 0 0 1 5.6 10.4Z';
+function domExpSvg(t){
+  if(t === 'exp') return `<svg viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" fill-rule="evenodd" d="${DOMEXP_DEAD}"/></svg>`;
+  return `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${DOMEXP_GLOBE}<path class="badge" fill="currentColor" stroke="none" fill-rule="evenodd" d="${DOMEXP_DISC} ${DOMEXP_MARK[t]}"/><path class="mark" fill="none" stroke="none" d="${DOMEXP_MARK[t]}"/></svg>`;
+}
+function domExpHtml(p){
+  if(!p.exp) return '';
+  const day = s => new Date(s+'T12:00:00');
+  const days = Math.round((day(p.exp) - day(PJ_TODAY)) / 864e5);
+  if(days > 7) return '';
+  const d = p.exp.split('-').reverse().join('.');
+  const n = Math.abs(days), w = (n%10===1 && n%100!==11) ? 'день' : (n%10>=2 && n%10<=4 && (n%100<12 || n%100>14)) ? 'дня' : 'дней';
+  const head = days > 0 ? `Через ${n} ${w} истечёт срок регистрации домена`
+             : days === 0 ? 'Сегодня истекает срок регистрации домена'
+             : `Срок регистрации домена истёк ${n} ${w} назад`;
+  const reg = p.reg || 'нет данных';
+  const t = days > 0 ? 'warn' : days === 0 ? 'crit' : 'exp';
+  return `<span class="dom-exp ${t}" data-head="${esc(head)}" data-date="${d}" data-reg="${esc(reg)}" role="img" aria-label="${esc(head)}. Дата окончания ${d}. Регистратор ${esc(reg)}" tabindex="0">${domExpSvg(t)}</span>`;
+}
+/* плавающая подсказка WHOIS: под иконкой, у нижнего края окна — над ней; прижимается к краям */
+let dexpTipEl = null;
+function dexpHide(){ if(dexpTipEl){ dexpTipEl.remove(); dexpTipEl = null; } }
+function dexpShow(el){
+  if(dexpTipEl && dexpTipEl._for === el) return;
+  dexpHide();
+  const t = document.createElement('div');
+  t.className = 'dexp-tip'; t.setAttribute('role', 'tooltip'); t._for = el;
+  t.innerHTML = `<b>${esc(el.dataset.head)}</b><span class="k">Дата окончания</span><span>${esc(el.dataset.date)}</span><span class="k">Регистратор</span><span>${esc(el.dataset.reg)}</span>`;
+  document.body.appendChild(t);
+  const r = el.getBoundingClientRect(), w = t.offsetWidth, h = t.offsetHeight;
+  const x = Math.max(8, Math.min(r.left + r.width/2 - w/2, innerWidth - w - 8));
+  let y = r.bottom + 8; if(y + h > innerHeight - 8) y = r.top - h - 8;
+  t.style.left = x + 'px'; t.style.top = y + 'px';
+  dexpTipEl = t;
+}
+document.addEventListener('mouseover', e => { const el = e.target.closest && e.target.closest('.dom-exp'); el ? dexpShow(el) : dexpHide(); });
+document.addEventListener('focusin', e => { const el = e.target.closest && e.target.closest('.dom-exp'); el ? dexpShow(el) : dexpHide(); });
+document.addEventListener('focusout', e => { if(e.target.closest && e.target.closest('.dom-exp')) dexpHide(); });
+document.addEventListener('keydown', e => { if(e.key === 'Escape') dexpHide(); });
+window.addEventListener('scroll', dexpHide, true);
 function psBadge(ps){
   const worst = Math.min(ps[0], ps[1]);
   const cls = worst>=90 ? 'g' : worst>=50 ? 'm' : 'b';
@@ -2304,7 +2369,7 @@ function renderHome(){
       ${agg.map((n,i)=>homeBandCell(n,aggD[i],i)).join('')}<td class="bd"></td><td class="bd"></td><td class="bd"></td><td class="bd"></td><td class="ps-c"></td><td class="team-c"></td></tr>`;
     g.projects.forEach((p,pi)=>{
       const pDr = 34 + hashStr(p.dom)%56; /* Domain Rating — метрика домена, живёт на уровне проекта */
-      rows += `<tr class="group-row h-p" data-hp="${gi}-${pi}" data-hgp="${gi}"><td class="hact"><span class="acts"><button class="hsel-box lvl-p" data-sc="p:${gi}-${pi}" aria-label="Выбрать проект"></button><button class="hg-btn" title="Настройки проекта">${I.gear}</button><span class="aslot"></span></span></td><td class="hnext"></td><td class="hname"><div class="group-head"><span class="chev">${I.chev}</span><span class="pfav" style="background:hsl(${hashStr(p.dom)%360} 42% 46%)"><i>${p.dom[0].toUpperCase()}</i><img src="https://www.google.com/s2/favicons?domain=${p.dom}&amp;sz=32" alt="" loading="lazy" onload="this.classList.add('ok')"></span><span class="gname pj-link" data-proj="${p.id}" title="Открыть дашборд проекта">${esc(p.name)}</span><a class="p-link" href="https://${p.dom}" target="_blank" rel="noopener" title="Открыть ${p.dom} в новой вкладке">${I.link}</a></div></td>
+      rows += `<tr class="group-row h-p" data-hp="${gi}-${pi}" data-hgp="${gi}"><td class="hact"><span class="acts"><button class="hsel-box lvl-p" data-sc="p:${gi}-${pi}" aria-label="Выбрать проект"></button><button class="hg-btn" title="Настройки проекта">${I.gear}</button><span class="aslot"></span></span></td><td class="hnext"></td><td class="hname"><div class="group-head"><span class="chev">${I.chev}</span><span class="pfav" style="background:hsl(${hashStr(p.dom)%360} 42% 46%)"><i>${p.dom[0].toUpperCase()}</i><img src="https://www.google.com/s2/favicons?domain=${p.dom}&amp;sz=32" alt="" loading="lazy" onload="this.classList.add('ok')"></span><span class="gname pj-link" data-proj="${p.id}" title="Открыть дашборд проекта">${esc(p.name)}</span><a class="p-link" href="https://${p.dom}" target="_blank" rel="noopener" title="Открыть ${p.dom} в новой вкладке">${I.link}</a>${domExpHtml(p)}</div></td>
         <td colspan="5"></td><td class="bd"></td><td class="bd"></td><td class="bd"></td><td class="bd"><span class="dr">${pDr}</span></td><td class="ps-c">${psBadge(p.ps)}</td><td class="team-c"><span class="team-ava" title="Команда проекта">${p.team}</span></td></tr>`;
       p.mons.forEach((m,mi)=>{
         rows += `<tr class="kw-row h-m" data-hgp="${gi}" data-hpp="${gi}-${pi}" data-mi="${gi}-${pi}-${mi}" data-pid="${p.id}" data-mid="${m.id}" data-search="${(g.group+' '+p.name+' '+m.name).toLowerCase()}">
@@ -2405,7 +2470,7 @@ function bindHome(){
   app.querySelectorAll('tr.h-p').forEach(p=>{
     p.style.cursor='pointer';
     p.onclick = e=>{
-      if(e.target.closest('.hg-btn')||e.target.closest('.hsel-box')||e.target.closest('.p-link')) return;
+      if(e.target.closest('.hg-btn')||e.target.closest('.hsel-box')||e.target.closest('.p-link')||e.target.closest('.dom-exp')) return;
       const pl = e.target.closest('.pj-link');
       if(pl){ goProj(pl.dataset.proj); return; } /* имя проекта → дашборд проекта; остальная строка сворачивает */
       p.classList.toggle('collapsed');

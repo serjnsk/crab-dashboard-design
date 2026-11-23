@@ -1,0 +1,407 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CRAB · Стикерпак иконок</title>
+<style>
+:root{
+  --brand:#FD212C; --accent:#FD212C; --accent-soft:rgba(253,33,44,.08);
+  --bg:#F5F6F8; --surface:#FFFFFF; --surface-2:#FAFBFC; --border:#E5E8EE; --border-strong:#D5DAE3;
+  --text:#1B2330; --text-2:#5B6675; --text-3:#8B95A5;
+  /* статусы (как в прототипе: --dexp-*). Линия глобуса ≥3:1 к фону; жёлтый круг слабый (1.85:1), поэтому стрелки тёмные */
+  --warn-line:#C08B00; --warn:#F5B301; --warn-mark:#1B2330; --warn-text:#875A05; --warn-bg:#FBF0C9;
+  --crit:#D93A2F; --crit-mark:#FFFFFF; --crit-text:#B3352B; --crit-bg:#FDE3E0;
+  --sheet-dot:rgba(27,35,48,.09);
+  --shadow:0 1px 2px rgba(20,30,50,.05); --shadow-lg:0 8px 30px rgba(20,30,50,.12);
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  --sans:-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F1319; --surface:#161B23; --surface-2:#1B212B; --border:#262E3A; --border-strong:#333D4C;
+    --text:#E7EBF2; --text-2:#98A2B3; --text-3:#68738A; --accent-soft:rgba(253,33,44,.14);
+    --warn-line:#F0BC2E; --warn:#F0BC2E; --warn-mark:#161B23; --warn-text:#E3B341; --warn-bg:rgba(231,197,68,.14);
+    --crit:#E5483D; --crit-mark:#FFFFFF; --crit-text:#F08B80; --crit-bg:rgba(238,123,110,.15);
+    --sheet-dot:rgba(231,235,242,.07);
+    --shadow:0 1px 2px rgba(0,0,0,.3); --shadow-lg:0 10px 34px rgba(0,0,0,.5);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F1319; --surface:#161B23; --surface-2:#1B212B; --border:#262E3A; --border-strong:#333D4C;
+  --text:#E7EBF2; --text-2:#98A2B3; --text-3:#68738A; --accent-soft:rgba(253,33,44,.14);
+  --warn-line:#F0BC2E; --warn:#F0BC2E; --warn-mark:#161B23; --warn-text:#E3B341; --warn-bg:rgba(231,197,68,.14);
+  --crit:#E5483D; --crit-mark:#FFFFFF; --crit-text:#F08B80; --crit-bg:rgba(238,123,110,.15);
+  --sheet-dot:rgba(231,235,242,.07);
+  --shadow:0 1px 2px rgba(0,0,0,.3); --shadow-lg:0 10px 34px rgba(0,0,0,.5);
+  color-scheme:dark;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13.5px;line-height:1.45}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+a{color:inherit}
+code,pre{font-family:var(--mono)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+
+/* тона иконки: вся иконка в статусном цвете, .badge — ярче, .mark — стрелки / «!» поверх прорези */
+.t-warn{color:var(--warn-line)} .t-warn .badge{fill:var(--warn)} .t-warn .mark{fill:var(--warn-mark)}
+.t-crit,.t-exp{color:var(--crit)} .t-crit .badge,.t-exp .badge{fill:var(--crit)} .t-crit .mark,.t-exp .mark{fill:var(--crit-mark)}
+
+/* ---------- шапка ---------- */
+.top{display:flex;align-items:center;gap:12px;height:52px;padding:0 20px;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:20}
+.mark-logo{width:30px;height:30px;border-radius:7px;background:var(--brand);display:flex;align-items:center;justify-content:center;flex:none}
+.mark-logo svg{width:22px;height:22px;display:block}
+.top h1{font-size:15px;font-weight:600}
+.top .count{color:var(--text-3);font-size:12.5px}
+.top .sp{flex:1}
+.icon-btn{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--text-2)}
+.icon-btn:hover{background:var(--surface-2);color:var(--text)}
+.icon-btn svg{width:18px;height:18px}
+
+main{max-width:1120px;margin:0 auto;padding:28px 20px 64px}
+.lead{color:var(--text-2);max-width:720px;margin-bottom:20px}
+.lead code,.note code{font-size:11.5px;background:var(--surface-2);border:1px solid var(--border);border-radius:4px;padding:0 4px}
+
+/* ---------- лист стикеров ---------- */
+.sheet{display:flex;flex-wrap:wrap;gap:28px 36px;padding:32px 28px 26px;border-radius:14px;
+  background:var(--surface-2) radial-gradient(var(--sheet-dot) 1px,transparent 1.2px) 0 0/14px 14px;border:1px dashed var(--border-strong)}
+.stk{display:flex;flex-direction:column;align-items:center;gap:12px;text-decoration:none;width:150px}
+.stk .art{width:132px;height:132px;transform:rotate(var(--tilt,-4deg));filter:drop-shadow(0 6px 12px rgba(20,30,50,.18));transition:transform .18s ease}
+.stk:nth-child(even) .art{--tilt:3deg}
+.stk:hover .art,.stk:focus-visible .art{transform:rotate(0) scale(1.04)}
+.stk .art svg{width:100%;height:100%;display:block}
+.stk .nm{font-weight:600;text-align:center;line-height:1.3}
+.stk .id{font-family:var(--mono);font-size:11.5px;color:var(--text-3)}
+
+/* ---------- карточка иконки ---------- */
+.icon-card{margin-top:28px;background:var(--surface);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);scroll-margin-top:68px}
+.ic-head{display:flex;gap:16px;align-items:flex-start;padding:20px 22px;border-bottom:1px solid var(--border)}
+.ic-head .ic-big{display:flex;gap:6px;flex:none}
+.ic-head .ic-big span{width:48px;height:48px;border-radius:10px;background:var(--surface-2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center}
+.ic-head h2{font-size:18px;font-weight:600;line-height:1.3}
+.ic-head .ids{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+.ic-head .ids code{font-size:11.5px;color:var(--text-2);background:var(--surface-2);border:1px solid var(--border);border-radius:4px;padding:1px 6px}
+.ic-head p{color:var(--text-2);margin-top:8px;max-width:640px}
+
+.blk{padding:20px 22px;border-bottom:1px solid var(--border)}
+.blk:last-child{border-bottom:none}
+.blk h3{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--text-3);margin-bottom:14px}
+.cols{display:grid;grid-template-columns:minmax(0,1fr) 340px;border-bottom:1px solid var(--border)}
+.cols>.blk{border-bottom:none}
+.cols>.blk:first-child{border-right:1px solid var(--border)}
+
+/* состояния */
+.st{display:grid;grid-template-columns:36px 132px minmax(0,1fr);gap:12px;align-items:center;padding:10px 0;border-top:1px solid var(--border)}
+.st:first-child{border-top:none;padding-top:0}
+.st .g{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:var(--surface-2)}
+.st .when{font-weight:600}
+.st .when small{display:block;font-weight:400;color:var(--text-3);font-size:12px}
+.tip{display:inline-grid;grid-template-columns:auto auto;gap:3px 14px;background:var(--text);color:var(--surface);font-size:12px;line-height:1.35;padding:9px 12px;border-radius:8px}
+.tip b{grid-column:1/-1;font-weight:650;margin-bottom:3px}
+.tip .k{opacity:.62}
+.st .none{color:var(--text-3)}
+
+/* размеры */
+.sizes{display:flex;gap:10px;flex-wrap:wrap}
+.sz{display:flex;flex-direction:column;align-items:center;gap:8px}
+.sz .box{height:64px;min-width:68px;padding:0 12px;border-radius:8px;background:var(--surface-2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;gap:12px;color:var(--text-2)}
+.sz>span{font-size:11.5px;color:var(--text-3);font-family:var(--mono)}
+
+/* конструкция */
+.constr svg{width:100%;max-width:300px;height:auto;display:block;margin:0 auto}
+.specs{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin-top:14px;font-size:12.5px}
+.specs dt{color:var(--text-3)}
+.specs dd{font-family:var(--mono);font-size:12px}
+
+/* в интерфейсе */
+.live{display:flex;gap:16px;align-items:center;flex-wrap:wrap;border:1px solid var(--border);border-radius:10px;background:var(--surface-2);padding:14px 16px}
+.live .row{display:flex;align-items:center;gap:10px;font-weight:750;font-size:14.5px;white-space:nowrap}
+.live .row .chev{color:var(--text-3);font-weight:400}
+.live .row .lnk{color:var(--text);display:inline-flex}
+.live .row .lnk svg{width:13px;height:13px}
+.live .row .lnk{padding:2px}
+.live .row .dx{margin-left:-6px}
+.live .rows{display:flex;flex-direction:column;gap:8px}
+.live .go{margin-left:auto}
+.btn{height:30px;padding:0 12px;border-radius:6px;border:1px solid var(--border-strong);background:var(--surface);font-size:12.5px;font-weight:500;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;text-decoration:none}
+.btn:hover{border-color:var(--text-3)}
+.btn svg{width:14px;height:14px}
+
+/* файлы */
+.files{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:16px}
+.file{border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.file .fh{display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid var(--border);background:var(--surface-2)}
+.file .fh .fn{font-family:var(--mono);font-size:12px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.file pre{font-size:11px;line-height:1.5;padding:10px 12px;color:var(--text-2);white-space:pre-wrap;word-break:break-all;max-height:150px;overflow:auto;background:var(--surface)}
+.file .fa{display:flex;gap:8px;flex-wrap:wrap;padding:10px 12px;border-top:1px solid var(--border)}
+.note{margin-top:14px;color:var(--text-2);font-size:12.5px;max-width:760px}
+
+@media (max-width:900px){
+  .cols{grid-template-columns:1fr}
+  .cols>.blk:first-child{border-right:none;border-bottom:1px solid var(--border)}
+}
+@media (max-width:600px){
+  .top{padding:0 16px}
+  main{padding:20px 16px 48px}
+  .sheet{justify-content:center;padding:24px 12px 20px;gap:24px 12px}
+  .stk{width:136px}
+  .stk .art{width:112px;height:112px}
+  .ic-head,.blk{padding:16px}
+  .ic-head{flex-direction:column}
+  .st{grid-template-columns:36px minmax(0,1fr)}
+  .st .lbl{grid-column:2}
+  .live .row{font-size:13.5px;white-space:normal}
+  .live .go{margin-left:0}
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="mark-logo" aria-hidden="true">
+    <svg viewBox="0 0 64 64"><g stroke="#fff" stroke-width="3.6" stroke-linecap="round"><path d="M16.5 35 L7.5 30.5"/><path d="M15 41 L5.5 41"/><path d="M16.5 47 L7.5 51.5"/><path d="M47.5 35 L56.5 30.5"/><path d="M49 41 L58.5 41"/><path d="M47.5 47 L56.5 51.5"/><path d="M23.5 23.5 L28 31" stroke-width="5"/><path d="M40.5 23.5 L36 31" stroke-width="5"/></g><circle cx="20" cy="15.5" r="9.5" fill="#fff"/><circle cx="44" cy="15.5" r="9.5" fill="#fff"/><path d="M20 15.5 L15.5 5 L26.5 7.5 Z" fill="var(--brand)"/><path d="M44 15.5 L48.5 5 L37.5 7.5 Z" fill="var(--brand)"/><ellipse cx="32" cy="41" rx="16.5" ry="11.5" fill="#fff"/></svg>
+  </div>
+  <h1>Стикерпак иконок</h1>
+  <span class="count" id="count"></span>
+  <span class="sp"></span>
+  <button class="icon-btn" id="theme" type="button" aria-label="Переключить тему" title="Светлая / тёмная тема">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13.5 9.5A6 6 0 0 1 6.5 2.5a6 6 0 1 0 7 7z"/></svg>
+  </button>
+</header>
+
+<main>
+  <p class="lead">Иконки для интерфейса CRAB в стиле прототипа: сетка <code>16 × 16</code>, линия <code>1.5</code>, концы и стыки скруглены, цвет — <code>currentColor</code>. Статус передают цвет иконки и её форма: значок в углу глобуса, а для самого тяжёлого случая — отдельная фигура. Клик по стикеру ведёт к описанию.</p>
+
+  <section class="sheet" id="sheet" aria-label="Лист стикеров"></section>
+
+  <!-- ===== Иконка: срок регистрации домена ===== -->
+  <article class="icon-card" id="domain-expiry">
+    <div class="ic-head">
+      <div class="ic-big"><span class="t-warn" data-ic="domain-expiring" data-size="28"></span><span class="t-crit" data-ic="domain-expiring-today" data-size="28"></span><span class="t-exp" data-ic="domain-expired" data-size="28"></span></div>
+      <div>
+        <h2>Срок регистрации домена</h2>
+        <div class="ids"><code>domain-expiring</code><code>domain-expiring-today</code><code>domain-expired</code></div>
+        <p>Глобус — домен проекта. Жёлтая с часами — до окончания регистрации осталось 7 дней и меньше. Красная с «!» — день в день. Просрочен — другая фигура: залитая красная голова-«труп» с глазами-крестиками и языком, чтобы не сливаться с красным глобусом. На главной стоит у имени проекта сразу за ссылкой на сайт, размером с фавиконку (17 px); в подсказке — срок, дата окончания и регистратор.</p>
+      </div>
+    </div>
+
+    <div class="cols">
+      <div class="blk">
+        <h3>Когда показываем</h3>
+        <div class="states">
+          <div class="st">
+            <div class="g"></div>
+            <div class="when">Больше 7 дней<small>или дата неизвестна</small></div>
+            <div class="lbl none">Иконку не показываем</div>
+          </div>
+          <div class="st">
+            <div class="g t-warn" data-ic="domain-expiring" data-size="16"></div>
+            <div class="when">7–1 день<small>до окончания</small></div>
+            <div class="lbl"><span class="tip"><b>Через 7 дней истечёт срок регистрации домена</b><span class="k">Дата окончания</span><span>26.07.2026</span><span class="k">Регистратор</span><span>OVHcloud</span></span></div>
+          </div>
+          <div class="st">
+            <div class="g t-crit" data-ic="domain-expiring-today" data-size="16"></div>
+            <div class="when">День в день<small>дата окончания</small></div>
+            <div class="lbl"><span class="tip"><b>Сегодня истекает срок регистрации домена</b><span class="k">Дата окончания</span><span>19.07.2026</span><span class="k">Регистратор</span><span>Gandi SAS</span></span></div>
+          </div>
+          <div class="st">
+            <div class="g t-exp" data-ic="domain-expired" data-size="16"></div>
+            <div class="when">Просрочен<small>после даты окончания</small></div>
+            <div class="lbl"><span class="tip"><b>Срок регистрации домена истёк 4 дня назад</b><span class="k">Дата окончания</span><span>15.07.2026</span><span class="k">Регистратор</span><span>Namecheap, Inc.</span></span></div>
+          </div>
+        </div>
+
+        <h3 style="margin-top:22px">Размеры</h3>
+        <div class="sizes">
+          <div class="sz"><div class="box"><span class="t-warn" data-ic="domain-expiring" data-size="16"></span><span class="t-crit" data-ic="domain-expiring-today" data-size="16"></span><span class="t-exp" data-ic="domain-expired" data-size="16"></span></div><span>16</span></div>
+          <div class="sz"><div class="box"><span class="t-warn" data-ic="domain-expiring" data-size="20"></span><span class="t-crit" data-ic="domain-expiring-today" data-size="20"></span><span class="t-exp" data-ic="domain-expired" data-size="20"></span></div><span>20</span></div>
+          <div class="sz"><div class="box"><span class="t-warn" data-ic="domain-expiring" data-size="24"></span><span class="t-crit" data-ic="domain-expiring-today" data-size="24"></span><span class="t-exp" data-ic="domain-expired" data-size="24"></span></div><span>24</span></div>
+          <div class="sz"><div class="box"><span class="t-warn" data-ic="domain-expiring" data-size="32"></span><span class="t-crit" data-ic="domain-expiring-today" data-size="32"></span><span class="t-exp" data-ic="domain-expired" data-size="32"></span></div><span>32</span></div>
+          <div class="sz"><div class="box"><span data-ic="domain-expiring" data-size="16"></span><span data-ic="domain-expiring-today" data-size="16"></span><span data-ic="domain-expired" data-size="16"></span></div><span>моно</span></div>
+        </div>
+      </div>
+
+      <div class="blk constr">
+        <h3>Конструкция</h3>
+        <div id="constr"></div>
+        <dl class="specs">
+          <dt>Сетка</dt><dd>16 × 16, линия 1.5</dd>
+          <dt>Глобус</dt><dd>R 5.25, центр 6.75 / 6.75</dd>
+          <dt>Меридиан</dt><dd>эллипс 2.25 × 5.25</dd>
+          <dt>Экватор</dt><dd>от края до меридиана</dd>
+          <dt>Значок</dt><dd>⌀ 7, центр 11.75 / 11.75</dd>
+          <dt>Вырез</dt><dd>R 5.25 → зазор 1 px</dd>
+          <dt>Стрелки, «!»</dt><dd>ширина 1.25</dd>
+          <dt>Просрочен</dt><dd>круг ⌀ 14, вырезы 1.2</dd>
+        </dl>
+      </div>
+    </div>
+
+    <div class="blk">
+      <h3>В интерфейсе</h3>
+      <div class="live">
+        <div class="rows">
+          <div class="row"><span class="chev">⌃</span>FR | cazinouri-online.fr<span class="lnk" id="lnk1"></span><span class="t-warn dx" data-ic="domain-expiring" data-size="17"></span></div>
+          <div class="row"><span class="chev">⌃</span>AT | cazinouri-online.at<span class="lnk" id="lnk2"></span><span class="t-crit dx" data-ic="domain-expiring-today" data-size="17"></span></div>
+          <div class="row"><span class="chev">⌃</span>saudi.florist<span class="lnk" id="lnk3"></span><span class="t-exp dx" data-ic="domain-expired" data-size="17"></span></div>
+        </div>
+        <a class="btn go" href="../">Открыть главную прототипа →</a>
+      </div>
+      <p class="note">На главной иконка стоит у семи проектов: жёлтая — <code>cazinouri-online.fr</code> (7 дн.), <code>promo-landing.ru</code> (5 дн.), <code>blumen365.at</code> (3 дн.); «!» — <code>cazinouri-online.at</code> и <code>btccasino.top</code> (сегодня); голова — <code>saudi.florist</code> (4 дня назад) и <code>sandbox-test.site</code> (17 дней назад). У <code>eflowers.dk</code> до окончания 57 дней — иконки нет. Удобно смотреть со свёрнутыми проектами. «Сегодня» главной — 19.07.2026.</p>
+    </div>
+
+    <div class="blk">
+      <h3>Файлы</h3>
+      <div class="files" id="files"></div>
+      <p class="note">Вставлять инлайном, как остальные иконки прототипа. Цвет — классом на обёртке: <code>.t-warn</code> / <code>.t-crit</code> / <code>.t-exp</code> (в прототипе — <code>.dom-exp.warn</code> / <code>.crit</code> / <code>.exp</code>). Без класса иконка одноцветная, стрелки и «!» — прорезь. Стикер PNG 512 × 512 с белой кромкой подходит для Telegram-уведомлений.</p>
+    </div>
+  </article>
+</main>
+
+<script>
+/* ===== Реестр иконок. Новая иконка = запись здесь + карточка выше ===== */
+const GLOBE = [
+  'M11.994 6.506A5.25 5.25 0 1 0 6.506 11.994',   // контур с вырезом под значок
+  'M1.5 6.75H9A2.25 5.25 0 1 0 6.505 11.969'      // экватор, переходящий в меридиан
+];
+const DISC = 'M8.25 11.75a3.5 3.5 0 1 0 7 0a3.5 3.5 0 1 0-7 0Z';
+const ICONS = {
+  'domain-expiring': {
+    title: 'Домен: осталось 7 дней', card: 'domain-expiry', tone: 'warn', strokes: GLOBE,
+    mark: 'M11.125 10.125a.625.625 0 0 1 1.25 0v1h.5a.625.625 0 0 1 0 1.25h-1.125a.625.625 0 0 1-.625-.625Z'
+  },
+  'domain-expiring-today': {
+    title: 'Домен: истекает сегодня', card: 'domain-expiry', tone: 'crit', strokes: GLOBE,
+    mark: 'M11.125 10a.625.625 0 0 1 1.25 0v1.125a.625.625 0 0 1-1.25 0Z M11 13.25a.75.75 0 1 0 1.5 0a.75.75 0 1 0-1.5 0Z'
+  },
+  'domain-expired': {  // другая фигура: залитая голова-«труп», вырезаны глаза-крестики и рот с языком
+    title: 'Домен: просрочен', card: 'domain-expiry', tone: 'exp',
+    solid: 'M1 8a7 7 0 1 0 14 0a7 7 0 1 0 -14 0Z M5.5 7.349L5.783 7.631A0.6 0.6 0 0 0 6.631 6.783L6.349 6.5L6.631 6.217A0.6 0.6 0 0 0 5.783 5.369L5.5 5.651L5.217 5.369A0.6 0.6 0 0 0 4.369 6.217L4.651 6.5L4.369 6.783A0.6 0.6 0 0 0 5.217 7.631Z M10.5 7.349L10.783 7.631A0.6 0.6 0 0 0 11.631 6.783L11.349 6.5L11.631 6.217A0.6 0.6 0 0 0 10.783 5.369L10.5 5.651L10.217 5.369A0.6 0.6 0 0 0 9.369 6.217L9.651 6.5L9.369 6.783A0.6 0.6 0 0 0 10.217 7.631Z M5.6 10.4H10.6A.6 .6 0 0 1 10.6 11.6H10.55V12.4A1.25 1.25 0 0 1 8.05 12.4V11.6H5.6A.6 .6 0 0 1 5.6 10.4Z'
+  }
+};
+/* стикер: жёлтый — тёмный глиф (белый на жёлтом не читается), красный — белый */
+const STICKER = { warn: { bg: ['#FFC83D', '#F5A900'], fg: '#1B2330' }, crit: { bg: ['#E04A3F', '#C9372D'], fg: '#FFFFFF' }, exp: { bg: ['#E04A3F', '#C9372D'], fg: '#FFFFFF' } };
+
+function glyph(id, fill = 'currentColor', withMark = true) {
+  const ic = ICONS[id];
+  if (ic.solid) return `<path fill="${fill}" stroke="none" fill-rule="evenodd" d="${ic.solid}"/>`;
+  return ic.strokes.map(d => `<path d="${d}"/>`).join('') +
+    `<path class="badge" fill="${fill}" stroke="none" fill-rule="evenodd" d="${DISC} ${ic.mark}"/>` +
+    (withMark ? `<path class="mark" fill="none" stroke="none" d="${ic.mark}"/>` : '');
+}
+const ATTRS = 'viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"';
+function inlineSvg(id, size) {
+  return `<svg ${ATTRS} width="${size}" height="${size}" aria-hidden="true" focusable="false" style="display:block">${glyph(id)}</svg>`;
+}
+function fileSvg(id) {
+  const ic = ICONS[id];
+  if (ic.solid) return `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">\n  <path fill="currentColor" fill-rule="evenodd" d="${ic.solid}"/>\n</svg>\n`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" ${ATTRS}>\n` +
+    ic.strokes.map(d => `  <path d="${d}"/>`).join('\n') +
+    `\n  <path class="badge" fill="currentColor" stroke="none" fill-rule="evenodd" d="${DISC} ${ic.mark}"/>` +
+    `\n  <path class="mark" fill="none" stroke="none" d="${ic.mark}"/>\n</svg>\n`;
+}
+function stickerSvg(id, uid) {
+  const s = STICKER[ICONS[id].tone], [a, b] = s.bg;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">` +
+    `<defs><linearGradient id="sg-${uid}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient></defs>` +
+    `<rect width="512" height="512" rx="128" fill="#fff"/>` +
+    `<rect x="22" y="22" width="468" height="468" rx="108" fill="url(#sg-${uid})"/>` +
+    `<g transform="translate(116 116) scale(17.5)" fill="none" stroke="${s.fg}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">${glyph(id, s.fg, false)}</g></svg>`;
+}
+
+/* лист стикеров */
+document.getElementById('sheet').innerHTML = Object.entries(ICONS).map(([id, ic]) =>
+  `<a class="stk" href="#${ic.card}"><span class="art" role="img" aria-label="Стикер: ${ic.title}">${stickerSvg(id, id)}</span>` +
+  `<span class="nm">${ic.title}</span><span class="id">${id}</span></a>`).join('');
+document.getElementById('count').textContent = `· ${Object.keys(ICONS).length} шт.`;
+
+/* все инлайновые вхождения */
+document.querySelectorAll('[data-ic]').forEach(el => { el.innerHTML = inlineSvg(el.dataset.ic, +el.dataset.size || 16); });
+const LINK = '<svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5.5 8.5l3-3M6 3.8l1.2-1.2a2.5 2.5 0 0 1 3.5 3.5L9.5 7.3M8 10.2l-1.2 1.2a2.5 2.5 0 0 1-3.5-3.5L4.5 6.7"/></svg>';
+document.querySelectorAll('.lnk').forEach(el => { el.innerHTML = LINK; });
+
+/* конструкция: сетка 16×16 */
+(function () {
+  let g = '';
+  for (let i = 0; i <= 16; i++) {
+    const w = (i === 0 || i === 16 || i === 8) ? 0.05 : 0.025;
+    g += `<line x1="${i}" y1="0" x2="${i}" y2="16" stroke="var(--border-strong)" stroke-width="${w}"/><line x1="0" y1="${i}" x2="16" y2="${i}" stroke="var(--border-strong)" stroke-width="${w}"/>`;
+  }
+  const ic = ICONS['domain-expiring'];
+  const skel = ic.strokes.map(d => `<path d="${d}"/>`).join('') + `<circle cx="11.75" cy="11.75" r="3.5"/>`;
+  document.getElementById('constr').innerHTML =
+    `<svg viewBox="-0.6 -0.6 17.2 17.2" role="img" aria-label="Построение иконки на сетке 16 на 16">` +
+    `<rect x="0" y="0" width="16" height="16" fill="var(--surface-2)"/>${g}` +
+    `<circle cx="11.75" cy="11.75" r="5.25" fill="none" stroke="var(--accent)" stroke-width="0.05" stroke-dasharray="0.25 0.18"/>` +
+    `<g fill="none" stroke="var(--text)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity=".88">${glyph('domain-expiring', 'var(--text)', false)}</g>` +
+    `<g fill="none" stroke="var(--accent)" stroke-width="0.06" stroke-linecap="round">${skel}</g>` +
+    `<circle cx="6.75" cy="6.75" r="0.16" fill="var(--accent)"/><circle cx="11.75" cy="11.75" r="0.16" fill="var(--accent)"/></svg>`;
+})();
+
+/* файлы: копирование и загрузка */
+const COPY_ICON = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><rect x="5.5" y="5.5" width="8" height="8" rx="1.5"/><path d="M10.5 3.5v-.5A1.5 1.5 0 0 0 9 1.5H4A1.5 1.5 0 0 0 2.5 3v5A1.5 1.5 0 0 0 4 9.5h.5"/></svg>';
+const DL_ICON = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v8.5M4.5 7 8 10.5 11.5 7M2.5 13.5h11"/></svg>';
+const CHECK_ICON = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5 6.5 12 13 4.5"/></svg>';
+const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+
+document.getElementById('files').innerHTML = Object.entries(ICONS).map(([id, ic]) =>
+  `<div class="file"><div class="fh"><span class="t-${ic.tone}">${inlineSvg(id, 20)}</span><span class="fn">${id}.svg</span></div>` +
+  `<pre>${esc(fileSvg(id))}</pre>` +
+  `<div class="fa"><button class="btn" type="button" data-copy="${id}">${COPY_ICON}<span>Копировать SVG</span></button>` +
+  `<button class="btn" type="button" data-svg="${id}">${DL_ICON}<span>SVG</span></button>` +
+  `<button class="btn" type="button" data-png="${id}">${DL_ICON}<span>Стикер PNG 512</span></button></div></div>`).join('');
+
+function save(blob, name) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+async function copyText(t) {
+  try { await navigator.clipboard.writeText(t); return true; }
+  catch (e) {
+    const ta = document.createElement('textarea'); ta.value = t; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select(); let ok = false;
+    try { ok = document.execCommand('copy'); } catch (_) {}
+    ta.remove(); return ok;
+  }
+}
+async function stickerPng(id) {
+  const img = new Image();
+  img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(stickerSvg(id, 'png'));
+  await img.decode();
+  const c = document.createElement('canvas'); c.width = c.height = 512;
+  c.getContext('2d').drawImage(img, 0, 0, 512, 512);
+  return new Promise(r => c.toBlob(r, 'image/png'));
+}
+document.getElementById('files').addEventListener('click', async e => {
+  const b = e.target.closest('button'); if (!b) return;
+  if (b.dataset.copy) {
+    if (await copyText(fileSvg(b.dataset.copy))) {
+      const html = b.innerHTML; b.innerHTML = CHECK_ICON + '<span>Скопировано</span>';
+      setTimeout(() => { b.innerHTML = html; }, 1200);
+    }
+  } else if (b.dataset.svg) {
+    save(new Blob([fileSvg(b.dataset.svg)], { type: 'image/svg+xml' }), b.dataset.svg + '.svg');
+  } else if (b.dataset.png) {
+    save(await stickerPng(b.dataset.png), b.dataset.png + '-sticker.png');
+  }
+});
+
+/* тема */
+const root = document.documentElement;
+const sysDark = () => matchMedia('(prefers-color-scheme: dark)').matches;
+try { const t = localStorage.getItem('crab-icons-theme'); if (t) root.dataset.theme = t; } catch (e) {}
+document.getElementById('theme').addEventListener('click', () => {
+  const cur = root.dataset.theme || (sysDark() ? 'dark' : 'light');
+  root.dataset.theme = cur === 'dark' ? 'light' : 'dark';
+  try { localStorage.setItem('crab-icons-theme', root.dataset.theme); } catch (e) {}
+});
+</script>
+</body>
+</html>
