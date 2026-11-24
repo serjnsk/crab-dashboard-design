@@ -1436,21 +1436,23 @@ tr.kw-row:hover .kw-ask,.kw-ask:focus-visible{opacity:1}
 #aiCellMenu .tm-item svg{width:14px;height:14px;flex:none;color:var(--text-3)}
 #aiCellMenu .tm-item:hover svg{color:var(--text-2)}
 
-/* ============ ДАШБОРД ПРОЕКТА (/projects/<id>) ============
-   Модули: мониторинги · Метрика · GA4 · GSC · Вебмастер · лог проекта · команда.
-   Цвета серий графиков — проверенная категориальная палитра (dataviz, 6 слотов, светлая и тёмная ступени);
-   смысл цвета един для страницы: слот 1 — весь трафик / выбранная метрика, слот 2 — поисковый трафик. */
+/* ============ ДАШБОРД ПРОЕКТА (/projects/<id>) и страницы источников (/projects/<id>/gsc|metrika|ga) ============
+   Модули: мониторинги · команда · лог · Метрика · GA4 · Вебмастер · GSC.
+   Виджеты источников — по образцу «Завода»: шапка с аккаунтом и статусом, «Обновлено · Опросить · Заметки»,
+   KPI-пилюли (выбранная залита --pill-sel и задаёт метрику графика), плавный график, топ-таблица.
+   Цвета серий — проверенная категориальная палитра (dataviz, 6 слотов, светлая и тёмная ступени); слот 1 — выбранная метрика.
+   --pill-sel темнее --ch-1, чтобы белый текст пилюли держал 4.5:1 (светлая 5.2:1, тёмная 4.6:1). */
 :root{--ch-1:#2a78d6;--ch-2:#eb6834;--ch-3:#1baf7a;--ch-4:#eda100;--ch-5:#e87ba4;--ch-6:#008300;
-  --st-crit:#d03b3b;--st-warn:#c98500;--st-info:#5B6675}
+  --st-crit:#d03b3b;--st-warn:#c98500;--st-info:#5B6675;--pill-sel:#226cc8}
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){--ch-1:#3987e5;--ch-2:#d95926;--ch-3:#199e70;--ch-4:#c98500;--ch-5:#d55181;--ch-6:#0ca30c;
-    --st-crit:#F08B80;--st-warn:#E3B341;--st-info:#98A2B3}
+    --st-crit:#F08B80;--st-warn:#E3B341;--st-info:#98A2B3;--pill-sel:#2f74d0}
 }
 :root[data-theme="dark"]{--ch-1:#3987e5;--ch-2:#d95926;--ch-3:#199e70;--ch-4:#c98500;--ch-5:#d55181;--ch-6:#0ca30c;
-  --st-crit:#F08B80;--st-warn:#E3B341;--st-info:#98A2B3}
+  --st-crit:#F08B80;--st-warn:#E3B341;--st-info:#98A2B3;--pill-sel:#2f74d0}
 
 .proj-page .main{padding-bottom:64px}
-.pj-wrap{container-type:inline-size;display:flex;flex-direction:column;gap:14px}
+.pj-wrap{container:pjwrap / inline-size;display:flex;flex-direction:column;gap:14px}
 /* шапка: фавиконка + переключатель проекта + ссылка на сайт */
 .pj-fav{width:26px;height:26px;border-radius:7px}
 .pj-fav i{font-size:13px}
@@ -1475,14 +1477,11 @@ tr.kw-row:hover .kw-ask,.kw-ask:focus-visible{opacity:1}
 .pj-ct .pj-tl{display:flex;align-items:center;gap:8px}
 .pj-sub{font-size:11.5px;color:var(--text-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pj-cnt{font-size:11.5px;font-weight:650;color:var(--text-2);background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:0 7px;line-height:18px;font-variant-numeric:tabular-nums}
-.pj-open{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:var(--text-2);padding:6px 8px;border-radius:6px;min-height:28px;white-space:nowrap}
-.pj-open:hover{background:var(--bg);color:var(--text)}
-.pj-open svg{width:11px;height:11px}
 .src-ico{width:30px;height:30px;border-radius:8px;border:1px solid var(--border);background:var(--surface);display:inline-flex;align-items:center;justify-content:center;flex:none}
 .src-ico svg{width:17px;height:17px;display:block}
 .pj-badge{font-size:11px;font-weight:650;padding:2px 8px;border-radius:20px;background:var(--bg);border:1px solid var(--border);color:var(--text-2);white-space:nowrap}
 .pj-badge.err{color:var(--down);border-color:color-mix(in srgb, var(--down) 35%, var(--border))}
-/* секции страницы */
+/* секции и раскладка: сверху мониторинги + команда | лог, ниже «Трафик и поиск» 2×2 */
 .pj-sec{display:flex;align-items:center;gap:6px 14px;margin-top:8px;flex-wrap:wrap}
 .pj-sec h2{font-size:16px;font-weight:750;letter-spacing:-.01em}
 .pj-sec .pj-sec-sub{font-size:12px;color:var(--text-2)}
@@ -1490,90 +1489,169 @@ tr.kw-row:hover .kw-ask,.kw-ask:focus-visible{opacity:1}
 .pj-seg{display:inline-flex;gap:2px;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:2px}
 .pj-sec .pj-seg{background:var(--surface)}
 .pj-seg button{min-height:28px;padding:4px 11px;border-radius:6px;font-size:12.5px;font-weight:600;color:var(--text-2);white-space:nowrap}
-.pj-seg button:hover{color:var(--text)}
+.pj-seg button:hover:not(:disabled){color:var(--text)}
 .pj-seg button.active{background:var(--text);color:var(--surface)}
+.pj-seg button:disabled{opacity:.45;cursor:not-allowed}
+/* Ряды без дыр: карточки ряда одной высоты. Слева последняя карточка (команда) тянется, справа лог занимает
+   высоту колонки и прокручивается; в «Трафике и поиске» нижние таблицы виджетов добирают строки под высоту ряда. */
+.pj-top{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.pj-col{display:flex;flex-direction:column;gap:14px;min-width:0}
+.pj-col > .pj-card:last-child{flex:1}
 .pj-grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
-.pj-grid-tl{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:14px;align-items:start}
-@container (max-width: 1060px){ .pj-grid2,.pj-grid-tl{grid-template-columns:minmax(0,1fr)} }
-/* KPI-плитки модуля (в GSC и Вебмастере — переключатели метрики графика) */
-.pj-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));margin:12px 16px 0;border:1px solid var(--border);border-radius:8px;overflow:hidden}
-.pj-kpi{display:flex;flex-direction:column;gap:1px;padding:9px 12px 10px;text-align:left;border-left:1px solid var(--border);min-width:0;position:relative}
+.pj-grid2 > .wide{grid-column:1 / -1}
+@container pjwrap (max-width: 1060px){ .pj-grid2,.pj-top{grid-template-columns:minmax(0,1fr)} .pj-log .ev-box{min-height:440px} }
+/* неподключённые источники — полоса над сеткой */
+.pj-conn{display:flex;flex-wrap:wrap;gap:8px}
+.pc-i{display:flex;align-items:center;gap:10px;padding:8px 8px 8px 10px;background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow);min-width:0}
+.pc-i .src-ico{width:28px;height:28px}
+.pc-i .src-ico svg{width:15px;height:15px}
+.pc-t{display:flex;flex-direction:column;min-width:0}
+.pc-t b{font-size:13px;font-weight:650;white-space:nowrap}
+.pc-t span{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--text-2);white-space:nowrap}
+.pc-t span svg{width:13px;height:13px;flex:none}
+.pc-i.err{border-color:color-mix(in srgb, var(--down) 40%, var(--border))}
+.pc-i.err .pc-t span{color:var(--down)}
+/* KPI-полоса (Вебмастер: ключи) */
+.pj-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));margin:8px 16px 0;border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.pj-kpi{display:flex;flex-direction:column;gap:1px;padding:8px 12px 9px;text-align:left;border-left:1px solid var(--border);min-width:0}
 .pj-kpi:first-child{border-left:none}
 .pj-kpi .k-l{font-size:11.5px;color:var(--text-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.pj-kpi .k-v{font-size:20px;font-weight:700;letter-spacing:-.015em;line-height:1.25;font-variant-numeric:tabular-nums;white-space:nowrap}
-.pj-kpi .k-v small{font-size:12px;font-weight:600;color:var(--text-2);margin-left:3px;letter-spacing:0}
+.pj-kpi .k-v{font-size:18px;font-weight:700;letter-spacing:-.015em;line-height:1.25;font-variant-numeric:tabular-nums;white-space:nowrap}
 .k-d{font-size:11.5px;font-weight:650;font-variant-numeric:tabular-nums;white-space:nowrap}
 .k-d.up{color:var(--up)} .k-d.down{color:var(--down)} .k-d.flat{color:var(--text-2);font-weight:550}
-button.pj-kpi:hover{background:var(--surface-2)}
-button.pj-kpi.sel{background:color-mix(in srgb, var(--ch-1) 7%, var(--surface))}
-button.pj-kpi.sel::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:var(--ch-1)}
 @container (max-width: 520px){
   .pj-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
   .pj-kpi:nth-child(3){border-left:none}
   .pj-kpi:nth-child(n+3){border-top:1px solid var(--border)}
 }
-/* легенда-переключатели серий */
-.pj-legend{display:flex;align-items:center;gap:4px 16px;margin:10px 16px 0;flex-wrap:wrap}
-.pj-lg{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-weight:550;color:var(--text);min-height:28px}
-.pj-lg .cb{width:15px;height:15px;border-radius:4px;background:var(--c);display:inline-flex;align-items:center;justify-content:center;color:#fff;flex:none}
-.pj-lg .cb svg{width:11px;height:11px}
-.pj-lg[aria-pressed="false"]{color:var(--text-2)}
-.pj-lg[aria-pressed="false"] .cb{background:transparent;box-shadow:inset 0 0 0 1.5px var(--border-strong)}
-.pj-lg[aria-pressed="false"] .cb svg{display:none}
-.pj-lg-note{margin-left:auto;font-size:11.5px;color:var(--text-2)}
-/* график: SVG рисуется по фактической ширине, тултип — HTML */
-.pj-chart{position:relative;margin:6px 16px 0;height:188px;border-radius:6px}
+/* виджет источника — шапка: иконка, название (вход на подробную страницу), ресурс · аккаунт, статус, «Подробнее» */
+.wg{padding-bottom:4px}
+.wg-h{display:flex;align-items:center;gap:10px;padding:14px 14px 0 16px;min-height:44px}
+.wg-tt{display:flex;flex-direction:column;align-items:flex-start;gap:1px;min-width:0;flex:1}
+.wg-name{font-size:15px;font-weight:750;letter-spacing:-.01em;line-height:1.3;color:var(--text);text-align:left}
+button.wg-name:hover{text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--border-strong)}
+.wg-acc{max-width:100%;font-size:12px;color:var(--text-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wg-ok{display:inline-flex;color:var(--up);flex:none;padding:6px;cursor:default}
+.wg-ok svg{width:17px;height:17px}
+.wg-more{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:650;color:var(--text);padding:6px 9px;border-radius:7px;min-height:32px;white-space:nowrap;flex:none}
+.wg-more:hover{background:var(--bg)}
+.wg-more svg{width:13px;height:13px}
+/* «Обновлено · Опросить · Заметки» */
+.wg-bar{display:flex;align-items:center;gap:4px 8px;margin:6px 12px 0 16px;min-height:30px}
+.wg-bar .spacer{flex:1}
+.wg-upd{font-size:12px;color:var(--text-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.wg-act{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:600;color:var(--text-2);padding:5px 8px;border-radius:6px;min-height:30px;white-space:nowrap;flex:none}
+.wg-act:hover{background:var(--bg);color:var(--text)}
+.wg-act svg{width:13px;height:13px;flex:none}
+.wg-act.on{color:var(--text);background:var(--bg);box-shadow:inset 0 0 0 1px var(--border)}
+.wg-act.on svg{color:var(--st-warn)}
+.wg-act b{font-weight:700;color:var(--text);font-variant-numeric:tabular-nums}
+.wg-act.busy{color:var(--text)}
+.wg-act.busy svg{animation:pjspin .8s linear infinite}
+@keyframes pjspin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion: reduce){ .wg-act.busy svg{animation:none} }
+/* KPI-пилюли: выбранная — заливка, она же метрика графика */
+.wg-pills{display:flex;flex-wrap:wrap;gap:8px;margin:10px 16px 0}
+.wg-pill{display:flex;flex-direction:column;align-items:flex-start;gap:1px;min-width:86px;padding:7px 12px 8px;border-radius:10px;background:var(--surface-2);border:1px solid var(--border);text-align:left}
+.wg-pill:hover{border-color:var(--border-strong)}
+.wg-pill .sp-l{font-size:11.5px;font-weight:550;color:var(--text-2);white-space:nowrap}
+.wg-pill .sp-v{font-size:17px;font-weight:750;letter-spacing:-.01em;line-height:1.25;color:var(--text);font-variant-numeric:tabular-nums;white-space:nowrap}
+.wg-pill .sp-v small{font-size:11.5px;font-weight:600;color:var(--text-2);margin-left:4px;letter-spacing:0}
+.wg-pill .k-d{font-size:11px}
+.wg-pill.sel{background:var(--pill-sel);border-color:var(--pill-sel)}
+.wg-pill.sel .sp-l,.wg-pill.sel .sp-v,.wg-pill.sel .sp-v small,.wg-pill.sel .k-d{color:#fff}
+.wg-pill:focus-visible{outline:2px solid var(--pill-sel);outline-offset:2px}
+.wg-pills.big .wg-pill{min-width:112px;padding:9px 14px 10px}
+.wg-pills.big .sp-v{font-size:21px}
+/* топ-таблица виджета */
+.wg-sec{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:14px 0 0;padding:10px 12px 0 16px;border-top:1px solid var(--border)}
+.wg-sec > span,.wm-sh > span{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text-2)}
+.wg-all{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:var(--text-2);padding:5px 6px;border-radius:6px;min-height:28px;white-space:nowrap}
+.wg-all:hover{color:var(--text);background:var(--bg)}
+.wg-all svg{width:12px;height:12px}
+.wg-tbl{width:calc(100% - 32px);margin:2px 16px 12px;border-collapse:collapse;table-layout:fixed;font-size:13px}
+.wg-tbl th{font-size:11.5px;font-weight:600;color:var(--text-2);text-align:right;padding:7px 0 6px 10px;border-bottom:1px solid var(--border);white-space:nowrap}
+.wg-tbl td{padding:6px 0 6px 10px;border-bottom:1px solid var(--border);text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;color:var(--text)}
+.wg-tbl th:first-child,.wg-tbl td:first-child{text-align:left;padding-left:0}
+.wg-tbl td:first-child{overflow:hidden;text-overflow:ellipsis}
+.wg-tbl tr:last-child td{border-bottom:none}
+.wg-tbl .geo{font-size:11.5px;font-weight:650;color:var(--text-2);letter-spacing:.03em}
+.wg-tbl td.wg-none{text-align:center;color:var(--text-2);padding:16px 0}
+/* таблица-заполнитель: минимум --rows строк, остальное — сколько поместится по высоте ряда */
+.wg-fill{flex:1;position:relative;min-height:calc(34px + var(--rows, 5)*33px);margin-bottom:10px}
+.wg-fill > .wg-tbl{position:absolute;top:0;left:0;margin:2px 16px 0}
+.wg-tbl tr.fh{display:none}
+.pj-pos{display:inline-block;min-width:36px;text-align:center;border-radius:5px;padding:1px 5px;font-weight:650;font-size:12px}
+.pj-pos.t3{background:var(--t3-bg);color:var(--t3-fg)} .pj-pos.t10{background:var(--t10-bg);color:var(--t10-fg)}
+.pj-pos.t20{background:var(--t20-bg);color:var(--t20-fg)} .pj-pos.t50{background:var(--t50-bg);color:var(--t50-fg)}
+.pj-pos.t100{background:var(--t100-bg);color:var(--t100-fg)}
+/* график: SVG по фактической ширине, плавная линия с градиентом; пунктир — неполный последний период */
+.pj-chart{position:relative;margin:8px 16px 0;height:190px;border-radius:6px}
+.pj-chart.big{height:320px;margin:12px 16px 16px}
 .pj-chart:focus-visible{outline-offset:4px}
 .pj-chart svg{display:block;width:100%;height:100%;overflow:visible}
 .pj-chart .gl{stroke:var(--border);stroke-width:1}
 .pj-chart .gl.base{stroke:var(--border-strong)}
 .pj-chart .tl{fill:var(--text-2);font-size:11px;font-family:var(--sans);font-variant-numeric:tabular-nums}
 .pj-chart .ln{fill:none;stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
-.pj-chart .ar{stroke:none;opacity:.09}
+.pj-chart .ln.dash{stroke-dasharray:4 4}
+.pj-chart .ar{stroke:none}
+.pj-chart .nl{stroke:var(--st-warn);stroke-width:1;stroke-dasharray:2 3}
+.pj-chart .nm{fill:var(--st-warn);stroke:var(--surface);stroke-width:2}
 .pj-chart .xh{stroke:var(--text-2);stroke-width:1;stroke-dasharray:3 3}
 .pj-chart .pt{stroke:var(--surface);stroke-width:2}
 .pj-chart .hit{fill:transparent;cursor:crosshair}
-.pj-tip{position:absolute;top:2px;left:0;pointer-events:none;background:var(--surface);border:1px solid var(--border);border-radius:8px;box-shadow:var(--shadow-lg);padding:8px 10px;font-size:12px;min-width:168px;z-index:5;display:none}
+.pj-tip{position:absolute;top:2px;left:0;pointer-events:none;background:var(--surface);border:1px solid var(--border);border-radius:8px;box-shadow:var(--shadow-lg);padding:8px 10px;font-size:12px;min-width:168px;max-width:280px;z-index:5;display:none}
 .pj-tip.on{display:block}
 .pj-tip .tt-d{font-weight:650;color:var(--text);margin-bottom:4px;white-space:nowrap}
 .pj-tip .tt-r{display:flex;align-items:center;gap:7px;color:var(--text-2);line-height:1.6;white-space:nowrap}
 .pj-tip .tt-r b{margin-left:auto;padding-left:14px;color:var(--text);font-weight:650;font-variant-numeric:tabular-nums}
 .pj-tip .sw{width:10px;height:3px;border-radius:2px;background:var(--c);flex:none}
-/* доли источников/каналов: 100%-полоса с разрывами 2px + подписи с процентами */
-.pj-share{margin:14px 16px 16px}
-.pj-share-h{display:flex;justify-content:space-between;gap:10px;font-size:12px;font-weight:600;color:var(--text-2);margin-bottom:7px}
-.pj-sbar{display:flex;gap:2px;height:10px}
-.pj-sbar i{display:block;height:100%;background:var(--c);min-width:2px}
-.pj-sbar i:first-child{border-radius:4px 0 0 4px}
-.pj-sbar i:last-child{border-radius:0 4px 4px 0}
-.pj-slg{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:8px;font-size:12px;color:var(--text-2)}
-.pj-slg span{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
-.pj-slg i{width:9px;height:9px;border-radius:2px;background:var(--c);flex:none}
-.pj-slg b{color:var(--text);font-weight:650;font-variant-numeric:tabular-nums}
-/* полоса статусов (индексирование / диагностика) */
-.pj-strip{display:flex;flex-wrap:wrap;gap:8px;margin:14px 16px 0}
-.pj-chip{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:7px;background:var(--surface-2);border:1px solid var(--border);font-size:12px;color:var(--text-2);white-space:nowrap}
+.pj-tip .tt-p{font-size:11.5px;color:var(--text-2);margin-top:3px}
+.pj-tip .tt-n{display:flex;gap:6px;align-items:flex-start;margin-top:6px;padding-top:6px;border-top:1px solid var(--border);color:var(--text);line-height:1.4}
+.pj-tip .tt-n svg{width:13px;height:13px;flex:none;margin-top:2px;color:var(--st-warn)}
+.pj-tip .tt-n b{font-weight:650}
+.pj-ftip{position:fixed;min-width:0;max-width:none;z-index:130;padding:5px 9px;font-weight:600;white-space:nowrap}
+/* чипы важности (Вебмастер) — фильтр списка проблем */
+.pj-strip{display:flex;flex-wrap:wrap;gap:6px;margin:8px 16px 0}
+.pj-chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;min-height:30px;border-radius:7px;background:var(--surface-2);border:1px solid var(--border);font-size:12px;color:var(--text-2);white-space:nowrap}
 .pj-chip b{color:var(--text);font-weight:700;font-variant-numeric:tabular-nums}
 .pj-chip svg{width:14px;height:14px;flex:none}
-.pj-chip.crit svg{color:var(--st-crit)} .pj-chip.warn svg{color:var(--st-warn)} .pj-chip.info svg{color:var(--st-info)} .pj-chip.ok svg{color:var(--up)}
+.pj-chip.crit svg{color:var(--st-crit)} .pj-chip.warn svg{color:var(--st-warn)} .pj-chip.info svg{color:var(--st-info)}
 .pj-chip.crit.has{border-color:color-mix(in srgb, var(--st-crit) 40%, var(--border))}
 .pj-chip.zero svg{color:var(--text-2)}
-.pj-ftip{position:fixed;min-width:0;z-index:130;padding:5px 9px;font-weight:600;white-space:nowrap}
-/* вкладки + мини-таблица запросов */
-.pj-tabs{display:flex;gap:18px;margin:14px 16px 0;border-bottom:1px solid var(--border)}
-.pj-tab{padding:6px 0 8px;font-size:12.5px;font-weight:650;color:var(--text-2);border-bottom:2px solid transparent;margin-bottom:-1px}
+button.pj-chip:hover:not(:disabled){border-color:var(--border-strong);color:var(--text)}
+button.pj-chip:disabled{cursor:default}
+button.pj-chip.sel{background:var(--text);border-color:var(--text);color:var(--surface)}
+button.pj-chip.sel b,button.pj-chip.sel svg{color:var(--surface)}
+/* вкладки (Вебмастер: ключи) */
+.pj-tabs{display:flex;gap:18px;margin:12px 16px 0;border-bottom:1px solid var(--border)}
+.pj-tab{padding:6px 0 8px;font-size:12.5px;font-weight:650;color:var(--text-2);border-bottom:2px solid transparent;margin-bottom:-1px;min-height:32px}
+.pj-tab span{font-weight:550;margin-left:2px}
 .pj-tab:hover{color:var(--text)}
-.pj-tab.active{color:var(--text);border-bottom-color:var(--accent)}
-.pj-tbl{width:calc(100% - 32px);margin:2px 16px 12px;border-collapse:collapse;table-layout:fixed;font-size:12.5px}
-.pj-tbl th{font-size:11px;font-weight:600;color:var(--text-2);text-align:right;padding:7px 0 6px 10px;border-bottom:1px solid var(--border);white-space:nowrap}
-.pj-tbl td{padding:7px 0 7px 10px;border-bottom:1px solid var(--border);text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
-.pj-tbl th:first-child,.pj-tbl td:first-child{text-align:left;padding-left:0}
-.pj-tbl td:first-child{overflow:hidden;text-overflow:ellipsis;color:var(--text)}
-.pj-tbl tr:last-child td{border-bottom:none}
-.pj-tbl .pos{display:inline-block;min-width:34px;text-align:center;border-radius:5px;padding:1px 5px;font-weight:650;font-size:12px}
-.pj-tbl .pos.t3{background:var(--t3-bg);color:var(--t3-fg)} .pj-tbl .pos.t10{background:var(--t10-bg);color:var(--t10-fg)}
-.pj-tbl .pos.t20{background:var(--t20-bg);color:var(--t20-fg)} .pj-tbl .pos.t50{background:var(--t50-bg);color:var(--t50-fg)}
-.pj-tbl .pos.t100{background:var(--t100-bg);color:var(--t100-fg)}
+.pj-tab.active{color:var(--text);border-bottom-color:var(--pill-sel)}
+/* Вебмастер: подзаголовки разделов, список проблем, индексирование */
+.wm-sh{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:12px 12px 0 16px}
+.wm-sh.sep{margin-top:16px;padding-top:10px;border-top:1px solid var(--border);margin-left:0;margin-right:0;padding-left:16px;padding-right:12px}
+.wp-list{margin:8px 16px 0;border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.wp-row{display:grid;grid-template-columns:18px minmax(0,1fr) auto;gap:10px;align-items:start;padding:8px 12px;border-top:1px solid var(--border);color:var(--text)}
+.wp-row:first-child{border-top:none}
+.wp-row:hover{background:var(--surface-2)}
+.wp-ic svg{width:16px;height:16px;display:block;margin-top:1px}
+.wp-ic.crit{color:var(--st-crit)} .wp-ic.warn{color:var(--st-warn)} .wp-ic.info{color:var(--st-info)}
+.wp-tx{display:flex;flex-direction:column;gap:1px;min-width:0}
+.wp-tx b{font-size:13px;font-weight:600;line-height:1.35}
+.wp-tx span{font-size:12px;color:var(--text-2);line-height:1.35}
+.wp-d{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;color:var(--text-2);white-space:nowrap;padding-top:1px}
+.wp-new{font-size:11px;font-weight:700;color:var(--st-crit);border:1px solid color-mix(in srgb, var(--st-crit) 40%, var(--border));border-radius:5px;padding:0 5px;line-height:16px}
+.wp-more{display:flex;align-items:center;gap:5px;padding:7px 12px;border-top:1px solid var(--border);font-size:12px;font-weight:600;color:var(--text-2);min-height:32px}
+.wp-more:hover{color:var(--text);background:var(--surface-2)}
+.wp-more svg{width:11px;height:11px}
+.wp-none{display:flex;align-items:center;gap:8px;padding:12px;font-size:12.5px;color:var(--text-2)}
+.wp-none svg{width:16px;height:16px;color:var(--up);flex:none}
+.wm-idx{display:flex;flex-wrap:wrap;gap:6px 18px;margin:10px 16px 0;font-size:12px;color:var(--text-2)}
+.wm-idx > span{display:inline-flex;align-items:baseline;gap:5px;white-space:nowrap}
+.wm-idx b{color:var(--text);font-weight:700;font-variant-numeric:tabular-nums}
 /* модуль не подключён / ошибка доступа */
 .pj-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:8px;padding:28px 24px 32px;min-height:300px}
 .pj-empty .pe-ic{width:44px;height:44px;border-radius:12px;background:var(--bg);border:1px solid var(--border);display:inline-flex;align-items:center;justify-content:center;margin-bottom:4px}
@@ -1582,42 +1660,43 @@ button.pj-kpi.sel::before{content:"";position:absolute;left:0;right:0;top:0;heig
 .pj-empty .pe-t{font-size:13.5px;font-weight:650;color:var(--text)}
 .pj-empty p{max-width:380px;font-size:12.5px;color:var(--text-2)}
 .pj-empty .btn{margin-top:6px}
-/* модуль «Мониторинги» */
-.mt-legend{display:flex;align-items:center;flex-wrap:wrap;gap:4px 12px;font-size:11.5px;color:var(--text-2)}
-.mt-legend span{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
-.mt-legend i{width:9px;height:9px;border-radius:2px;background:var(--c)}
+/* модуль «Мониторинги»: строка как на главной — ★ ⚙, статус, ТОП 1–3 … 51–100 с изменением, ключи, URL, видимость */
 .mt-wrap{overflow-x:auto;margin-top:12px;border-top:1px solid var(--border)}
-.pj-mt{width:100%;min-width:820px;border-collapse:collapse;font-size:13px}
-.pj-mt th{font-size:11px;font-weight:600;color:var(--text-2);text-align:left;padding:8px 10px;border-bottom:1px solid var(--border);background:var(--surface-2);white-space:nowrap}
-.pj-mt td{padding:9px 10px;border-bottom:1px solid var(--border);vertical-align:middle;white-space:nowrap;font-variant-numeric:tabular-nums}
-.pj-mt th:first-child,.pj-mt td:first-child{padding-left:16px}
-.pj-mt th:last-child,.pj-mt td:last-child{padding-right:12px}
-.pj-mt .num{text-align:right}
+.pj-mt{width:100%;min-width:520px;border-collapse:collapse;table-layout:fixed;font-size:13px}
+.pj-mt col.c-act{width:46px} .pj-mt col.c-b{width:42px} .pj-mt col.c-k{width:50px} .pj-mt col.c-u{width:40px} .pj-mt col.c-vis{width:74px}
+/* широкая карточка (одна колонка, широкий экран): колонки цифр растут пропорционально, имени остаётся ~треть — без пустоты посередине */
+@container (min-width: 760px){ .pj-mt col.c-b{width:8%} .pj-mt col.c-k{width:8%} .pj-mt col.c-u{width:6%} .pj-mt col.c-vis{width:9%} }
+.pj-mt th{font-size:11px;font-weight:600;color:var(--text-2);text-align:left;padding:6px 3px 7px;border-bottom:1px solid var(--border);background:var(--surface-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pj-mt tr.mt-g th{padding:6px 5px 0;border-bottom:none;font-weight:650}
+.pj-mt tr.mt-g th.grp{text-align:center}
+.pj-mt tr.mt-g th.grp span{display:block;padding-bottom:3px;border-bottom:1px solid var(--border-strong)}
+.pj-mt td{padding:7px 3px;border-bottom:1px solid var(--border);vertical-align:middle;white-space:nowrap;font-variant-numeric:tabular-nums}
+.pj-mt .num{text-align:center}
+.pj-mt th.num{padding-left:0;padding-right:0;text-overflow:clip}
+.pj-mt td.num{line-height:1.25}
+.pj-mt th:last-child,.pj-mt td:last-child{padding-right:10px}
+.pj-mt td.mt-nm,.pj-mt tr:not(.mt-g) th:nth-child(2){padding-left:4px;padding-right:8px}
 .pj-mt tbody tr{cursor:pointer}
 .pj-mt tbody tr:hover td{background:var(--surface-2)}
 .pj-mt tbody tr:last-child td{border-bottom:none}
 .pj-mt tbody tr:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
-.mt-name{display:flex;align-items:center;gap:8px;min-width:0}
+.pj-mt td.mt-act{padding:0}
+.pj-mt .acts{padding-left:10px;gap:4px}
+.mt-nm{overflow:hidden}
+.mt-name{display:flex;align-items:center;gap:7px;min-width:0}
 .mt-name .eng{display:inline-flex;flex:none}
 .mt-name .eng svg{width:14px;height:14px}
-.mt-tx{display:flex;flex-direction:column;min-width:0}
-.mt-n{font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;max-width:320px}
+.mt-name .flag-ico{flex:none}
+.mt-n{font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;min-width:0}
 .pj-mt tbody tr:hover .mt-n{color:var(--accent)}
-.mt-s{font-size:11.5px;color:var(--text-2)}
-.mt-st{font-size:12px;color:var(--text-2)}
-.mt-st .hdot{margin-right:6px}
-.mt-dist{display:flex;gap:2px;height:10px;min-width:180px}
-.mt-dist i{display:block;height:100%;background:var(--c);min-width:2px}
-.mt-dist i:first-child{border-radius:3px 0 0 3px}
-.mt-dist i:last-child{border-radius:0 3px 3px 0}
-.mt-dist i:only-child{border-radius:3px}
-.mt-v{font-weight:650}
+.mt-s{font-size:11.5px;color:var(--text-2);overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.mt-s .hdot{width:8px;height:8px;margin-right:5px;vertical-align:0}
+.mt-v{display:block;font-weight:650}
 .mt-v.z{color:var(--text-2);font-weight:500}
-.mt-d{font-size:10px;font-weight:750;margin-left:3px;vertical-align:4px}
+.mt-d{display:block;font-size:11px;font-weight:700;margin-top:1px}
 .mt-d.up{color:var(--up)} .mt-d.down{color:var(--down)}
-.mt-vis{display:inline-flex;align-items:center;gap:10px}
-.mt-vis svg{display:block}
-.mt-go{color:var(--text-3);font-size:16px;line-height:1}
+/* узкая карточка (≈1280px окна): колонку URLs схлопываем до нуля — display:none у ячеек сдвинул бы соседние колонки */
+@container (max-width: 600px){ .pj-mt col.c-u{width:0} .pj-mt .c-urls{padding:0;font-size:0} .pj-mt .c-urls > *{display:none} }
 /* модуль «Команда проекта» */
 .pt-sec{padding:12px 16px 2px}
 .pt-sec + .pt-sec{border-top:1px solid var(--border);margin-top:6px}
@@ -1631,10 +1710,13 @@ button.pj-kpi.sel::before{content:"";position:absolute;left:0;right:0;top:0;heig
 .pt-who span{font-size:11.5px;color:var(--text-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .pt-acc{font-size:11.5px;font-weight:600;color:var(--text-2);background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:2px 8px;white-space:nowrap}
 .pt-acc.own{color:var(--text);background:var(--bg)}
-.pt-foot{padding:10px 16px 14px}
+.pt-foot{padding:10px 16px 14px;margin-top:auto}
 /* модуль «Лог проекта» */
-.ev-list{padding:2px 0 4px}
-.ev-day{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text-2);padding:12px 16px 2px}
+.ev-box{flex:1;position:relative;min-height:300px;margin-top:8px;border-top:1px solid var(--border)}
+.ev-box .ev-list{position:absolute;inset:0;overflow:auto;overscroll-behavior:contain;padding:0 0 6px}
+.ev-box .ev-list:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.ev-box.more::after{content:"";position:absolute;left:0;right:0;bottom:0;height:32px;background:linear-gradient(to bottom, transparent, var(--surface));pointer-events:none}
+.ev-day{position:sticky;top:0;z-index:1;background:var(--surface);font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text-2);padding:10px 16px 4px}
 .ev-row{display:grid;grid-template-columns:40px 28px minmax(0,1fr);gap:10px;padding:7px 16px;align-items:start}
 .ev-t{font-size:12px;color:var(--text-2);font-variant-numeric:tabular-nums;padding-top:5px}
 .ev-ic{width:28px;height:28px;border-radius:50%;background:var(--surface-2);border:1px solid var(--border);color:var(--text-2);display:inline-flex;align-items:center;justify-content:center}
@@ -1652,12 +1734,106 @@ button.pj-kpi.sel::before{content:"";position:absolute;left:0;right:0;top:0;heig
 .ev-x a.ent .eng{display:inline-flex;vertical-align:-1px;margin-right:4px}
 .ev-x a.ent .eng svg{width:12px;height:12px}
 .ev-empty{padding:28px 16px;text-align:center;color:var(--text-2);font-size:12.5px}
-.ev-foot{padding:6px 16px 14px}
+.ev-foot{display:flex;justify-content:space-between;gap:10px;padding:9px 16px 11px;border-top:1px solid var(--border);font-size:12px;color:var(--text-2)}
 .btn.sm{padding:6px 11px;font-size:12px;min-height:30px}
 /* главная: имя проекта — ссылка на его дашборд */
 .home-grid .gname.pj-link{cursor:pointer}
 .home-grid .gname.pj-link:hover{color:var(--accent);text-decoration:underline;text-underline-offset:2px}
-
+/* Google PageSpeed — компактно: страница (по умолчанию главная) и устройство в шапке, 4 оценки с мини-графиками,
+   строка лабораторных метрик. Цвет по порогам Lighthouse (90 / 50); числа ≥4.5:1 в обеих темах; статус дублируется
+   формой (● ■ ▲) и текстом в подсказке. */
+:root{--psi-good:#13a356;--psi-good-t:#0a7d32;--psi-avg:#c47400;--psi-avg-t:#c33300;--psi-bad:#d6342c;--psi-bad-t:#cc0000}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){--psi-avg:#e08a00;--psi-good-t:#2fd47a;--psi-avg-t:#ffa94d;--psi-bad:#e5483d;--psi-bad-t:#ff7a70}
+}
+:root[data-theme="dark"]{--psi-avg:#e08a00;--psi-good-t:#2fd47a;--psi-avg-t:#ffa94d;--psi-bad:#e5483d;--psi-bad-t:#ff7a70}
+/* переход по крошке группы: строка группы на главной коротко подсвечивается */
+.home-grid tr.hg-flash td{animation:hgFlash 1.8s ease-out}
+@keyframes hgFlash{0%,35%{background:color-mix(in srgb, var(--accent) 14%, var(--row-group))}100%{background:var(--row-group)}}
+@media (prefers-reduced-motion: reduce){ .home-grid tr.hg-flash td{animation:none} }
+.psi-h{display:flex;align-items:center;flex-wrap:wrap;gap:8px 10px;padding:12px 12px 0 16px;min-height:44px}
+.psi-h .wg-name{font-size:15px;margin-right:2px}
+.psi-h .spacer{flex:1}
+.pj-dd-btn{display:inline-flex;align-items:center;gap:6px;min-height:30px;max-width:360px;padding:4px 10px;border:1px solid var(--border);border-radius:8px;background:var(--surface);font-size:12.5px;color:var(--text-2);white-space:nowrap;min-width:0}
+.pj-dd-btn:hover{border-color:var(--border-strong)}
+.pj-dd-btn b{color:var(--text);font-weight:650;overflow:hidden;text-overflow:ellipsis}
+.pj-dd-btn .car{font-size:9px;color:var(--text-2)}
+.pj-dd-btn > svg{flex:none;color:var(--text-2)}
+.pj-per{min-width:0}
+.pj-per-btn{font-variant-numeric:tabular-nums}
+.pj-per-pop{min-width:210px}
+.pj-per-note{font-size:11px;color:var(--text-2);padding:7px 10px 4px;margin-top:4px;border-top:1px solid var(--border);white-space:normal;max-width:230px;line-height:1.35}
+.wg-bar .pj-per{flex:none}
+.psi-pg-pop{width:360px;max-width:calc(100vw - 32px);max-height:340px;overflow:auto}
+.psi-pg-i{gap:10px}
+.psi-pg-i .pg-u{overflow:hidden;text-overflow:ellipsis;min-width:0}
+.psi-pg-i .pg-s{margin-left:auto;display:inline-flex;align-items:center;gap:5px;font-weight:700;font-variant-numeric:tabular-nums}
+.pg-s.good{color:var(--psi-good-t)} .pg-s.avg{color:var(--psi-avg-t)} .pg-s.bad{color:var(--psi-bad-t)}
+.psi-dev button{padding:4px 10px}
+.ps-sh{width:9px;height:9px;flex:none}
+.ps-sh.good{fill:var(--psi-good)} .ps-sh.avg{fill:var(--psi-avg)} .ps-sh.bad{fill:var(--psi-bad)}
+.psi-tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;padding:12px 16px 0}
+@container (max-width: 720px){ .psi-tiles{grid-template-columns:repeat(2,minmax(0,1fr))} }
+.psi-t{border:1px solid var(--border);border-radius:10px;padding:9px 12px 6px;min-width:0}
+.psi-th{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.psi-tl{font-size:12px;font-weight:600;color:var(--text-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.psi-th .k-d{font-size:11px}
+.psi-tv{display:flex;align-items:center;gap:7px;margin-top:1px;font-size:22px;font-weight:750;line-height:1.2;font-variant-numeric:tabular-nums}
+.psi-tv .ps-sh{width:11px;height:11px}
+.psi-tv.good span{color:var(--psi-good-t)} .psi-tv.avg span{color:var(--psi-avg-t)} .psi-tv.bad span{color:var(--psi-bad-t)}
+.psi-t .pj-chart{height:58px;margin:4px 0 0}
+.psi-mets{display:flex;flex-wrap:wrap;align-items:center;gap:6px 18px;padding:10px 16px 13px;font-size:12.5px}
+.psi-ml{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text-2)}
+.psi-mc{display:inline-flex;align-items:center;gap:5px;white-space:nowrap;color:var(--text);font-weight:600;font-variant-numeric:tabular-nums;cursor:default}
+.psi-mc b{font-size:11.5px;font-weight:700;color:var(--text-2)}
+.psi-mc .k-d{font-size:11px;margin-left:2px}
+.pj-chart .gd{stroke:var(--text-2);stroke-width:1;stroke-dasharray:4 4;opacity:.6}
+.pj-chart .gdl{fill:var(--text-2);font-size:11px;font-family:var(--sans);font-variant-numeric:tabular-nums}
+/* подробная страница источника: тулбар (период, Д/Н/М, экспорт), большой график, вкладки с таблицами */
+.src-page .ph-title .src-ico{width:32px;height:32px}
+.sd-ok{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:650;color:var(--up);background:color-mix(in srgb, var(--up) 10%, var(--surface));border-radius:20px;padding:3px 10px 3px 6px;white-space:nowrap}
+.sd-ok svg{width:15px;height:15px}
+.sd-wrap{display:flex;flex-direction:column;gap:14px;container-type:inline-size}
+.sd-tb{display:flex;align-items:center;flex-wrap:wrap;gap:8px 10px;padding:14px 16px 0}
+.sd-tb .spacer{flex:1}
+.sd-range{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;color:var(--text);border:1px solid var(--border);border-radius:8px;padding:0 11px;min-height:34px;white-space:nowrap}
+.sd-range svg{color:var(--text-2)}
+.sd-gran button{min-width:32px;padding:4px 9px}
+.sd-card .wg-pills{margin-top:14px}
+.sd-tabs{display:flex;gap:4px 24px;padding:0 16px;border-bottom:1px solid var(--border);overflow-x:auto}
+.sd-tab{padding:14px 0 11px;font-size:13px;font-weight:650;color:var(--text-2);border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap}
+.sd-tab span{font-weight:550;margin-left:3px}
+.sd-tab:hover{color:var(--text)}
+.sd-tab.active{color:var(--text);border-bottom-color:var(--pill-sel)}
+.sd-scroll{max-height:560px;overflow:auto;margin-bottom:6px}
+.sd-tbl{width:100%;border-collapse:collapse;font-size:13px}
+.sd-tbl th{position:sticky;top:0;z-index:1;background:var(--surface);font-size:12px;font-weight:600;color:var(--text-2);text-align:right;padding:10px 16px 9px;border-bottom:1px solid var(--border);white-space:nowrap}
+.sd-tbl td{padding:9px 16px;border-bottom:1px solid var(--border);text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;color:var(--text)}
+.sd-tbl .c-n{width:44px;text-align:left;color:var(--text-2);padding-right:0}
+.sd-tbl .c-name{text-align:left;max-width:520px;overflow:hidden;text-overflow:ellipsis}
+.sd-tbl tbody tr:hover td{background:var(--surface-2)}
+.sd-tbl tbody tr:last-child td{border-bottom:none}
+.sd-sort{display:inline-flex;align-items:center;gap:4px;min-height:24px;font:inherit;color:inherit}
+.sd-sort:hover,.sd-sort.on{color:var(--text)}
+.sm-st{display:inline-flex;align-items:center;gap:6px}
+.sm-st svg{width:15px;height:15px}
+.sm-st.ok svg{color:var(--up)} .sm-st.warn svg{color:var(--st-warn)}
+/* GSC: проверка URL */
+.ui-wrap{padding:16px;display:flex;flex-direction:column;gap:14px}
+.ui-form{display:flex;gap:8px;flex-wrap:wrap}
+.ui-in{display:flex;align-items:center;flex:1;min-width:260px;border:1px solid var(--border);border-radius:8px;background:var(--surface);overflow:hidden}
+.ui-in:focus-within{border-color:var(--pill-sel);box-shadow:0 0 0 3px color-mix(in srgb, var(--pill-sel) 18%, transparent)}
+.ui-in span{padding:0 4px 0 12px;font-size:13px;color:var(--text-2);white-space:nowrap}
+.ui-in input{flex:1;min-width:0;border:none;outline:none;background:transparent;color:var(--text);font:inherit;font-size:13px;padding:9px 12px 9px 0}
+.ui-res{border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.ui-h{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;background:var(--surface-2);border-bottom:1px solid var(--border)}
+.ui-h > svg{width:20px;height:20px;flex:none}
+.ui-res.ok .ui-h > svg{color:var(--up)} .ui-res.warn .ui-h > svg{color:var(--st-warn)}
+.ui-h b{display:block;font-size:14px;font-weight:700}
+.ui-h span{font-size:12.5px;color:var(--text-2)}
+.ui-dl{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:8px 24px;padding:12px 14px;margin:0;font-size:13px}
+.ui-dl dt{color:var(--text-2)}
+.ui-dl dd{margin:0;color:var(--text);overflow-wrap:anywhere}
 /* ============ SWITCHER ============ */
 .switcher{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);z-index:100;background:var(--surface);border:1px solid var(--border-strong);border-radius:14px;box-shadow:var(--shadow-lg);padding:10px 14px;display:flex;flex-direction:column;gap:8px;min-width:520px;max-width:94vw}
 .sw-info{display:flex;align-items:baseline;gap:10px;font-size:12px;color:var(--text-2);min-height:17px}
@@ -2045,7 +2221,8 @@ const I = {
 /* ================= RENDER ================= */
 const app = document.getElementById('app');
 let curV = null; /* конфиг активного варианта — читается рендерами ячеек */
-let PAGE = 'home'; /* 'home' — список проектов, 'mon' — страница позиций, 'costs' — стоимость мониторингов */
+let PAGE = 'home'; /* 'home' — список проектов, 'mon' — страница позиций, 'costs' — стоимость мониторингов,
+                     'proj' — дашборд проекта, 'src' — подробная страница источника (GSC, Метрика, GA4) */
 
 /* общая шапка приложения (главная и страница мониторинга) */
 function buildTopbar(chrome){
@@ -2135,11 +2312,14 @@ function bindChrome(){
   if(logo) logo.onclick = goHome;
   document.querySelectorAll('[data-go="costs"]').forEach(b=> b.onclick = goCosts);
   document.querySelectorAll('.crumb-home').forEach(a=> a.onclick = e=>{ e.preventDefault(); goHome(); });
+  document.querySelectorAll('.crumb-grp').forEach(a=> a.onclick = e=>{ e.preventDefault(); goHomeGroup(a.dataset.hg); });
   aiBindChrome(); /* кнопка ассистента в шапке + контекст страницы для чата */
 }
 /* ================= РОУТИНГ =================
    главная            → <base>/
    страница позиций   → <base>/projects/<ID_PROJECT>/monitoring-list/<ID_MONITORING>
+   дашборд проекта    → <base>/projects/<ID_PROJECT>
+   источник проекта   → <base>/projects/<ID_PROJECT>/gsc | metrika | ga
    стоимость (админ)  → <base>/costs
    На GitHub Pages глубокие пути отдаёт 404.html (копия index.html) — URL сохраняется,
    роутер читает location.pathname. В standalone-файле (file://) history недоступен —
@@ -2166,6 +2346,19 @@ function findMon(pid, mid){
   }
   return null;
 }
+/* крошка группы проекта: «Проекты / <группа> / <проект> …»; клик — главная с прокруткой к группе */
+function crumbGrp(p){
+  const q = p && (p.mons ? p : ALL_PROJECTS.find(x=>x.dom===p.dom)); if(!q) return '';
+  const gi = HOME.findIndex(g=>g.projects.includes(q)); if(gi < 0) return ''; /* проект без группы: «Проекты / домен» */
+  return `<a href="#" class="crumb-grp" data-hg="${gi}" title="Группа на главной">${esc(HOME[gi].group)}</a><span class="sep">/</span>`;
+}
+function goHomeGroup(hg){
+  goHome();
+  const r = app.querySelector(`tr.h-g[data-hg="${hg}"]`); if(!r) return;
+  if(r.classList.contains('collapsed')) r.click(); /* свёрнутую группу раскрываем */
+  r.scrollIntoView({block:'start'}); window.scrollBy(0, -88); /* под липкую шапку */
+  r.classList.remove('hg-flash'); void r.offsetWidth; r.classList.add('hg-flash');
+}
 function goHome(){
   CUR_MON = null; PAGE = 'home';
   if(CAN_ROUTE && location.pathname !== BASE) history.pushState({}, '', BASE);
@@ -2180,6 +2373,9 @@ function goMon(pid, mid){
 /* дашборд проекта → <base>/projects/<ID_PROJECT> */
 let CUR_PROJ = null;
 const projPath = pid => `${BASE}projects/${pid}`;
+/* подробная страница источника → <base>/projects/<ID_PROJECT>/(gsc|metrika|ga) */
+let CUR_SRC = null;
+const srcPath = (pid, src) => `${BASE}projects/${pid}/${src}`;
 function findProj(pid){ return ALL_PROJECTS.find(p=>String(p.id)===String(pid)) || null; }
 function goProj(pid){
   const p = findProj(pid);
@@ -2191,6 +2387,8 @@ function goProj(pid){
 }
 function route(){
   if(/\/costs\/?$/.test(location.pathname)){ CUR_MON = null; renderCosts(); return; }
+  const sm = location.pathname.match(/\/projects\/([^/]+)\/(gsc|metrika|ga)\/?$/);
+  if(sm && findProj(sm[1])){ CUR_MON = null; CUR_PROJ = findProj(sm[1]); CUR_SRC = sm[2]; PAGE = 'src'; renderSrc(); return; }
   const pm = location.pathname.match(/\/projects\/([^/]+)\/?$/);
   if(pm && findProj(pm[1])){ CUR_MON = null; CUR_PROJ = findProj(pm[1]); PAGE = 'proj'; renderProject(); return; }
   const r = parseRoute();
@@ -2830,7 +3028,7 @@ function renderDashboard(v){
   const NAV = [['home','Проект',false],['pos','Позиции',true],['eye','Видимость',false],['gear','Настройки',false]];
   /* шапка отражает открытый мониторинг; без роутинга — демо-мониторинг «Блог DL» */
   const MP = CUR_MON || {p:{dom:'directline.pro'}, m:{name:'Блог DL', eng:'ya', flag:'ru', sched:'Ежемесячно', next:'01.08.26'}};
-  const crumbsHtml = `<nav class="crumbs"><a href="#" class="crumb-home">Проекты</a><span class="sep">/</span><a href="#" class="crumb-proj" title="Дашборд проекта">${esc(MP.p.dom)}</a><span class="sep">/</span><span class="cur">${esc(MP.m.name)}</span></nav>`;
+  const crumbsHtml = `<nav class="crumbs"><a href="#" class="crumb-home">Проекты</a><span class="sep">/</span>${crumbGrp(MP.p)}<a href="#" class="crumb-proj" title="Дашборд проекта">${esc(MP.p.dom)}</a><span class="sep">/</span><span class="cur">${esc(MP.m.name)}</span></nav>`;
   /* hover по «Позиции» раскрывает список мониторингов проекта — их может быть много */
   const MONS = [
     ['ya','Блог DL (1 раз в месяц)',true],['go','Блог DL (1 раз в месяц)',false],
@@ -3787,17 +3985,29 @@ function renderCosts(keepOpen){
 }
 
 /* ================= ДАШБОРД ПРОЕКТА =================
-   <base>/projects/<ID_PROJECT> — обзор проекта: мониторинги, трафик (Яндекс Метрика, GA4),
-   поиск (Яндекс Вебмастер, Google Search Console), лог проекта и команда.
-   Прототип: ряды трафика генерируются детерминированно от домена (pjRng/pjSeries), «сегодня» — PJ_TODAY.
+   <base>/projects/<ID_PROJECT> — обзор проекта: мониторинги и команда (левая колонка), лог (правая),
+   ниже «Трафик и поиск»: Яндекс Метрика, GA4, Яндекс Вебмастер (ошибки и ключи), Google Search Console.
+   <base>/projects/<ID_PROJECT>/(gsc|metrika|ga) — подробная страница источника: клик по названию виджета,
+   «Подробнее» или «Все …» над таблицей виджета.
+   Виджеты источников — по образцу «Завода»: шапка с аккаунтом и статусом, «Обновлено · Опросить · Заметки»,
+   KPI-пилюли (выбранная залита и задаёт метрику графика), плавный график, топ-таблица.
+   Прототип: ряды генерируются детерминированно от домена (pjRng/pjSeries), «сегодня» — PJ_TODAY.
    Подключение источников (демо): Яндекс в мониторингах → Метрика + Вебмастер (Метрика ещё у доменов .ru),
    Google → GA4 + GSC; у sandbox-test.site — отозванный доступ к GSC. В продакшене — OAuth-интеграции
    проекта и данные с бэка; GSC отдаёт данные с задержкой ~2 дня, Вебмастер ~3 дня. */
 const PJ_TODAY = '2026-07-19';
 const PJ_DAYS = 735; /* текущий период + предыдущий для сравнения даже при «12 месяцев» и задержке данных */
 const PJ_PERIODS = [[7,'7 дней'],[30,'30 дней'],[90,'90 дней'],[364,'12 месяцев']];
-const PJ = {period:30, gsc:'clicks', wm:'clicks', off:{metrika:new Set(), ga:new Set()}, qtab:{gsc:'q', wm:'q'}, logF:'all', logAll:false};
-const PJ_CH = {};   /* конфиги графиков: id модуля → {x, series, fmt, ax, fit, inv} */
+/* шаг графика на подробной странице: [ключ, кнопка, подсказка, минимальный период] */
+const PJ_GRANS = [['d','Д','По дням',1],['w','Н','По неделям',14],['m','М','По месяцам',60]];
+const PJ = {wide:new Set(), psi:{page:'/', dev:'mobile'}, per:{psi:30, metrika:30, ga:30, wm:30, gsc:30}, period:30, gran:'auto', kpi:{metrika:'visits', ga:'sessions', gsc:'clicks'}, notes:{}, polled:{},
+  wmSev:null, wmK:'all', logF:'all', tab:{gsc:'q', metrika:'src', ga:'ch'}, sort:{}, url:{}};
+/* Период общий для страницы: выбор есть в каждом блоке (кнопка с датами), смена в любом — меняет все.
+   PJ.per хранит его по блокам для единообразия расчёта: pjPer(src) ставит рабочий PJ.period перед отрисовкой блока
+   (даты кнопки у GSC и Вебмастера сдвинуты на задержку данных). */
+const pjPer = src => { PJ.period = PJ.per[src] || 30; };
+const pjSetPer = v => { Object.keys(PJ.per).forEach(k=>{ PJ.per[k] = v; }); PJ.period = v; };
+const PJ_CH = {};   /* конфиги графиков: id графика → {x, series, fmt, ax, fit, inv, partial, notes} */
 let PJ_RO = null;   /* ResizeObserver: график перерисовывается по фактической ширине */
 const MON_S = ['янв','фев','мар','апр','мая','июн','июл','авг','сен','окт','ноя','дек'];
 const MON_N = ['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
@@ -3812,7 +4022,11 @@ const PJ_I = {
   warn:'<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2.2l6.2 11H1.8L8 2.2z"/><path d="M8 6.6v3M8 11.6v.1"/></svg>',
   info:'<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="8" cy="8" r="6.2"/><path d="M8 7.3v4M8 4.8v.1"/></svg>',
   xc:'<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="8" cy="8" r="6.2"/><path d="M5.9 5.9l4.2 4.2M10.1 5.9l-4.2 4.2"/></svg>',
-  run:'<svg viewBox="0 0 16 16" fill="currentColor"><path d="M5 3.2l7.5 4.8L5 12.8V3.2z"/></svg>'
+  run:'<svg viewBox="0 0 16 16" fill="currentColor"><path d="M5 3.2l7.5 4.8L5 12.8V3.2z"/></svg>',
+  shield:'<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.4l5.4 2.1v4.2c0 3.3-2.3 5.8-5.4 6.9-3.1-1.1-5.4-3.6-5.4-6.9V3.5L8 1.4z" fill="currentColor"/><path d="M5.5 8.1l1.8 1.8 3.3-3.5" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  arr:'<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h9.5M8.8 4.3L12.5 8l-3.7 3.7"/></svg>',
+  psi:'<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M2.95 14.57A7.5 7.5 0 0 1 5.18 6.26" fill="none" stroke="#d6342c" stroke-width="2.4" stroke-linecap="round"/><path d="M5.7 5.86A7.5 7.5 0 0 1 14.3 5.86" fill="none" stroke="#e08a00" stroke-width="2.4" stroke-linecap="round"/><path d="M14.82 6.26A7.5 7.5 0 0 1 17.05 14.57" fill="none" stroke="#13a356" stroke-width="2.4" stroke-linecap="round"/><path d="M10 12l2.5-4.3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="10" cy="12" r="1.6" fill="currentColor"/></svg>',
+  note:'<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 2.5h10v7.4l-3.6 3.6H3z"/><path d="M9.4 13.5V9.9H13M5.6 5.6h4.8M5.6 8.1h3"/></svg>'
 };
 
 /* ---------- числа и даты ---------- */
@@ -3824,15 +4038,18 @@ const fAx = n => { const a = Math.abs(n);
   if(a>=1e3) return fD(n/1e3, 1).replace(',0','')+'k';
   return String(Math.round(n*10)/10).replace('.',','); };
 const fDur = s => { s = Math.round(s); return `${Math.floor(s/60)}:${p2(s%60)}`; };
+const pctAx = v => fD(v*100, 1).replace(',0','')+'%';
+const posAx = v => fD(v, Number.isInteger(+v.toFixed(6)) ? 0 : 1);
 const sumA = a => a.reduce((s,v)=>s+v, 0);
 const wAvg = (a, w) => { let s=0, t=0; for(let i=0;i<a.length;i++){ s+=a[i]*w[i]; t+=w[i]; } return t ? s/t : 0; };
 const PJ_DATES = (()=>{ const end = new Date(PJ_TODAY+'T12:00:00'), out = [];
   for(let i=PJ_DAYS-1;i>=0;i--){ const d = new Date(end); d.setDate(end.getDate()-i); out.push(d); } return out; })();
 const pjAgo = n => { const d = new Date(PJ_TODAY+'T12:00:00'); d.setDate(d.getDate()-n); return d; };
 const pjDM = d => `${d.getDate()} ${MON_G[d.getMonth()]}`;
-function pjRangeTxt(lag){
+const pjDMY = d => `${pjDM(d)} ${d.getFullYear()}`;
+function pjRangeTxt(lag, yr){
   const end = PJ_DAYS - lag, a = PJ_DATES[end-PJ.period], z = PJ_DATES[end-1], y = a.getFullYear()!==z.getFullYear();
-  return `${pjDM(a)}${y?' '+a.getFullYear():''} – ${pjDM(z)}${y?' '+z.getFullYear():''}`;
+  return `${pjDM(a)}${y?' '+a.getFullYear():''} – ${pjDM(z)}${y||yr?' '+z.getFullYear():''}`;
 }
 
 /* ---------- детерминированные демо-ряды ---------- */
@@ -3863,39 +4080,60 @@ function pjSteps(key, now, every, step, round){
   }
   return out;
 }
+/* доли строк таблицы: убывают по Ципфу с шумом, в сумме 1 */
+function pjZipf(n, seed, s){ const r = pjRng(hashStr(seed)), w = []; for(let i=0;i<n;i++) w.push(Math.pow(i+1, -s)*(.75 + r()*.5)); const t = sumA(w); return w.map(x=>x/t); }
 /* окно периода: текущее и предыдущее такой же длины (lag — задержка данных источника) */
 function pjWin(arr, lag=0){ const P = PJ.period, end = PJ_DAYS - lag; return {cur: arr.slice(end-P, end), prev: arr.slice(end-2*P, end-P)}; }
-/* точки графика: до 90 дней — по дням, 12 месяцев — по неделям (sum / avg с весами / last) */
-function pjPts(arr, lag, agg, w){
+/* шаг графика: на дашборде — по дням до 90 дней, по неделям для 12 месяцев; на подробной странице — выбор Д/Н/М */
+function pjGran(detail){
+  const P = PJ.period, auto = P<=90 ? 'd' : 'w';
+  if(!detail || PJ.gran==='auto') return auto;
+  const g = PJ_GRANS.find(x=>x[0]===PJ.gran);
+  return g && P >= g[3] ? PJ.gran : auto;
+}
+/* точки графика по шагу: sum / avg (с весами) / last */
+function pjPts(arr, lag, agg, w, gran){
+  gran = gran || pjGran();
   const P = PJ.period, end = PJ_DAYS - lag;
   const ds = PJ_DATES.slice(end-P, end), vs = arr.slice(end-P, end), ws = w ? w.slice(end-P, end) : null;
-  if(P <= 90) return {x: ds.map(d=>({d0:d, d1:d})), v: vs};
+  if(gran==='d') return {x: ds.map(d=>({d0:d, d1:d, g:'d'})), v: vs};
   const x = [], v = [];
-  for(let i=0;i<P;i+=7){
-    const dd = ds.slice(i,i+7), vv = vs.slice(i,i+7);
-    x.push({d0:dd[0], d1:dd[dd.length-1]});
-    v.push(agg==='sum' ? sumA(vv) : agg==='last' ? vv[vv.length-1] : ws ? wAvg(vv, ws.slice(i,i+7)) : sumA(vv)/vv.length);
+  for(let i=0;i<P;){
+    let j = i + 7;
+    if(gran==='m'){ j = i; const m = ds[i].getMonth(); while(j<P && ds[j].getMonth()===m) j++; }
+    j = Math.min(j, P);
+    const vv = vs.slice(i,j);
+    x.push({d0:ds[i], d1:ds[j-1], g:gran});
+    v.push(agg==='sum' ? sumA(vv) : agg==='last' ? vv[vv.length-1] : ws ? wAvg(vv, ws.slice(i,j)) : sumA(vv)/vv.length);
+    i = j;
   }
   return {x, v};
 }
 
 /* ---------- модель проекта (кэш по id) ---------- */
 const PJ_Q = {
-  'Gambling RO диаспора':['cazinouri online','cazino online bonus','jocuri cazino gratis','bonus fara depunere','pacanele online','rotiri gratuite'],
-  'Флористика EU':['flower delivery','send flowers online','roses delivery','birthday flowers','same day flowers','sympathy flowers'],
-  'AI компаньоны':['ai companion','ai girlfriend app','ai chat companion','virtual friend app','talk to ai','ai character chat'],
-  'Crypto Casinos':['crypto casino','bitcoin casino','btc slots','crypto casino bonus','usdt casino','best bitcoin casino'],
-  '1serj':['türk markaları','yerli markalar','türk giyim markaları','türk kozmetik markaları','marka listesi'],
-  '':['проверка позиций сайта','анализ сайта онлайн','seo инструменты','лендинг под ключ','промо страница']
+  'Gambling RO диаспора':['cazinouri online','cazino online bonus','jocuri cazino gratis','bonus fara depunere','pacanele online','rotiri gratuite','cazinouri noi','cazino online romania','cele mai bune cazinouri','cazino live','sloturi online','recenzii cazinouri'],
+  'Флористика EU':['flower delivery','send flowers online','roses delivery','birthday flowers','same day flowers','sympathy flowers','flowers online','bouquet delivery','cheap flowers','wedding flowers','tulips delivery','flower shop near me'],
+  'AI компаньоны':['ai companion','ai girlfriend app','ai chat companion','virtual friend app','talk to ai','ai character chat','ai boyfriend','ai roleplay chat','best ai companion','ai friend online','character ai alternative','ai chatbot app'],
+  'Crypto Casinos':['crypto casino','bitcoin casino','btc slots','crypto casino bonus','usdt casino','best bitcoin casino','eth casino','crypto gambling','no kyc casino','bitcoin slots','crypto dice','litecoin casino'],
+  '1serj':['türk markaları','yerli markalar','türk giyim markaları','türk kozmetik markaları','marka listesi','türk ayakkabı markaları','yerli elektronik markaları','türk çanta markaları','en iyi türk markaları','türk saat markaları'],
+  '':['проверка позиций сайта','анализ сайта онлайн','seo инструменты','лендинг под ключ','промо страница','seo аудит сайта','проверка индексации','подбор ключевых слов','мониторинг позиций','анализ конкурентов']
 };
 const PJ_PAGES = {
-  'Gambling RO диаспора':['/','/bonusuri/','/cazinouri-noi/','/recenzii/','/pacanele/'],
-  'Флористика EU':['/','/roses/','/birthday/','/same-day/','/sympathy/'],
-  'AI компаньоны':['/','/girlfriend/','/characters/','/blog/','/pricing/'],
-  'Crypto Casinos':['/','/bonuses/','/slots/','/reviews/','/blog/'],
-  '1serj':['/','/giyim/','/kozmetik/','/elektronik/','/blog/'],
-  '':['/','/blog/','/tools/','/pricing/','/about/']
+  'Gambling RO диаспора':['/','/bonusuri/','/cazinouri-noi/','/recenzii/','/pacanele/','/cazino-live/','/rotiri-gratuite/','/ghid/','/sloturi/','/bonus-fara-depunere/','/contact/','/despre/'],
+  'Флористика EU':['/','/roses/','/birthday/','/same-day/','/sympathy/','/wedding/','/tulips/','/blog/','/anniversary/','/get-well/','/plants/','/delivery/'],
+  'AI компаньоны':['/','/girlfriend/','/characters/','/blog/','/pricing/','/roleplay/','/download/','/faq/','/blog/ai-girlfriend/','/voice/','/safety/','/login/'],
+  'Crypto Casinos':['/','/bonuses/','/slots/','/reviews/','/blog/','/live-casino/','/dice/','/faq/','/promotions/','/vip/','/crash/','/sportsbook/'],
+  '1serj':['/','/giyim/','/kozmetik/','/elektronik/','/blog/','/ayakkabi/','/canta/','/saat/','/mobilya/','/gida/','/oyuncak/','/hakkimizda/'],
+  '':['/','/blog/','/tools/','/pricing/','/about/','/contacts/','/docs/','/faq/','/blog/seo/','/cases/','/api/','/changelog/']
 };
+/* страны: флаг мониторинга → [ISO-3 для колонки ГЕО, название] */
+const PJ_GEO = {ru:['RUS','Россия'], at:['AUT','Австрия'], be:['BEL','Бельгия'], es:['ESP','Испания'], fr:['FRA','Франция'], it:['ITA','Италия'],
+  nl:['NLD','Нидерланды'], dk:['DNK','Дания'], ch:['CHE','Швейцария'], ee:['EST','Эстония'], sa:['SAU','Саудовская Аравия'], de:['DEU','Германия'],
+  tr:['TUR','Турция'], us:['USA','США'], gb:['GBR','Великобритания'], ca:['CAN','Канада'], kz:['KAZ','Казахстан'], by:['BLR','Беларусь'],
+  uz:['UZB','Узбекистан'], ro:['ROU','Румыния'], md:['MDA','Молдова'], se:['SWE','Швеция'], pl:['POL','Польша']};
+const PJ_NOTE_T = ['Обновили title и description на ключевых страницах','Опубликовали 12 новых статей в блоге','Исправили цепочки редиректов после переноса разделов',
+  'Ускорили сайт: сжатие изображений и отложенная загрузка','Добавили перелинковку в каталоге','Запустили новую главную страницу','Закрыли от индексации страницы с GET-параметрами'];
 const PJ_FEM = new Set(['Дарья Лисина','Мария Орлова']);
 const pjV = (n, m, f) => PJ_FEM.has(n) ? (f || m+'а') : m; /* род глагола по имени: изменил / изменила */
 const PJ_CACHE = {};
@@ -3914,37 +4152,59 @@ function pjModel(p){
     ga: hasGo ? 'ok' : 'none',
     gsc: hasGo ? (p.dom==='sandbox-test.site' ? 'err' : 'ok') : 'none'
   };
+  const login = p.dom.split('.')[0].replace(/[^a-z0-9]/g,'');
+  M.acc = {ya: `${login}.seo@yandex.ru`, go: `seo@${p.dom}`}; /* демо-аккаунты подключения */
   const yaShare = hasYa ? (hasGo ? .58 + (h%9)/100 : .84) : .3; /* доля Яндекса в поисковых визитах */
   const mv = pjSeries('mv|'+p.dom, base), ms = pjLevel('ms|'+p.dom, .5 + (h%19)/100, .12);
-  M.metrika = {counter: 41000000 + h%8999999, visits: mv, search: mv.map((v,i)=>v*ms[i]),
-    bounce: pjLevel('mb|'+p.dom, .16 + (h%11)/100, .14), time: pjLevel('mt|'+p.dom, 96 + h%80, .12),
+  M.metrika = {lag:0, counter: 41000000 + h%8999999, visits: mv, search: mv.map((v,i)=>v*ms[i]),
+    bounce: pjLevel('mb|'+p.dom, .16 + (h%11)/100, .14), time: pjLevel('mt|'+p.dom, 96 + h%80, .12), depth: pjLevel('md|'+p.dom, 1.6 + (h%13)/10, .1),
     yaShare, mix: [.46+r()*.1, .2+r()*.08, .07+r()*.05, .16+r()*.1]};
   const gs = pjSeries('gs|'+p.dom, base*(hasYa ? .52 : 1)*.94), gsh = pjLevel('gh|'+p.dom, .46 + (h%17)/100, .12);
-  M.ga = {prop: 310000000 + h%89999999, sessions: gs, org: gs.map((v,i)=>v*gsh[i]),
+  M.ga = {lag:0, prop: 310000000 + h%89999999, sessions: gs, org: gs.map((v,i)=>v*gsh[i]),
     eng: pjLevel('ge|'+p.dom, .55 + (h%12)/100, .07), etime: pjLevel('gt|'+p.dom, 46 + h%55, .12),
-    gShare: .9 + (h%7)/100, mix: [.5+r()*.1, .2+r()*.08, .08+r()*.05, .1+r()*.08]};
+    mix: [.5+r()*.1, .2+r()*.08, .08+r()*.05, .1+r()*.08]};
   const cc = pjLevel('cc|'+p.dom, .026 + (h%23)/1000, .14), ck = M.ga.org.map(v=>v*.88);
   M.gsc = {lag:2, clicks: ck, impr: ck.map((v,i)=>v/cc[i]), pos: pjLevel('cp|'+p.dom, 10 + h%15, .12),
-    indexed: Math.round(urls*3.4 + 60 + h%90), notIdx: Math.round(urls*.6 + 12 + h%40), cwv: Math.min(98, Math.round(p.ps[1]*.9 + 6))};
-  const wc = pjLevel('wc|'+p.dom, .044 + (h%29)/1000, .12), wk = M.metrika.search.map(v=>v*yaShare*.93);
-  M.wm = {lag:3, clicks: wk, shows: wk.map((v,i)=>v/wc[i]),
+    indexed: Math.round(urls*3.4 + 60 + h%90), notIdx: Math.round(urls*.6 + 12 + h%40)};
+  const qb = Math.round(60 + top10*.9 + h%80); /* запросов с показами в Яндексе */
+  /* Вебмастер — ровно то, что отдаёт API v4: summary (ИКС, страниц в поиске, исключено, число проблем),
+     sqi-history, search-urls/in-search/history, search-urls/events/history (появились / исключены),
+     indexing/history (HTTP_4XX / HTTP_5XX / OTHER при обходе), links/internal/broken/history,
+     diagnostics (тип проблемы, важность, состояние, дата изменения), query-analytics/list (по запросу — спрос,
+     показы, клики, CTR, позиция по дням; фильтр по позиции), search-queries/all/history (AVG_SHOW_POSITION) */
+  M.wm = {lag:3,
     sqi: pjSteps('wi|'+p.dom, Math.max(10, Math.round((30 + top10*.16)/10)*10), [18,40], 20, 10),
     pages: pjSteps('wg|'+p.dom, Math.round(urls*3.1 + 70 + h%60), [3,9], Math.max(4, urls*.08), 1),
-    diag: {fatal:0, crit: h%3===0 ? 1 : 0, poss: 1 + h%4, rec: 3 + h%6}};
-  /* запросы и страницы для таблиц GSC/Вебмастера */
+    excl: pjSteps('wx|'+p.dom, Math.round(urls*.9 + 24 + h%50), [4,10], Math.max(3, urls*.05), 1),
+    appear: pjLevel('wa|'+p.dom, .5 + urls*.012, .3), removed: pjLevel('wr|'+p.dom, .35 + urls*.008, .3),
+    h4: pjLevel('w4|'+p.dom, .25 + urls*.01, .4), h5: pjLevel('w5|'+p.dom, .03 + (h%5)/100, .5), hx: pjLevel('wo|'+p.dom, .03, .5),
+    broken: pjSteps('wb|'+p.dom, Math.round(urls*.15 + 3 + h%20), [4,11], Math.max(2, urls*.02), 1),
+    qn: pjLevel('wq|'+p.dom, qb, .08), q3: pjLevel('w3|'+p.dom, qb*.08, .14), q10: pjLevel('w10|'+p.dom, qb*.24, .1),
+    qpos: pjLevel('wp|'+p.dom, 11 + h%14, .08), probs: pjWmProbs(p, h)};
+  /* страны: из мониторингов + соседние рынки */
+  const fl = [...new Set(p.mons.map(m=>m.flag))].filter(f=>PJ_GEO[f]);
+  const extra = fl.includes('ru') && !/\.(app|io|top|chat)$/.test(p.dom) ? ['kz','by','uz','de','us'] : ['us','gb','de','ca','nl','ro','pl'];
+  M.geo = [...new Set([...fl, ...extra])].slice(0, 8);
+  /* запросы и страницы для таблиц */
   if(p.dom==='directline.pro'){
     const seen = new Set(); /* в демо-данных есть копии групп «… · 2/3/4» — ключи уникализируем */
     M.queries = GROUPS.flatMap(g=>g.keys).filter(k=>typeof k.pos[k.pos.length-1]==='number' && !seen.has(k.kw) && seen.add(k.kw))
-      .sort((a,b)=>b.ws-a.ws).slice(0,6).map(k=>({q:k.kw, pos:k.pos[k.pos.length-1]}));
-    M.pages = [...new Set([...GROUPS.map(g=>g.url), '/', '/blog/', '/services/', '/courses/'])].slice(0,5);
+      .sort((a,b)=>b.ws-a.ws).slice(0,25).map(k=>({q:k.kw, pos:k.pos[k.pos.length-1]}));
+    M.pages = [...new Set([...GROUPS.map(g=>g.url), '/', '/blog/', '/services/', '/courses/', '/cases/', '/prices/', '/contacts/', '/about/', '/blog/seo-audit/', '/blog/semantika/'])].slice(0,14);
   } else {
     const rq = pjRng(hashStr('q|'+p.dom));
     M.queries = [{q:p.dom.replace(/\.[a-z]+$/,''), pos:1 + rq()*.4},
       ...(PJ_Q[M.group||'']||PJ_Q['']).map((q,i)=>({q, pos:2 + i*2.2 + rq()*6}))];
     M.pages = PJ_PAGES[M.group||''] || PJ_PAGES[''];
   }
+  M.qsh = pjZipf(M.queries.length, 'qs|'+p.dom, .95);
+  /* Google PageSpeed: CRAB раз в сутки запускает PSI API (strategy=desktop и mobile) для главной и релевантных
+     URL проекта и хранит историю. Ряды страницы считаются при первом выборе — pjPsiPage. */
+  M.psi = {lag:0, pages:['/', ...M.pages.filter(u=>u!=='/')].slice(0, 12), cache:{}};
   M.team = pjTeam(p, M);
   M.log = pjLog(p, M);
+  const eds = [M.team.owner, ...M.team.users.map(u=>u.name)];
+  M.notes = [3,11,24,52,97,170,260].map((ago,i)=>({d:pjAgo(ago + ((h>>>i)%4)), t:PJ_NOTE_T[(h+i)%PJ_NOTE_T.length], who:eds[(h>>>(i+2))%eds.length]}));
   PJ_CACHE[p.id] = M;
   return M;
 }
@@ -4003,41 +4263,207 @@ function pjLog(p, M){
   return ev.sort((a,b)=>b.d-a.d);
 }
 
+/* ---------- Вебмастер: диагностика ----------
+   GET …/diagnostics отдаёт по каждому типу проблемы только severity, state (PRESENT / ABSENT / UNDEFINED)
+   и last_state_update — без количества страниц и деталей. Показываем PRESENT; заголовки — по справочнику
+   ApiSiteProblemTypeEnum, подробности — в самом Вебмастере. Счётчики чипов — summary.site_problems. */
+const WM_SEV = {
+  fatal:{api:'FATAL', l:'Фатальные', one:'Фатальная', c:'crit', ico:()=>PJ_I.xc},
+  crit:{api:'CRITICAL', l:'Критичные', one:'Критичная', c:'crit', ico:()=>PJ_I.alert},
+  poss:{api:'POSSIBLE_PROBLEM', l:'Возможные', one:'Возможная проблема', c:'warn', ico:()=>PJ_I.warn},
+  rec:{api:'RECOMMENDATION', l:'Рекомендации', one:'Рекомендация', c:'info', ico:()=>PJ_I.info}
+};
+const WM_TYPES = {
+  fatal:[['CONNECT_FAILED','Роботы не смогли посетить сайт'],['DISALLOWED_IN_ROBOTS','Сайт закрыт от индексирования в robots.txt'],
+    ['DNS_ERROR','Не удалось подключиться к серверу из-за ошибки DNS'],['MAIN_PAGE_ERROR','Главная страница сайта возвращает ошибку'],
+    ['THREATS','Обнаружены нарушения или проблемы с безопасностью']],
+  crit:[['INSIGNIFICANT_CGI_PARAMETER','Страницы с GET-параметрами дублируют другие страницы'],['SLOW_AVG_RESPONSE_TIME','Долгий ответ сервера'],
+    ['SSL_CERTIFICATE_ERROR','Некорректная настройка SSL-сертификата'],['URL_ALERT_4XX','Страницы отвечают роботу кодом 4xx'],
+    ['URL_ALERT_5XX','Страницы отвечают роботу кодом 5xx']],
+  poss:[['DISALLOWED_URLS_ALERT','Полезные страницы закрыты от индексирования'],['DOCUMENTS_MISSING_DESCRIPTION','На многих страницах нет метатега Description'],
+    ['DOCUMENTS_MISSING_TITLE','На многих страницах нет элемента title'],['DUPLICATE_CONTENT_ATTRS','На страницах одинаковые title и Description'],
+    ['DUPLICATE_PAGES','Страницы с одинаковым контентом'],['ERRORS_IN_SITEMAPS','Ошибки в файлах Sitemap'],
+    ['NO_SITEMAP_MODIFICATIONS','Файлы Sitemap давно не обновлялись'],['SOFT_404','Некорректно настроено отображение несуществующих страниц'],
+    ['NO_METRIKA_COUNTER_CRAWL_ENABLED','Не включён обход по счётчикам Метрики']],
+  rec:[['BIG_FAVICON_ABSENT','Нет favicon в SVG или 120 × 120 px'],['NO_REGIONS','Не задана региональная принадлежность сайта'],
+    ['NOT_IN_SPRAV','Сайт не зарегистрирован в Яндекс Справочнике'],['NOT_MOBILE_FRIENDLY','Сайт не оптимизирован для мобильных устройств'],
+    ['VYGODA_POSSIBLE_ACTIVATION','К сайту не подключена Яндекс Выгода']]
+};
+const WM_ORD = ['fatal','crit','poss','rec'];
+function pjWmProbs(p, h){
+  const r = pjRng(hashStr('wp|'+p.dom)), out = [];
+  const n = {fatal:0, crit: h%3===0 ? 1 : 0, poss: 1 + h%4, rec: 2 + (h>>>3)%4};
+  WM_ORD.forEach(s=>{
+    const pool = WM_TYPES[s].slice();
+    for(let i=0;i<n[s] && pool.length;i++){ const [code, t] = pool.splice(Math.floor(r()*pool.length), 1)[0]; out.push({s, code, t, d:pjAgo(1 + Math.floor(r()*45))}); }
+  });
+  return out.sort((a,b)=> WM_ORD.indexOf(a.s)-WM_ORD.indexOf(b.s) || b.d-a.d);
+}
+
+/* ---------- строки таблиц источников (виджеты и подробные страницы) ---------- */
+function pjGscRows(M, tab){
+  const D = M.gsc, iw = pjWin(D.impr, D.lag).cur;
+  const C = sumA(pjWin(D.clicks, D.lag).cur), Im = sumA(iw), Pa = wAvg(pjWin(D.pos, D.lag).cur, iw);
+  const r = pjRng(hashStr('gr|'+tab+'|'+M.p.dom+'|'+PJ.period));
+  if(tab==='q') return M.queries.map((x,i)=>{
+    const pos = Math.max(1, x.pos*1.15 + (r()-.5)*.8);
+    const impr = Math.max(1, Math.round(Im*.62*M.qsh[i]*(.8 + r()*.4)));
+    const clicks = Math.round(impr*Math.min(.42, .32/Math.pow(pos, .95))*(.7 + r()*.6));
+    return {n:x.q, clicks, impr, ctr:clicks/impr, pos, geo:M.geo[r()<.72 ? 0 : 1 + Math.floor(r()*(M.geo.length-1))]};
+  });
+  const names = tab==='p' ? M.pages : tab==='c' ? M.geo.map(g=>PJ_GEO[g][1]) : ['Мобильные','Компьютеры','Планшеты'];
+  const sh = tab==='d' ? [.6,.36,.04] : pjZipf(names.length, 'gz|'+tab+'|'+M.p.dom, tab==='c' ? 1.6 : 1);
+  return names.map((n,i)=>{
+    const impr = Math.max(1, Math.round(Im*sh[i]*(.85 + r()*.3))), clicks = Math.round(C*sh[i]*(.8 + r()*.4));
+    return {n, clicks, impr, ctr:clicks/impr, pos:Math.max(1, Pa*(.55 + r()*.9))};
+  });
+}
+function pjMetrikaRows(M, tab){
+  const D = M.metrika, vw = pjWin(D.visits).cur, V = sumA(vw), Sx = sumA(pjWin(D.search).cur);
+  const B = wAvg(pjWin(D.bounce).cur, vw), Tm = wAvg(pjWin(D.time).cur, vw), Dp = wAvg(pjWin(D.depth).cur, vw);
+  const r = pjRng(hashStr('mr|'+tab+'|'+M.p.dom+'|'+PJ.period));
+  let names, sh, tot = V, exact = false;
+  if(tab==='src'){
+    const rest = 1 - Sx/V, mx = D.mix, mt = sumA(mx); exact = true;
+    names = ['Переходы из поисковых систем','Прямые заходы','Переходы по ссылкам на сайтах','Переходы из социальных сетей','Переходы по рекламе','Внутренние переходы','Переходы из мессенджеров'];
+    sh = [Sx/V, ...mx.map(x=>rest*x/mt*.92), rest*.05, rest*.03];
+  } else if(tab==='se'){
+    const y = D.yaShare; tot = Sx; exact = true;
+    names = ['Яндекс','Google','Bing','DuckDuckGo','Mail.ru']; sh = [y, (1-y)*.93, (1-y)*.035, (1-y)*.02, (1-y)*.015];
+  } else if(tab==='p'){ names = M.pages; sh = pjZipf(names.length, 'mp|'+M.p.dom, 1.1); }
+  else if(tab==='ph'){ /* Метрика скрывает бо́льшую часть фраз — «Не определено» */
+    tot = Sx*D.yaShare; names = ['Не определено', ...M.queries.map(x=>x.q)];
+    sh = [.64, ...pjZipf(names.length-1, 'mph|'+M.p.dom, 1).map(x=>x*.36)];
+  } else if(tab==='r'){ names = M.geo.map(g=>PJ_GEO[g][1]); sh = pjZipf(names.length, 'mrg|'+M.p.dom, 1.7); }
+  else { names = ['Смартфоны','ПК','Планшеты','ТВ']; sh = [.57,.385,.04,.005]; exact = true; }
+  return names.map((n,i)=>{
+    const visits = Math.max(1, Math.round(tot*sh[i]*(exact ? 1 : .85 + r()*.3)));
+    return {n, visits, users:Math.round(visits*(.74 + r()*.14)), bounce:Math.min(.92, B*(.6 + r()*.8)), depth:Math.max(1, Dp*(.7 + r()*.6)), time:Tm*(.55 + r()*.9)};
+  });
+}
+function pjGaRows(M, tab){
+  const D = M.ga, sw = pjWin(D.sessions).cur, Sx = sumA(sw), O = sumA(pjWin(D.org).cur);
+  const E = wAvg(pjWin(D.eng).cur, sw), Tm = wAvg(pjWin(D.etime).cur, sw);
+  const r = pjRng(hashStr('ar|'+tab+'|'+M.p.dom+'|'+PJ.period));
+  let names, sh, exact = false;
+  if(tab==='ch'){
+    const rest = 1 - O/Sx, mx = D.mix, mt = sumA(mx); exact = true;
+    names = ['Organic Search','Direct','Referral','Organic Social','Paid Search','Email','Unassigned'];
+    sh = [O/Sx, ...mx.map(x=>rest*x/mt*.93), rest*.04, rest*.03];
+  } else if(tab==='p'){ names = M.pages; sh = pjZipf(names.length, 'ap|'+M.p.dom, 1.1); }
+  else if(tab==='c'){ names = M.geo.map(g=>PJ_GEO[g][1]); sh = pjZipf(names.length, 'ac|'+M.p.dom, 1.6); }
+  else { names = ['Мобильные','Компьютеры','Планшеты']; sh = [.61,.35,.04]; exact = true; }
+  return names.map((n,i)=>{
+    const sessions = Math.max(1, Math.round(Sx*sh[i]*(exact ? 1 : .85 + r()*.3)));
+    return {n, sessions, users:Math.round(sessions*(.72 + r()*.14)), eng:Math.min(.95, E*(.75 + r()*.5)), etime:Tm*(.55 + r()*.9)};
+  });
+}
+const PJ_ROWS = {gsc:pjGscRows, metrika:pjMetrikaRows, ga:pjGaRows};
+/* колонки метрик подробных таблиц: [ключ, заголовок, формат] */
+const PJ_COLS = {
+  gsc:[['clicks','Клики',fN],['impr','Показы',fN],['ctr','CTR',v=>fD(v*100,2)+' %'],['pos','Позиция',v=>fD(v)]],
+  metrika:[['visits','Визиты',fN],['users','Посетители',fN],['bounce','Отказы',v=>fD(v*100)+' %'],['depth','Глубина',v=>fD(v,2)],['time','Время на сайте',fDur]],
+  ga:[['sessions','Сеансы',fN],['users','Пользователи',fN],['eng','Вовлечённость',v=>fD(v*100)+' %'],['etime','Время вовлечения',fDur]]
+};
+const PJ_TABS = {
+  gsc:[['q','Запросы'],['p','Страницы'],['c','Страны'],['d','Устройства'],['u','Проверка URL'],['s','Sitemap-файлы']],
+  metrika:[['src','Источники'],['se','Поисковые системы'],['p','Страницы входа'],['ph','Поисковые фразы'],['r','Регионы'],['d','Устройства']],
+  ga:[['ch','Каналы'],['p','Страницы входа'],['c','Страны'],['d','Устройства']]
+};
+const PJ_TABN = {q:'Запрос', p:'Страница', c:'Страна', d:'Устройство', src:'Источник', se:'Поисковая система', ph:'Поисковая фраза', r:'Регион', ch:'Канал'};
+/* топ-таблица виджета: [заголовок, ширина, ячейка] */
+const PJ_WT = {
+  gsc:{title:'Топ запросов', all:'Все запросы', tab:'q', rows:M=>pjGscRows(M,'q').sort((a,b)=>b.clicks-a.clicks || b.impr-a.impr),
+    cols:[['Ключ'],['Показы',66,r=>fN(r.impr)],['Клики',54,r=>fN(r.clicks)],['Позиция',64,r=>fD(r.pos)],['ГЕО',48,r=>`<span class="geo" title="${PJ_GEO[r.geo][1]}">${PJ_GEO[r.geo][0]}</span>`]]},
+  metrika:{title:'Страницы входа', all:'Все страницы', tab:'p', rows:M=>pjMetrikaRows(M,'p').sort((a,b)=>b.visits-a.visits),
+    cols:[['Страница'],['Визиты',66,r=>fN(r.visits)],['Отказы',66,r=>fD(r.bounce*100)+' %'],['Время',60,r=>fDur(r.time)]]},
+  ga:{title:'Страницы входа', all:'Все страницы', tab:'p', rows:M=>pjGaRows(M,'p').sort((a,b)=>b.sessions-a.sessions),
+    cols:[['Страница'],['Сеансы',66,r=>fN(r.sessions)],['Вовлечённость',104,r=>fD(r.eng*100)+' %'],['Время',60,r=>fDur(r.etime)]]}
+};
+
+/* ---------- метрики источников: пилюли + точки графика ---------- */
+function pjMetrics(M, src, gran){
+  const D = M[src], lag = D.lag;
+  if(src==='gsc'){
+    const c = pjWin(D.clicks, lag), im = pjWin(D.impr, lag), po = pjWin(D.pos, lag);
+    const cC = sumA(c.cur), cP = sumA(c.prev), iC = sumA(im.cur), iP = sumA(im.prev), pC = wAvg(po.cur, im.cur), pP = wAvg(po.prev, im.prev);
+    return [
+      {k:'clicks', l:'Клики', v:fN(cC), d:pjDelta(cC, cP), pts:()=>pjPts(D.clicks, lag, 'sum', null, gran), fmt:fN, ax:fAx},
+      {k:'impr', l:'Показы', v:fN(iC), d:pjDelta(iC, iP), pts:()=>pjPts(D.impr, lag, 'sum', null, gran), fmt:fN, ax:fAx},
+      {k:'ctr', l:'CTR', v:`${fD(cC/iC*100, 2)} %`, d:pjDelta(cC/iC, cP/iP, {pp:1}), pts:()=>pjPts(D.clicks.map((v,i)=>v/D.impr[i]), lag, 'avg', D.impr, gran), fmt:v=>fD(v*100, 2)+' %', ax:pctAx, fit:1},
+      {k:'pos', l:'Позиция', v:fD(pC), d:pjDelta(pC, pP, {abs:1, dec:1, invert:1}), pts:()=>pjPts(D.pos, lag, 'avg', D.impr, gran), fmt:v=>fD(v), ax:posAx, fit:1, inv:1}];
+  }
+  if(src==='metrika'){
+    const v = pjWin(D.visits), s = pjWin(D.search), b = pjWin(D.bounce), t = pjWin(D.time);
+    const vC = sumA(v.cur), vP = sumA(v.prev), sC = sumA(s.cur), sP = sumA(s.prev);
+    const bC = wAvg(b.cur, v.cur), bP = wAvg(b.prev, v.prev), tC = wAvg(t.cur, v.cur), tP = wAvg(t.prev, v.prev);
+    return [
+      {k:'visits', l:'Визиты', v:fN(vC), d:pjDelta(vC, vP), pts:()=>pjPts(D.visits, 0, 'sum', null, gran), fmt:fN, ax:fAx},
+      {k:'search', l:'Из поиска', v:`${fN(sC)}<small>${fD(sC/vC*100, 0)} %</small>`, d:pjDelta(sC, sP), pts:()=>pjPts(D.search, 0, 'sum', null, gran), fmt:fN, ax:fAx},
+      {k:'bounce', l:'Отказы', v:`${fD(bC*100)} %`, d:pjDelta(bC, bP, {pp:1, invert:1}), pts:()=>pjPts(D.bounce, 0, 'avg', D.visits, gran), fmt:v=>fD(v*100)+' %', ax:pctAx, fit:1},
+      {k:'time', l:'Время на сайте', v:fDur(tC), d:pjDelta(tC, tP), pts:()=>pjPts(D.time, 0, 'avg', D.visits, gran), fmt:fDur, ax:fDur, fit:1}];
+  }
+  const s = pjWin(D.sessions), o = pjWin(D.org), e = pjWin(D.eng), t = pjWin(D.etime);
+  const sC = sumA(s.cur), sP = sumA(s.prev), oC = sumA(o.cur), oP = sumA(o.prev);
+  const eC = wAvg(e.cur, s.cur), eP = wAvg(e.prev, s.prev), tC = wAvg(t.cur, s.cur), tP = wAvg(t.prev, s.prev);
+  return [
+    {k:'sessions', l:'Сеансы', v:fN(sC), d:pjDelta(sC, sP), pts:()=>pjPts(D.sessions, 0, 'sum', null, gran), fmt:fN, ax:fAx},
+    {k:'org', l:'Organic Search', v:`${fN(oC)}<small>${fD(oC/sC*100, 0)} %</small>`, d:pjDelta(oC, oP), pts:()=>pjPts(D.org, 0, 'sum', null, gran), fmt:fN, ax:fAx},
+    {k:'eng', l:'Вовлечённость', v:`${fD(eC*100)} %`, d:pjDelta(eC, eP, {pp:1}), pts:()=>pjPts(D.eng, 0, 'avg', D.sessions, gran), fmt:v=>fD(v*100)+' %', ax:pctAx, fit:1},
+    {k:'etime', l:'Время вовлечения', v:fDur(tC), d:pjDelta(tC, tP), pts:()=>pjPts(D.etime, 0, 'avg', D.sessions, gran), fmt:fDur, ax:fDur, fit:1}];
+}
+/* заметки → индексы точек графика (по дате попадания в бакет) */
+function pjNoteIdx(x, notes){
+  const key = d => d.getFullYear()*10000 + d.getMonth()*100 + d.getDate(), out = [];
+  notes.forEach(nt=>{ const k = key(nt.d), i = x.findIndex(b=> key(b.d0) <= k && k <= key(b.d1)); if(i >= 0) out.push({i, t:nt.t, who:nt.who}); });
+  return out;
+}
+/* конфиг графика источника: выбранная пилюля → одна серия (слот 1), заметки, неполный последний период */
+function pjChartCfg(M, src, id, gran){
+  const K = pjMetrics(M, src, gran), sel = K.find(k=>k.k===PJ.kpi[src]) || K[0], pts = sel.pts(), nt = pjNoteIdx(pts.x, M.notes);
+  PJ_CH[id] = {x:pts.x, fmt:sel.fmt, ax:sel.ax, fit:sel.fit, inv:sel.inv, partial:!M[src].lag, notes: PJ.notes[src] ? nt : null,
+    series:[{key:sel.k, name:sel.l, c:'--ch-1', v:pts.v, area:1}]};
+  return {K, sel, nNotes: nt.length};
+}
+
 /* ---------- общие куски модулей ---------- */
 const pjFavHtml = (dom, cls) => `<span class="pfav ${cls||''}" style="background:hsl(${hashStr(dom)%360} 42% 46%)"><i>${dom[0].toUpperCase()}</i><img src="https://www.google.com/s2/favicons?domain=${dom}&amp;sz=64" alt="" loading="lazy" onload="this.classList.add('ok')"></span>`;
 /* дельта к предыдущему периоду: стрелка — направление, цвет — хорошо/плохо (invert: меньше = лучше) */
 function pjDelta(cur, prev, o={}){
-  if(prev==null || !isFinite(prev) || (prev===0 && !o.abs && !o.pp)) return `<span class="k-d flat">нет данных за прошлый период</span>`;
+  if(prev==null || !isFinite(prev) || (prev===0 && !o.abs && !o.pp)) return `<span class="k-d flat" title="Нет данных за предыдущий период">нет данных</span>`;
   let d, txt;
   if(o.pp){ d = (cur-prev)*100; txt = fD(Math.abs(d))+' п.п.'; }
   else if(o.abs){ d = cur-prev; txt = o.dec ? fD(Math.abs(d), o.dec) : fN(Math.abs(d)); }
   else { d = (cur-prev)/prev*100; txt = fD(Math.abs(d))+' %'; }
-  if(Math.abs(d) < (o.abs && !o.dec ? .5 : .05)) return `<span class="k-d flat">без изменений</span>`;
+  if(Math.abs(d) < (o.abs && !o.dec ? .5 : .05)) return `<span class="k-d flat" title="Без изменений к предыдущему периоду" aria-label="без изменений">—</span>`;
   const good = o.invert ? d<0 : d>0;
   return `<span class="k-d ${good?'up':'down'}" title="К предыдущему периоду такой же длины">${d>0?'▲':'▼'} ${txt}</span>`;
 }
 const pjKpi = (label, val, delta) => `<div class="pj-kpi"><span class="k-l">${label}</span><span class="k-v">${val}</span>${delta}</div>`;
-const pjKpiBtn = (mod, [key, label, val, delta]) => { const s = PJ[mod]===key;
-  return `<button class="pj-kpi ${s?'sel':''}" data-kpi="${mod}:${key}" aria-pressed="${s}" title="Показать на графике"><span class="k-l">${label}</span><span class="k-v">${val}</span>${delta}</button>`; };
-function pjHead(ico, title, sub, link, linkTitle){
-  return `<header class="pj-ch"><span class="src-ico">${ico}</span><div class="pj-ct"><div class="pj-tl"><h2>${title}</h2></div><span class="pj-sub">${sub}</span></div>${link ? `<a class="pj-open" href="${link}" target="_blank" rel="noopener" title="${linkTitle}">Открыть ${I.link}</a>` : ''}</header>`;
-}
-function pjChartHtml(id, label){ return `<div class="pj-chart" data-ch="${id}" tabindex="0" role="img" aria-label="${aiA(label)}. Стрелки ← → — значения по точкам"></div>`; }
-function pjLegendHtml(mod){
-  const C = PJ_CH[mod];
-  return `<div class="pj-legend">${C.series.map(s=>`<button class="pj-lg" style="--c:var(${s.c})" data-lg="${mod}:${s.key}" aria-pressed="${!PJ.off[mod].has(s.key)}"><span class="cb">${I.check}</span>${s.name}</button>`).join('')}<span class="pj-lg-note">${PJ.period===364 ? 'по неделям' : 'по дням'}</span></div>`;
-}
-function pjShareHtml(title, note, parts){
-  return `<div class="pj-share"><div class="pj-share-h"><span>${title}</span><span>${note||''}</span></div>
-    <div class="pj-sbar" role="img" aria-label="${aiA(title+': '+parts.map(([n,v])=>`${n} ${fD(v*100,0)} %`).join(', '))}">${parts.map(([n,v,c])=>`<i style="--c:var(${c});flex:${v.toFixed(4)}" data-ptip="${aiA(n)}: ${fD(v*100)} %"></i>`).join('')}</div>
-    <div class="pj-slg">${parts.map(([n,v,c])=>`<span><i style="--c:var(${c})"></i>${n} <b>${fD(v*100,0)} %</b></span>`).join('')}</div></div>`;
-}
+function pjChartHtml(id, label, big){ return `<div class="pj-chart${big?' big':''}" data-ch="${id}" tabindex="0" role="img" aria-label="${aiA(label)}. Стрелки ← → — значения по точкам"></div>`; }
 const PJ_SRC = {
-  metrika:{t:'Яндекс Метрика', ico:()=>PJ_I.metrika, what:'Визиты, доля поискового трафика и поведение посетителей появятся рядом с позициями.', btn:'Подключить Метрику'},
-  ga:{t:'Google Analytics 4', ico:()=>PJ_I.ga, what:'Сеансы, доля Organic Search и вовлечённость появятся рядом с позициями.', btn:'Подключить GA4'},
-  wm:{t:'Яндекс Вебмастер', ico:()=>I.ya, what:'Клики и показы в Яндексе, ИКС, страницы в поиске и диагностика сайта.', btn:'Подключить Вебмастер'},
-  gsc:{t:'Google Search Console', ico:()=>I.go, what:'Клики, показы, CTR и средняя позиция в Google, индексирование страниц.', btn:'Подключить Search Console'}
+  metrika:{t:'Яндекс Метрика', short:'Метрике', ico:()=>PJ_I.metrika, res:M=>`Счётчик ${M.metrika.counter}`, acc:M=>M.acc.ya, upd:M=>`${4 + M.h%40} мин назад`,
+    url:M=>`https://metrika.yandex.ru/dashboard?id=${M.metrika.counter}`,
+    what:'Визиты, доля поискового трафика и поведение посетителей появятся рядом с позициями.', btn:'Подключить Метрику'},
+  ga:{t:'Google Analytics 4', short:'Analytics', ico:()=>PJ_I.ga, res:M=>`Ресурс ${M.ga.prop}`, acc:M=>M.acc.go, upd:M=>`${1 + M.h%3} ч ${M.h%50} мин назад`,
+    url:M=>`https://analytics.google.com/analytics/web/#/p${M.ga.prop}/reports/intelligenthome`,
+    what:'Сеансы, доля Organic Search и вовлечённость появятся рядом с позициями.', btn:'Подключить GA4'},
+  wm:{t:'Яндекс Вебмастер', short:'Вебмастере', ico:()=>I.ya, res:M=>`https://${M.p.dom}`, acc:M=>M.acc.ya, upd:M=>`${5 + M.h%14} ч назад`,
+    url:M=>`https://webmaster.yandex.ru/site/https:${M.p.dom}:443/dashboard/`,
+    what:'Ошибки из диагностики, индексирование, битые ссылки и позиции запросов в Яндексе.', btn:'Подключить Вебмастер'},
+  psi:{t:'Google PageSpeed', short:'PageSpeed Insights', open:'PageSpeed Insights', ico:()=>PJ_I.psi, res:M=>M.psi.url, acc:()=>'проверка раз в сутки, desktop и mobile',
+    upd:M=>`сегодня в ${p2(5 + M.h%4)}:${p2(M.h%60)}`, url:M=>`https://pagespeed.web.dev/analysis?url=${encodeURIComponent(M.psi.url)}`, what:'', btn:''},
+  gsc:{t:'Google Search Console', short:'Search Console', ico:()=>I.go, res:M=>`sc-domain:${M.p.dom}`, acc:M=>M.acc.go, upd:M=>`${3 + M.h%9} ч ${M.h%50} мин назад`,
+    url:M=>`https://search.google.com/search-console/performance/search-analytics?resource_id=sc-domain:${M.p.dom}`,
+    what:'Клики, показы, CTR и средняя позиция в Google, индексирование страниц.', btn:'Подключить Search Console'}
 };
+const pjLagTxt = lag => lag ? ` · задержка ${lag} ${aiPl(lag, ['день','дня','дней'])}` : '';
+const pjUpd = (src, M) => PJ.polled[src] ? 'только что' : PJ_SRC[src].upd(M);
+/* неподключённые источники на дашборде — компактная полоса, а не пустые карточки во всю высоту ряда */
+function pjConnHtml(M, off){
+  return `<div class="pj-conn" role="group" aria-label="Неподключённые источники">${off.map(k=>{ const S = PJ_SRC[k], err = M.src[k]==='err';
+    return `<div class="pc-i${err?' err':''}" title="${aiA(S.what)}"><span class="src-ico">${S.ico()}</span><span class="pc-t"><b>${S.t}</b><span>${err ? `${PJ_I.alert}Нет доступа с ${pjDM(pjAgo(7))} — данные не обновляются` : 'Не подключено'}</span></span><button class="btn secondary sm" data-connect="${k}">${err ? 'Переподключить' : 'Подключить'}</button></div>`; }).join('')}</div>`;
+}
 function pjEmptyHtml(key, M){
   const S = PJ_SRC[key], err = M.src[key]==='err';
   return `<section class="pj-card" id="pjm-${key}">
@@ -4051,181 +4477,225 @@ function pjEmptyHtml(key, M){
   </section>`;
 }
 
-/* ---------- модуль «Мониторинги» ---------- */
-const MT_SEG = [['1–3','--t3-heat'],['4–10','--t10-heat'],['11–20','--t20-heat'],['21–50','--t50-heat'],['51–100','--t100-heat'],['вне ТОП-100','--border-strong']];
+/* ---------- виджет источника (Метрика, GA4, GSC; шапка — и у Вебмастера) ---------- */
+function swHead(src, M, drill){
+  const S = PJ_SRC[src];
+  return `<header class="wg-h">
+    <span class="src-ico">${S.ico()}</span>
+    <div class="wg-tt">${drill ? `<button class="wg-name" data-drill="${src}" title="Подробнее: ${S.t}">${S.t}</button>` : `<span class="wg-name">${S.t}</span>`}<span class="wg-acc">${esc(S.res(M))} · ${esc(S.acc(M))}</span></div>
+    <span class="wg-ok" data-ptip="Подключено · данные обновляются автоматически" role="img" aria-label="Подключено">${PJ_I.shield}</span>
+    ${drill ? `<button class="wg-more" data-drill="${src}">Подробнее ${PJ_I.arr}</button>`
+            : `<a class="wg-more" href="${S.url(M)}" target="_blank" rel="noopener" title="Открыть в ${S.short}">${S.open || 'Открыть'} ${I.link}</a>`}
+  </header>`;
+}
+function swBar(src, M, nNotes){
+  const on = !!PJ.notes[src];
+  return `<div class="wg-bar">
+    ${pjPerDd(src, M[src].lag)}<span class="wg-upd">обновлено ${pjUpd(src, M)}${pjLagTxt(M[src].lag)}</span><span class="spacer"></span>
+    <button class="wg-act" data-poll="${src}" title="${src==='psi' ? 'Запустить проверку PageSpeed сейчас' : 'Запросить свежие данные из API'}">${I.refresh}${src==='psi' ? 'Проверить' : 'Опросить'}</button>
+    ${nNotes==null ? '' : `<button class="wg-act ${on?'on':''}" data-notes="${src}" aria-pressed="${on}" title="${on ? 'Скрыть заметки на графике' : 'Показать заметки на графике'}">${PJ_I.note}Заметки${nNotes ? ` <b>${nNotes}</b>` : ''}</button>`}
+  </div>`;
+}
+function swPills(src, K, big){
+  return `<div class="wg-pills${big?' big':''}" role="group" aria-label="Метрика на графике">${K.map(k=>{ const s = k.k===PJ.kpi[src] || (!K.some(x=>x.k===PJ.kpi[src]) && k===K[0]);
+    return `<button class="wg-pill${s?' sel':''}" data-kpi="${src}:${k.k}" aria-pressed="${s}"><span class="sp-l">${k.l}</span><span class="sp-v">${k.v}</span>${k.d}</button>`; }).join('')}</div>`;
+}
+function swTopHtml(src, M){
+  const W = PJ_WT[src], all = W.rows(M), rows = all;
+  return `<div class="wg-sec"><span>${W.title}</span><button class="wg-all" data-drill="${src}" data-dtab="${W.tab}">${W.all} · ${all.length} ${PJ_I.arr}</button></div>
+    <div class="wg-fill" style="--rows:7"><table class="wg-tbl"><colgroup><col>${W.cols.slice(1).map(c=>`<col style="width:${c[1]}px">`).join('')}</colgroup>
+      <thead><tr>${W.cols.map(c=>`<th>${c[0]}</th>`).join('')}</tr></thead>
+      <tbody>${rows.map(r=>`<tr><td title="${aiA(r.n)}">${esc(r.n)}</td>${W.cols.slice(1).map(c=>`<td>${c[2](r)}</td>`).join('')}</tr>`).join('')}</tbody>
+    </table></div>`;
+}
+function pjWidget(src, M){
+  if(M.src[src]!=='ok') return pjEmptyHtml(src, M);
+  const S = PJ_SRC[src], {K, sel} = pjChartCfg(M, src, src);
+  PJ_CH[src].notes = null; /* в виджетах-счётчиках заметок нет — они на подробной странице */
+  return `<section class="pj-card wg${PJ.wide.has(src)?' wide':''}" id="pjm-${src}">
+    ${swHead(src, M, 1)}
+    ${swBar(src, M, null)}
+    ${swPills(src, K)}
+    ${pjChartHtml(src, `${sel.l} — ${S.t}, ${pjRangeTxt(M[src].lag)}${sel.inv ? ' (ось перевёрнута: выше — лучше)' : ''}`)}
+    ${swTopHtml(src, M)}
+  </section>`;
+}
+const pjMetrikaHtml = M => (pjPer('metrika'), pjWidget('metrika', M));
+const pjGaHtml = M => (pjPer('ga'), pjWidget('ga', M));
+const pjGscHtml = M => (pjPer('gsc'), pjWidget('gsc', M));
+/* выбор периода внутри блока: кнопка с датами окна → 7 / 30 / 90 дней / 12 месяцев */
+function pjPerDd(src, lag){
+  const cur = PJ.per[src];
+  return `<span class="dd-wrap pj-per"><button class="pj-dd-btn pj-per-btn" aria-haspopup="menu" aria-expanded="false" title="Период — общий для всех блоков">${I.cal}<b>${pjRangeTxt(lag)}</b><span class="car">▼</span></button>
+    <div class="dd-panel pj-per-pop" role="menu" aria-label="Период">${PJ_PERIODS.map(([d,l])=>`<button class="dd-item${d===cur?' active':''}" role="menuitemradio" aria-checked="${d===cur}" data-per="${src}:${d}">${l}</button>`).join('')}<div class="pj-per-note">Период общий для всех блоков страницы. Изменения — к предыдущему периоду такой же длины</div></div></span>`;
+}
+
+/* ---------- модуль «Мониторинги» — логика строки как на главной ---------- */
 const MT_ST = {done:'Снят сегодня', idle:'Ждёт среза', queue:'В очереди', error:'Ошибка'};
-/* bands главной: [ТОП 1–3, 1–10 (включая 1–3), 11–20, 21–50, 51–100] → непересекающиеся сегменты + вне ТОП-100 */
-function mtSegs(m){ const b = m.bands; return [b[0], Math.max(0, b[1]-b[0]), b[2], b[3], b[4], Math.max(0, m.keys-(b[1]+b[2]+b[3]+b[4]))]; }
-function mtVis(m){ /* видимость (доля ТОП-10) за 8 срезов: два последних — из данных, раньше — демо */
-  const r = pjRng(hashStr('vis|'+m.id));
-  const now = m.keys ? m.bands[1]/m.keys*100 : 0, prev = m.keys ? (m.bands[1]-m.deltas[1])/m.keys*100 : 0;
-  const out = [now, prev]; let v = prev;
-  for(let i=0;i<6;i++){ v = Math.max(0, v + (r()-.5)*Math.max(1.2, now*.12)); out.push(v); }
-  return out.reverse();
-}
-function mtSpark(vals){
-  const w = 64, h = 20, mn = Math.min(...vals), mx = Math.max(...vals), rg = (mx-mn) || 1;
-  const pts = vals.map((v,i)=>[2 + i/(vals.length-1)*(w-6), h-3-(v-mn)/rg*(h-6)]);
-  const L = pts[pts.length-1];
-  return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" aria-hidden="true"><polyline points="${pts.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ')}" fill="none" stroke="var(--ch-1)" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/><circle cx="${L[0].toFixed(1)}" cy="${L[1].toFixed(1)}" r="2.5" fill="var(--ch-1)"/></svg>`;
-}
-const mtNum = (n, d) => `<span class="mt-v ${n?'':'z'}">${fN(n)}</span>${d ? `<span class="mt-d ${d>0?'up':'down'}">${d>0?'+':'−'}${Math.abs(d)}</span>` : ''}`;
+const MT_BANDS = ['1–3','1–10','11–20','21–50','51–100'];
 function pjMonsHtml(M){
-  const p = M.p, kw = n => aiPl(n, ['ключ','ключа','ключей']);
+  const p = M.p;
+  const cell = (n, d, extra) => `<td class="num${extra||''}"><span class="mt-v ${n?'':'z'}">${fN(n)}</span>${d ? `<span class="mt-d ${d>0?'up':'down'}">${d>0?'+':'−'}${Math.abs(d)}</span>` : ''}</td>`;
   const rows = p.mons.map(m=>{
-    const seg = mtSegs(m), tot = Math.max(1, sumA(seg));
-    const dist = seg.map((n,i)=> n ? `<i style="--c:var(${MT_SEG[i][1]});flex:${n}" data-ptip="${MT_SEG[i][0]}: ${fN(n)} ${kw(n)} · ${fD(n/tot*100, n/tot<.1?1:0)} %"></i>` : '').join('');
-    const vis = mtVis(m), vN = vis[vis.length-1], vD = vN - vis[vis.length-2];
-    const vDh = Math.abs(vD) >= .05 ? `<span class="mt-d ${vD>0?'up':'down'}" title="п.п. к прошлому срезу">${vD>0?'+':'−'}${fD(Math.abs(vD))}</span>` : '';
+    const vis = m.keys ? Math.round(m.bands[1]/m.keys*100) : 0, visP = m.keys ? Math.round((m.bands[1]-m.deltas[1])/m.keys*100) : 0, vd = vis - visP;
     return `<tr tabindex="0" data-pid="${p.id}" data-mid="${m.id}" aria-label="Открыть мониторинг ${aiA(m.name)}">
-      <td><div class="mt-name"><span class="eng ${m.eng}" title="${m.eng==='ya'?'Яндекс':'Google'}">${m.eng==='ya'?I.ya:I.go}</span><span class="flag-ico" title="Регион мониторинга">${I.flags[m.flag]||''}</span><span class="mt-tx"><span class="mt-n">${esc(m.name)}</span><span class="mt-s">${m.sched} · следующий ${m.next}</span></span></div></td>
-      <td><span class="mt-st" title="${ST_TIP[m.st]}"><span class="hdot ${m.st}"></span>${MT_ST[m.st]}</span></td>
-      <td class="num"><span class="mt-v ${m.keys?'':'z'}">${fN(m.keys)}</span></td>
-      <td><div class="mt-dist" role="img" aria-label="${aiA(seg.map((n,i)=>`${MT_SEG[i][0]}: ${n}`).join(', '))}">${dist || '<i style="--c:var(--border-strong);flex:1"></i>'}</div></td>
-      <td class="num">${mtNum(m.bands[0], m.deltas[0])}</td>
-      <td class="num">${mtNum(m.bands[1], m.deltas[1])}</td>
-      <td><span class="mt-vis" title="Видимость: доля ключей в ТОП-10, последние 8 срезов"><span class="mt-v ${vN?'':'z'}">${fD(vN, vN>0 && vN<10 ? 1 : 0)} %</span>${vDh}${mtSpark(vis)}</span></td>
-      <td class="mt-go" aria-hidden="true">›</td>
+      <td class="mt-act"><span class="acts"><button class="hm-star ${m.fav?'on':''}" data-fav="${m.id}" aria-pressed="${m.fav}" title="${m.fav?'Убрать из избранного':'В избранное'}">${m.fav?'★':'☆'}</button><button class="hg-btn" data-mset="${m.id}" title="Настройки мониторинга" aria-label="Настройки мониторинга">${I.gear}</button></span></td>
+      <td class="mt-nm"><div class="mt-name"><span class="eng ${m.eng}" title="${m.eng==='ya'?'Яндекс':'Google'}">${m.eng==='ya'?I.ya:I.go}</span><span class="flag-ico" title="Регион мониторинга">${I.flags[m.flag]||''}</span><span class="mt-n" title="${aiA(m.name)}">${esc(m.name)}</span></div>
+        <div class="mt-s" title="${aiA(`${m.sched} · ${ST_TIP[m.st]} · следующий срез ${m.next}`)}"><span class="hdot ${m.st}"></span>${MT_ST[m.st]} · след. ${m.next}</div></td>
+      ${m.bands.map((b,i)=>cell(b, m.deltas[i])).join('')}
+      ${cell(m.keys, 0)}${cell(m.urls, 0, ' c-urls')}
+      <td class="num"><span class="mt-v ${vis?'':'z'}">${vis} %</span>${vd ? `<span class="mt-d ${vd>0?'up':'down'}" title="К прошлому срезу">${vd>0?'+':'−'}${Math.abs(vd)} п.п.</span>` : ''}</td>
     </tr>`;
   }).join('');
   return `<section class="pj-card" id="pjm-mons">
-    <header class="pj-ch"><div class="pj-ct"><div class="pj-tl"><h2>Мониторинги</h2><span class="pj-cnt">${p.mons.length}</span></div><span class="pj-sub">Последний срез каждого мониторинга · изменения — к предыдущему срезу</span></div>
-      <div class="mt-legend" aria-label="Цвета распределения позиций">${MT_SEG.map(([l,c])=>`<span><i style="--c:var(${c})"></i>${l}</span>`).join('')}</div>
-    </header>
+    <header class="pj-ch"><div class="pj-ct"><div class="pj-tl"><h2>Мониторинги</h2><span class="pj-cnt">${p.mons.length}</span></div></div></header>
     <div class="mt-wrap"><table class="pj-mt">
-      <thead><tr><th>Мониторинг</th><th>Статус</th><th class="num">Ключей</th><th style="width:24%">Распределение позиций</th><th class="num">ТОП-3</th><th class="num">ТОП-10</th><th>Видимость</th><th aria-hidden="true"></th></tr></thead>
+      <colgroup><col class="c-act"><col><col class="c-b"><col class="c-b"><col class="c-b"><col class="c-b"><col class="c-b"><col class="c-k"><col class="c-u"><col class="c-vis"></colgroup>
+      <thead>
+        <tr class="mt-g"><th colspan="2"></th><th colspan="5" class="grp"><span>Позиции ключей</span></th><th colspan="3"></th></tr>
+        <tr><th></th><th>Мониторинг</th>${MT_BANDS.map((b,i)=>`<th class="num" title="Ключей в ТОП ${b}">${b}</th>`).join('')}<th class="num" title="Всего ключей в мониторинге">Ключи</th><th class="num c-urls">URLs</th><th class="num" title="Видимость: доля ключей в ТОП-10">Видимость</th></tr>
+      </thead>
       <tbody>${rows}</tbody></table></div>
   </section>`;
 }
 
-/* ---------- Яндекс Метрика ---------- */
-function pjMetrikaHtml(M){
-  if(M.src.metrika!=='ok') return pjEmptyHtml('metrika', M);
-  const D = M.metrika;
-  const v = pjWin(D.visits), s = pjWin(D.search), b = pjWin(D.bounce), t = pjWin(D.time);
-  const vC = sumA(v.cur), vP = sumA(v.prev), sC = sumA(s.cur), sP = sumA(s.prev);
-  const bC = wAvg(b.cur, v.cur), bP = wAvg(b.prev, v.prev), tC = wAvg(t.cur, v.cur), tP = wAvg(t.prev, v.prev);
-  const vp = pjPts(D.visits, 0, 'sum'), sp = pjPts(D.search, 0, 'sum');
-  PJ_CH.metrika = {mod:'metrika', x:vp.x, fmt:fN, ax:fAx, series:[
-    {key:'all', name:'Все визиты', c:'--ch-1', v:vp.v, area:1},
-    {key:'search', name:'Из поисковых систем', c:'--ch-2', v:sp.v}]};
-  const sh = sC/vC, rest = 1-sh, mt = sumA(D.mix);
-  const parts = [['Поисковые системы', sh, '--ch-2'], ['Прямые заходы', rest*D.mix[0]/mt, '--ch-3'], ['Переходы по ссылкам', rest*D.mix[1]/mt, '--ch-4'],
-                 ['Социальные сети', rest*D.mix[2]/mt, '--ch-5'], ['Реклама', rest*D.mix[3]/mt, '--ch-6']];
-  return `<section class="pj-card" id="pjm-metrika">
-    ${pjHead(PJ_I.metrika, 'Яндекс Метрика', `Счётчик ${D.counter} · ${pjRangeTxt(0)}`, `https://metrika.yandex.ru/dashboard?id=${D.counter}`, 'Открыть счётчик в Яндекс Метрике')}
-    <div class="pj-kpis">
-      ${pjKpi('Визиты', fN(vC), pjDelta(vC, vP))}
-      ${pjKpi('Из поисковых систем', `${fN(sC)}<small>${fD(sh*100,0)} %</small>`, pjDelta(sC, sP))}
-      ${pjKpi('Отказы', `${fD(bC*100)} %`, pjDelta(bC, bP, {pp:1, invert:1}))}
-      ${pjKpi('Время на сайте', fDur(tC), pjDelta(tC, tP))}
-    </div>
-    ${pjLegendHtml('metrika')}
-    ${pjChartHtml('metrika', `Визиты по данным Яндекс Метрики, ${pjRangeTxt(0)}`)}
-    ${pjShareHtml('Источники визитов', `Поиск: Яндекс ${fD(D.yaShare*100,0)} % · Google ${fD((1-D.yaShare)*97,0)} %`, parts)}
-  </section>`;
-}
-/* ---------- Google Analytics 4 ---------- */
-function pjGaHtml(M){
-  if(M.src.ga!=='ok') return pjEmptyHtml('ga', M);
-  const D = M.ga;
-  const s = pjWin(D.sessions), o = pjWin(D.org), e = pjWin(D.eng), t = pjWin(D.etime);
-  const sC = sumA(s.cur), sP = sumA(s.prev), oC = sumA(o.cur), oP = sumA(o.prev);
-  const eC = wAvg(e.cur, s.cur), eP = wAvg(e.prev, s.prev), tC = wAvg(t.cur, s.cur), tP = wAvg(t.prev, s.prev);
-  const sp = pjPts(D.sessions, 0, 'sum'), op = pjPts(D.org, 0, 'sum');
-  PJ_CH.ga = {mod:'ga', x:sp.x, fmt:fN, ax:fAx, series:[
-    {key:'all', name:'Все сеансы', c:'--ch-1', v:sp.v, area:1},
-    {key:'org', name:'Organic Search', c:'--ch-2', v:op.v}]};
-  const sh = oC/sC, rest = 1-sh, mt = sumA(D.mix);
-  const parts = [['Organic Search', sh, '--ch-2'], ['Direct', rest*D.mix[0]/mt, '--ch-3'], ['Referral', rest*D.mix[1]/mt, '--ch-4'],
-                 ['Organic Social', rest*D.mix[2]/mt, '--ch-5'], ['Paid Search', rest*D.mix[3]/mt, '--ch-6']];
-  return `<section class="pj-card" id="pjm-ga">
-    ${pjHead(PJ_I.ga, 'Google Analytics 4', `Ресурс ${D.prop} · ${pjRangeTxt(0)}`, `https://analytics.google.com/analytics/web/#/p${D.prop}/reports/intelligenthome`, 'Открыть ресурс в Google Analytics')}
-    <div class="pj-kpis">
-      ${pjKpi('Сеансы', fN(sC), pjDelta(sC, sP))}
-      ${pjKpi('Organic Search', `${fN(oC)}<small>${fD(sh*100,0)} %</small>`, pjDelta(oC, oP))}
-      ${pjKpi('Вовлечённость', `${fD(eC*100)} %`, pjDelta(eC, eP, {pp:1}))}
-      ${pjKpi('Ср. время вовлечения', fDur(tC), pjDelta(tC, tP))}
-    </div>
-    ${pjLegendHtml('ga')}
-    ${pjChartHtml('ga', `Сеансы по данным Google Analytics, ${pjRangeTxt(0)}`)}
-    ${pjShareHtml('Каналы', `Organic Search: Google ${fD(D.gShare*100,0)} %`, parts)}
-  </section>`;
-}
-/* ---------- таблица запросов / страниц (GSC и Вебмастер) ---------- */
-function pjQRows(M, mod){
-  const S = M[mod], tab = PJ.qtab[mod], tot = sumA(pjWin(S.clicks, S.lag).cur);
-  const r = pjRng(hashStr(mod+tab+'|'+M.p.dom));
-  const items = tab==='q' ? M.queries : M.pages.map((u,i)=>({q:u, pos:2 + i*1.7 + r()*3}));
-  return items.slice(0,5).map((it,i)=>{
-    const pos = Math.max(1, it.pos*(mod==='gsc' ? 1.15 : 1) + (r()-.5)*.8);
-    const clicks = tot*(tab==='q' ? .2 : .3)/Math.pow(i+1, .85);
-    return {q:it.q, clicks, impr: clicks/Math.min(.42, .32/Math.pow(pos, .95)), pos};
+/* ---------- Яндекс Вебмастер: ошибки и ключи ---------- */
+function pjWmKeys(M){
+  const r = pjRng(hashStr('wk|'+M.p.dom+'|'+PJ.period)), amp = {7:2, 30:4, 90:7, 364:12}[PJ.period] || 4;
+  const tot = sumA(pjWin(M.metrika.search, M.wm.lag).cur)*M.metrika.yaShare*9;
+  return M.queries.map((x,i)=>{
+    const pos = Math.max(1, x.pos + (r()-.5)*.8), still = r() < .22;
+    const prev = still ? pos : Math.max(1, pos + Math.round((r()-.42)*2*amp));
+    const shows = Math.max(1, Math.round(tot*M.qsh[i]));
+    return {q:x.q, shows, demand:Math.round(shows/(.35 + r()*.5)), pos, d: Math.round(prev - pos)};
   });
 }
-function pjQTable(M, mod){
-  const tab = PJ.qtab[mod], rows = pjQRows(M, mod);
-  return `<div class="pj-tabs" role="tablist">
-      <button class="pj-tab ${tab==='q'?'active':''}" role="tab" aria-selected="${tab==='q'}" data-qtab="${mod}:q">Запросы</button>
-      <button class="pj-tab ${tab==='p'?'active':''}" role="tab" aria-selected="${tab==='p'}" data-qtab="${mod}:p">Страницы</button>
-    </div>
-    <table class="pj-tbl"><colgroup><col><col style="width:64px"><col style="width:78px"><col style="width:68px"></colgroup>
-      <thead><tr><th>${tab==='q' ? 'Запрос' : 'Страница'}</th><th>Клики</th><th>Показы</th><th>Позиция</th></tr></thead>
-      <tbody>${rows.map(x=>`<tr><td title="${aiA(x.q)}">${esc(x.q)}</td><td>${fN(x.clicks)}</td><td>${fN(x.impr)}</td><td><span class="pos ${band(Math.round(x.pos))||'t100'}">${fD(x.pos)}</span></td></tr>`).join('')}</tbody>
-    </table>`;
-}
-/* ---------- Google Search Console ---------- */
-function pjGscHtml(M){
-  if(M.src.gsc!=='ok') return pjEmptyHtml('gsc', M);
-  const D = M.gsc;
-  const c = pjWin(D.clicks, D.lag), im = pjWin(D.impr, D.lag), po = pjWin(D.pos, D.lag);
-  const cC = sumA(c.cur), cP = sumA(c.prev), iC = sumA(im.cur), iP = sumA(im.prev);
-  const pC = wAvg(po.cur, im.cur), pP = wAvg(po.prev, im.prev);
-  const K = [['clicks','Клики', fN(cC), pjDelta(cC, cP)], ['impr','Показы', fN(iC), pjDelta(iC, iP)],
-             ['ctr','CTR', `${fD(cC/iC*100)} %`, pjDelta(cC/iC, cP/iP, {pp:1})], ['pos','Ср. позиция', fD(pC), pjDelta(pC, pP, {abs:1, dec:1, invert:1})]];
-  const sel = PJ.gsc, k = K.find(x=>x[0]===sel);
-  const pctAx = v => fD(v*100, 1).replace(',0','')+'%';
-  const cfg = sel==='clicks' ? {pts:pjPts(D.clicks, D.lag, 'sum'), fmt:fN, ax:fAx}
-    : sel==='impr' ? {pts:pjPts(D.impr, D.lag, 'sum'), fmt:fN, ax:fAx}
-    : sel==='ctr' ? {pts:pjPts(D.clicks.map((v,i)=>v/D.impr[i]), D.lag, 'avg', D.impr), fmt:v=>fD(v*100)+' %', ax:pctAx, fit:1}
-    : {pts:pjPts(D.pos, D.lag, 'avg', D.impr), fmt:v=>fD(v), ax:v=>fD(v, Number.isInteger(+v.toFixed(6)) ? 0 : 1), fit:1, inv:1};
-  PJ_CH.gsc = {x:cfg.pts.x, fmt:cfg.fmt, ax:cfg.ax, fit:cfg.fit, inv:cfg.inv, series:[{key:sel, name:k[1], c:'--ch-1', v:cfg.pts.v, area:!cfg.inv}]};
-  return `<section class="pj-card" id="pjm-gsc">
-    ${pjHead(I.go, 'Google Search Console', `sc-domain:${esc(M.p.dom)} · ${pjRangeTxt(D.lag)} · данные с задержкой 2 дня`, `https://search.google.com/search-console/performance/search-analytics?resource_id=sc-domain:${M.p.dom}`, 'Открыть ресурс в Search Console')}
-    <div class="pj-kpis">${K.map(x=>pjKpiBtn('gsc', x)).join('')}</div>
-    ${pjChartHtml('gsc', `${k[1]} в Google, ${pjRangeTxt(D.lag)}${cfg.inv ? ' (ось перевёрнута: выше — лучше)' : ''}`)}
-    <div class="pj-strip" aria-label="Индексирование">
-      <span class="pj-chip ok">${PJ_I.okc}Проиндексировано <b>${fN(D.indexed)}</b></span>
-      <span class="pj-chip info">${PJ_I.info}Не проиндексировано <b>${fN(D.notIdx)}</b></span>
-      <span class="pj-chip ${D.cwv>=75?'ok':'warn'}">${D.cwv>=75 ? PJ_I.okc : PJ_I.warn}Core Web Vitals: хороших URL <b>${D.cwv} %</b></span>
-    </div>
-    ${pjQTable(M, 'gsc')}
-  </section>`;
-}
-/* ---------- Яндекс Вебмастер ---------- */
 function pjWmHtml(M){
+  pjPer('wm');
   if(M.src.wm!=='ok') return pjEmptyHtml('wm', M);
-  const D = M.wm, dg = D.diag;
-  const c = pjWin(D.clicks, D.lag), sh = pjWin(D.shows, D.lag), q = pjWin(D.sqi, D.lag), pg = pjWin(D.pages, D.lag);
-  const cC = sumA(c.cur), cP = sumA(c.prev), sC = sumA(sh.cur), sP = sumA(sh.prev);
-  const last = a => a[a.length-1];
-  const K = [['clicks','Клики', fN(cC), pjDelta(cC, cP)], ['shows','Показы', fN(sC), pjDelta(sC, sP)],
-             ['sqi','ИКС', fN(last(q.cur)), pjDelta(last(q.cur), last(q.prev), {abs:1})], ['pages','Страниц в поиске', fN(last(pg.cur)), pjDelta(last(pg.cur), last(pg.prev), {abs:1})]];
-  const sel = PJ.wm, k = K.find(x=>x[0]===sel);
-  const cfg = sel==='clicks' ? {pts:pjPts(D.clicks, D.lag, 'sum')} : sel==='shows' ? {pts:pjPts(D.shows, D.lag, 'sum')}
-    : sel==='sqi' ? {pts:pjPts(D.sqi, D.lag, 'last'), fit:1} : {pts:pjPts(D.pages, D.lag, 'last'), fit:1};
-  PJ_CH.wm = {x:cfg.pts.x, fmt:fN, ax:fAx, fit:cfg.fit, series:[{key:sel, name:k[1], c:'--ch-1', v:cfg.pts.v, area:1}]};
-  const chip = (cls, n, ico, l) => `<span class="pj-chip ${cls} ${n ? 'has' : 'zero'}">${ico}${l} <b>${n}</b></span>`;
-  return `<section class="pj-card" id="pjm-wm">
-    ${pjHead(I.ya, 'Яндекс Вебмастер', `https://${esc(M.p.dom)} · ${pjRangeTxt(D.lag)} · данные с задержкой 3 дня`, `https://webmaster.yandex.ru/site/https:${M.p.dom}:443/dashboard/`, 'Открыть сайт в Яндекс Вебмастере')}
-    <div class="pj-kpis">${K.map(x=>pjKpiBtn('wm', x)).join('')}</div>
-    ${pjChartHtml('wm', `${k[1]} в Яндексе, ${pjRangeTxt(D.lag)}`)}
-    <div class="pj-strip" aria-label="Диагностика сайта">
-      ${chip('crit', dg.fatal, PJ_I.xc, 'Фатальные')}${chip('crit', dg.crit, PJ_I.alert, 'Критичные')}${chip('warn', dg.poss, PJ_I.warn, 'Возможные')}${chip('info', dg.rec, PJ_I.info, 'Рекомендации')}
+  const D = M.wm, lag = D.lag, last = a => a[a.length-1], dom = M.p.dom, sumR = a => Math.round(sumA(a));
+  const wmUrl = `https://webmaster.yandex.ru/site/https:${dom}:443`;
+  /* сводка: summary + sqi-history + in-search/history + events/history + links/internal/broken/history */
+  const sq = pjWin(D.sqi, lag), pg = pjWin(D.pages, lag), ex = pjWin(D.excl, lag), br = pjWin(D.broken, lag);
+  const rm = sumR(pjWin(D.removed, lag).cur);
+  const top = `<div class="pj-kpis">
+      ${pjKpi('ИКС', fN(last(sq.cur)), pjDelta(last(sq.cur), last(sq.prev), {abs:1}))}
+      ${pjKpi('Страниц в поиске', fN(last(pg.cur)), pjDelta(last(pg.cur), last(pg.prev), {abs:1}))}
+      ${pjKpi('Исключено', fN(last(ex.cur)), `<span class="k-d flat" title="Исключено из поиска за период (search-urls/events)">${rm ? `из них ${fN(rm)} за период` : 'за период — нет'}</span>`)}
+      ${pjKpi('Битые ссылки', fN(last(br.cur)), pjDelta(last(br.cur), last(br.prev), {abs:1, invert:1}))}
+    </div>`;
+  /* ошибки: чипы = summary.site_problems, список = diagnostics со state PRESENT */
+  const sev = PJ.wmSev, cnt = s => D.probs.filter(x=>x.s===s).length;
+  const list = D.probs.filter(x=> sev ? x.s===sev : x.s!=='rec'), LIM = 3;
+  const chip = s => { const n = cnt(s), on = sev===s, S = WM_SEV[s];
+    return `<button class="pj-chip ${S.c} ${n?'has':'zero'}${on?' sel':''}" data-sev="${s}" aria-pressed="${on}" ${n?'':'disabled'} title="${on ? 'Показать все проблемы' : 'Показать только: '+S.l.toLowerCase()}">${S.ico()}${S.l} <b>${n}</b></button>`; };
+  const fresh = d => (pjAgo(0) - d)/864e5 <= 7;
+  const rowsP = list.slice(0, LIM).map(x=>{ const S = WM_SEV[x.s];
+    return `<a class="wp-row" href="${wmUrl}/diagnosis/checklist/" target="_blank" rel="noopener" title="${x.code} — подробности в Вебмастере"><span class="wp-ic ${S.c}">${S.ico()}</span><span class="wp-tx"><b>${esc(x.t)}</b><span>${S.one}</span></span><span class="wp-d" title="Дата изменения состояния (last_state_update)">${fresh(x.d) ? '<span class="wp-new">новая</span>' : ''}с ${pjDM(x.d)}</span></a>`; }).join('');
+  const probs = list.length ? `<div class="wp-list">${rowsP}${list.length > LIM ? `<a class="wp-more" href="${wmUrl}/diagnosis/checklist/" target="_blank" rel="noopener">Ещё ${list.length-LIM} в Вебмастере ${I.link}</a>` : ''}</div>`
+    : `<div class="wp-list"><div class="wp-none">${PJ_I.okc}${sev ? 'Проблем этого типа нет' : 'Ошибок нет — остались только рекомендации'}</div></div>`;
+  /* ошибки обхода: indexing/history — страницы, отдавшие роботу 4xx / 5xx / другую ошибку за период */
+  const e4 = sumR(pjWin(D.h4, lag).cur), e5 = sumR(pjWin(D.h5, lag).cur), ex2 = sumR(pjWin(D.hx, lag).cur);
+  const crawl = `<div class="wm-idx" title="Страницы, загруженные роботом с ошибкой (indexing/history)"><span>Ошибки при обходе за период:</span>
+      <span>4xx <b>${fN(e4)}</b></span><span>5xx <b>${fN(e5)}</b></span><span>нет ответа и др. <b>${fN(ex2)}</b></span></div>`;
+  /* ключи: query-analytics/list (спрос, показы, позиция по дням) + search-queries/all/history (средняя позиция показа) */
+  const qa = pjWin(D.qn, lag), q3 = pjWin(D.q3, lag), q10 = pjWin(D.q10, lag), qp = pjWin(D.qpos, lag);
+  const L = a => Math.round(last(a)), avg = a => sumA(a)/a.length;
+  const keys = pjWmKeys(M), up = keys.filter(k=>k.d>0), dn = keys.filter(k=>k.d<0), K = PJ.wmK;
+  const shown = K==='up' ? up.sort((a,b)=>b.d-a.d) : K==='down' ? dn.sort((a,b)=>a.d-b.d) : keys.slice().sort((a,b)=>b.shows-a.shows);
+  const tab = (k, l, n) => `<button class="pj-tab ${K===k?'active':''}" role="tab" aria-selected="${K===k}" data-wmk="${k}">${l}${n!=null ? ` <span>${n}</span>` : ''}</button>`;
+  const chg = d => d ? `<span class="k-d ${d>0?'up':'down'}" title="${d>0?'Поднялся':'Опустился'} на ${Math.abs(d)} за период">${d>0?'▲':'▼'} ${Math.abs(d)}</span>` : '<span class="k-d flat">—</span>';
+  return `<section class="pj-card wg${PJ.wide.has('wm')?' wide':''}" id="pjm-wm">
+    ${swHead('wm', M, 0)}
+    ${swBar('wm', M, null)}
+    ${top}
+    <div class="wm-sh"><span>Ошибки сайта</span><a class="wg-all" href="${wmUrl}/diagnosis/checklist/" target="_blank" rel="noopener">Диагностика ${I.link}</a></div>
+    <div class="pj-strip" role="group" aria-label="Фильтр по важности">${WM_ORD.map(chip).join('')}</div>
+    ${probs}
+    ${crawl}
+    <div class="wm-sh sep"><span>Ключи в Яндексе</span><a class="wg-all" href="${wmUrl}/search/queries/" target="_blank" rel="noopener">Мониторинг запросов ${I.link}</a></div>
+    <div class="pj-kpis">
+      ${pjKpi('Запросов с показами', fN(L(qa.cur)), pjDelta(L(qa.cur), L(qa.prev)))}
+      ${pjKpi('В ТОП-3', fN(L(q3.cur)), pjDelta(L(q3.cur), L(q3.prev), {abs:1}))}
+      ${pjKpi('В ТОП-10', fN(L(q10.cur)), pjDelta(L(q10.cur), L(q10.prev), {abs:1}))}
+      ${pjKpi('Ср. позиция показа', fD(avg(qp.cur)), pjDelta(avg(qp.cur), avg(qp.prev), {abs:1, dec:1, invert:1}))}
     </div>
-    ${pjQTable(M, 'wm')}
+    <div class="pj-tabs" role="tablist">${tab('all','Все', keys.length)}${tab('up','Выросли', up.length)}${tab('down','Упали', dn.length)}</div>
+    <div class="wg-fill" style="--rows:5">
+      <table class="wg-tbl"><colgroup><col><col style="width:64px"><col style="width:66px"><col style="width:68px"><col style="width:58px"></colgroup>
+        <thead><tr><th>Запрос</th><th title="Как часто запрос задают в Яндексе (DEMAND)">Спрос</th><th>Показы</th><th>Позиция</th><th>Изм.</th></tr></thead>
+        <tbody>${shown.map(k=>`<tr><td title="${aiA(k.q)}">${esc(k.q)}</td><td>${fN(k.demand)}</td><td>${fN(k.shows)}</td><td><span class="pj-pos ${band(Math.round(k.pos))||'t100'}">${fD(k.pos)}</span></td><td>${chg(k.d)}</td></tr>`).join('')
+          || `<tr><td colspan="5" class="wg-none">${K==='up' ? 'За период ни один запрос не вырос' : 'За период ни один запрос не упал'}</td></tr>`}</tbody>
+      </table>
+    </div>
   </section>`;
 }
+
+/* ---------- Google PageSpeed: компактный модуль — страница, устройство, 4 мини-графика оценок, строка метрик ---------- */
+/* ряды страницы: 4 оценки Lighthouse и лабораторные метрики по дням; у главной последняя Performance = p.ps (её же показывает шапка) */
+function pjPsiPage(M, path){
+  if(M.psi.cache[path]) return M.psi.cache[path];
+  const p = M.p, h = M.h, ph = hashStr(path), key = p.dom + path, home = path==='/', out = {};
+  const clamp = v => Math.max(0, Math.min(100, Math.round(v)));
+  [['desktop', p.ps[0]], ['mobile', p.ps[1]]].forEach(([dv, now0], di)=>{
+    const now = home ? now0 : clamp(now0 + 4 - ph % (di ? 30 : 16)); /* внутренние страницы обычно тяжелее главной */
+    /* Performance скачет от проверки к проверке на несколько баллов (сеть, нагрузка) — дрейф + дневной разброс */
+    const jr = pjRng(hashStr(`pj|${dv}|${key}`)), lv = pjLevel(`pp|${dv}|${key}`, now, .07).map(v=>v + (jr()-.5)*(di ? 7 : 4));
+    const d0 = now - lv[lv.length-1], perf = lv.map(v=>clamp(v + d0));
+    const cat = (k, base) => pjSteps(`p${k}|${dv}|${key}`, Math.min(100, base), [15,50], 6, 1).map(v=>Math.min(100, v));
+    const mb = dv==='desktop' ? {lcp:.75, tbt:40, cls:.02, fcp:.45, si:.85} : {lcp:1.7, tbt:170, cls:.04, fcp:1.25, si:2.7};
+    const met = (k, sp) => pjLevel(`pm${k}|${dv}|${key}`, 1, sp).map((n,i)=> mb[k]*(1.85 - perf[i]/100)*n); /* хуже Performance — медленнее метрики */
+    out[dv] = {perf, a11y:cat('a', 68 + h%26 - di*2 + (home ? 0 : ph%7 - 3)), bp:cat('b', 88 + h%12), seo:cat('s', 80 + (h>>>4)%19 + (home ? 0 : ph%5 - 2)),
+      lcp:met('lcp', .08), tbt:met('tbt', .15), cls:met('cls', .2).map(v=>Math.round(v*1000)/1000), fcp:met('fcp', .06), si:met('si', .08)};
+  });
+  return M.psi.cache[path] = out;
+}
+const PSI_CAT = [['perf','Performance'],['a11y','Accessibility'],['bp','Best Practices'],['seo','SEO']];
+/* [ключ, кратко, полностью, [хорошо ≤, плохо >], формат, знаков в дельте] — пороги Lighthouse / Core Web Vitals */
+const PSI_MET = [
+  ['lcp','LCP','Largest Contentful Paint',[2.5,4],v=>fD(v,1)+' с',1],
+  ['tbt','TBT','Total Blocking Time',[200,600],v=>fN(v)+' мс',0],
+  ['cls','CLS','Cumulative Layout Shift',[.1,.25],v=>fD(v,3),3],
+  ['fcp','FCP','First Contentful Paint',[1.8,3],v=>fD(v,1)+' с',1],
+  ['si','SI','Speed Index',[3.4,5.8],v=>fD(v,1)+' с',1]];
+const PSI_DEV = [['mobile','Mobile'],['desktop','Desktop']];
+const psiSt = v => v>=90 ? 'good' : v>=50 ? 'avg' : 'bad';
+const psiMSt = (v, t) => v<=t[0] ? 'good' : v<=t[1] ? 'avg' : 'bad';
+const PSI_W = {good:'хорошо', avg:'требует улучшения', bad:'плохо'};
+/* статус не только цветом: форма как в PageSpeed Insights — круг / квадрат / треугольник */
+const psiShape = st => st==='good' ? '<svg viewBox="0 0 10 10" class="ps-sh good" aria-hidden="true"><circle cx="5" cy="5" r="4"/></svg>'
+  : st==='avg' ? '<svg viewBox="0 0 10 10" class="ps-sh avg" aria-hidden="true"><rect x="1.3" y="1.3" width="7.4" height="7.4"/></svg>'
+  : '<svg viewBox="0 0 10 10" class="ps-sh bad" aria-hidden="true"><path d="M5 .8 9.4 9.2H.6z"/></svg>';
+const psiPgName = u => u==='/' ? 'Главная' : u;
+function pjPsiHtml(M){
+  pjPer('psi');
+  const S = PJ.psi, pages = M.psi.pages, page = pages.includes(S.page) ? S.page : '/', last = a => a[a.length-1];
+  const D = pjPsiPage(M, page)[S.dev], devL = PSI_DEV.find(x=>x[0]===S.dev)[1];
+  /* выбор страницы: рядом с каждой — текущая Performance на выбранном устройстве */
+  const opts = pages.map(u=>{ const v = last(pjPsiPage(M, u)[S.dev].perf), st = psiSt(v), a = u===page;
+    return `<button class="dd-item psi-pg-i${a?' active':''}" role="menuitemradio" aria-checked="${a}" data-psipage="${aiA(u)}" title="${aiA('https://'+M.p.dom+u)}"><span class="pg-u">${esc(psiPgName(u))}</span><span class="pg-s ${st}" aria-label="Performance ${devL}: ${v}, ${PSI_W[st]}">${psiShape(st)}${v}</span></button>`; }).join('');
+  const pick = `<span class="dd-wrap psi-pg"><button class="pj-dd-btn psi-pg-btn" aria-haspopup="menu" aria-expanded="false" title="${aiA('https://'+M.p.dom+page)}">Страница: <b>${esc(psiPgName(page))}</b><span class="car">▼</span></button><div class="dd-panel psi-pg-pop" role="menu" aria-label="Страница для PageSpeed">${opts}</div></span>`;
+  const seg = `<div class="pj-seg psi-dev" role="group" aria-label="Устройство">${PSI_DEV.map(([d,l])=>`<button class="${S.dev===d?'active':''}" data-psidev="${d}" aria-pressed="${S.dev===d}">${l}</button>`).join('')}</div>`;
+  /* 4 оценки: число со статусом, изменение за период, мини-график с порогом 90 */
+  const tiles = PSI_CAT.map(([k, l])=>{
+    const w = pjWin(D[k]), v = last(w.cur), st = psiSt(v), id = 'psi-'+k, pts = pjPts(D[k], 0, 'avg');
+    PJ_CH[id] = {mini:1, x:pts.x, fmt:x=>fN(x), ax:x=>fN(x), fit:1, cap:100, span:12, guides:[{v:90, t:'90', inc: v >= 70}],
+      series:[{key:k, name:`${devL} · ${l}`, c:'--ch-1', v:pts.v, area:1}]};
+    return `<div class="psi-t"><div class="psi-th"><span class="psi-tl">${l}</span>${pjDelta(v, last(w.prev), {abs:1})}</div>
+      <div class="psi-tv ${st}">${psiShape(st)}<span>${v}</span></div>
+      ${pjChartHtml(id, `${devL} · ${l}: ${v} из 100, ${PSI_W[st]}; динамика, ${pjRangeTxt(0)}`)}</div>`; }).join('');
+  const mets = PSI_MET.map(([k, ab, full, t, fm, dec])=>{ const w = pjWin(D[k]), v = last(w.cur), st = psiMSt(v, t);
+    return `<span class="psi-mc" title="${full}: ${fm(v)} — ${PSI_W[st]} (хорошо ≤ ${fm(t[0])}, плохо > ${fm(t[1])})">${psiShape(st)}<b>${ab}</b>${fm(v)}${pjDelta(v, last(w.prev), {abs:1, dec, invert:1})}</span>`; }).join('');
+  return `<section class="pj-card wg wide psi" id="pjm-psi">
+    <header class="psi-h"><span class="src-ico">${PJ_I.psi}</span><h2 class="wg-name">Google PageSpeed</h2>${pick}${seg}${pjPerDd('psi', 0)}<span class="spacer"></span>
+      <span class="wg-upd">проверено ${pjUpd('psi', M)}</span>
+      <button class="wg-act" data-poll="psi" title="Запустить проверку PageSpeed для этой страницы">${I.refresh}Проверить</button>
+      <a class="wg-more" href="https://pagespeed.web.dev/analysis?url=${encodeURIComponent('https://'+M.p.dom+page)}" target="_blank" rel="noopener" title="Открыть страницу в PageSpeed Insights">PageSpeed Insights ${I.link}</a></header>
+    <div class="psi-tiles">${tiles}</div>
+    <div class="psi-mets"><span class="psi-ml">Метрики · ${devL}</span>${mets}</div>
+  </section>`;
+}
+
 /* ---------- Лог проекта ---------- */
 const PJ_LOGF = [['all','Все'],['mon','Мониторинги'],['set','Настройки'],['acc','Доступы'],['int','Интеграции']];
 const PJ_EVI = {ok:()=>PJ_I.okc, err:()=>PJ_I.alert, pos:()=>I.pos, run:()=>PJ_I.run, gear:()=>I.gear, users:()=>I.users, plug:()=>PJ_I.plug, home:()=>I.home};
@@ -4236,19 +4706,19 @@ function pjDayLabel(d){
 }
 function pjLogHtml(M){
   const F = PJ.logF, list = F==='all' ? M.log : M.log.filter(e=>e.t===F);
-  const LIM = 7, shown = PJ.logAll ? list : list.slice(0, LIM);
   let body = '', lastDay = '';
-  shown.forEach(e=>{
+  list.forEach(e=>{
     const day = e.d.toDateString();
     if(day!==lastDay){ lastDay = day; body += `<div class="ev-day">${pjDayLabel(e.d)}</div>`; }
     body += `<div class="ev-row"><span class="ev-t">${p2(e.d.getHours())}:${p2(e.d.getMinutes())}</span><span class="ev-ic ${e.ic==='err'?'err':e.ic==='ok'?'ok':''}">${PJ_EVI[e.ic]()}</span><div class="ev-x">${e.h}${e.c ? `<span class="chg">${e.c}</span>` : ''}</div></div>`;
   });
-  return `<section class="pj-card" id="pjm-log">
-    <header class="pj-ch"><div class="pj-ct"><div class="pj-tl"><h2>Лог проекта</h2></div><span class="pj-sub">Срезы, изменения настроек, доступы и интеграции</span></div>
+  const n = list.length;
+  return `<section class="pj-card pj-log" id="pjm-log">
+    <header class="pj-ch"><div class="pj-ct"><div class="pj-tl"><h2>Лог проекта</h2></div></div>
       <div class="pj-seg" role="group" aria-label="Тип событий">${PJ_LOGF.map(([k,l])=>`<button class="${F===k?'active':''}" data-logf="${k}" aria-pressed="${F===k}">${l}</button>`).join('')}</div>
     </header>
-    <div class="ev-list">${body || '<div class="ev-empty">Событий этого типа пока нет</div>'}</div>
-    ${list.length > LIM ? `<div class="ev-foot"><button class="btn secondary sm" id="evMore" data-more="1">${PJ.logAll ? 'Свернуть' : `Показать ещё ${list.length-LIM}`}</button></div>` : ''}
+    <div class="ev-box"><div class="ev-list" tabindex="0" role="region" aria-label="События проекта">${body || '<div class="ev-empty">Событий этого типа пока нет</div>'}</div></div>
+    <div class="ev-foot"><span>${n ? `${fN(n)} ${aiPl(n, ['событие','события','событий'])}` : ''}</span></div>
   </section>`;
 }
 /* ---------- Команда проекта ---------- */
@@ -4257,7 +4727,7 @@ const pjAva = (n, team) => `<span class="pt-ava${team?' team':''}" style="--h:${
 function pjTeamHtml(M){
   const T = M.team, n = 1 + T.users.length + T.teams.length;
   return `<section class="pj-card" id="pjm-team">
-    <header class="pj-ch"><div class="pj-ct"><div class="pj-tl"><h2>Команда проекта</h2><span class="pj-cnt">${n}</span></div><span class="pj-sub">Кто видит и редактирует проект</span></div></header>
+    <header class="pj-ch"><div class="pj-ct"><div class="pj-tl"><h2>Команда проекта</h2><span class="pj-cnt">${n}</span></div></div></header>
     <div class="pt-sec"><div class="pt-h">Владелец</div>
       <div class="pt-row">${pjAva(T.owner)}<span class="pt-who"><b>${esc(T.owner)}</b><span>${esc(T.team)}</span></span><span class="pt-acc own">Все права</span></div></div>
     <div class="pt-sec"><div class="pt-h">Пользователи · ${T.users.length}</div>
@@ -4268,7 +4738,7 @@ function pjTeamHtml(M){
   </section>`;
 }
 
-/* ---------- график: SVG по фактической ширине, перекрестие + тултип, клавиатура ---------- */
+/* ---------- график: SVG по фактической ширине, плавная линия, перекрестие + тултип, клавиатура ---------- */
 function pjNice(lo, hi, n){
   if(hi<=lo) hi = lo + 1;
   const raw = (hi-lo)/n, mag = Math.pow(10, Math.floor(Math.log10(raw))), f = raw/mag;
@@ -4276,14 +4746,15 @@ function pjNice(lo, hi, n){
   return {min: Math.floor(lo/step)*step, max: Math.ceil(hi/step)*step, step};
 }
 function pjXLabels(x, pw){
-  const n = x.length, out = [];
-  if(x[0].d0 !== x[0].d1){ /* по неделям — подпись месяца на первой неделе месяца */
-    let lastM = x[0].d1.getMonth(), lastX = -1e9;
-    x.forEach((b,i)=>{ const m = b.d1.getMonth(); if(m!==lastM){ lastM = m; const px = i/(n-1)*pw; if(px-lastX >= 34){ out.push({i, t:MON_N[m]}); lastX = px; } } });
+  const n = x.length, out = [], g = x[0].g;
+  const at = i => n<2 ? pw/2 : i/(n-1)*pw;
+  if(g==='m' || (g==='w' && n > 16)){ /* месяцы: у месячных точек — каждая, у недельных — первая неделя месяца */
+    let lastM = g==='m' ? -1 : x[0].d1.getMonth(), lastX = -1e9;
+    x.forEach((b,i)=>{ const m = (g==='m' ? b.d0 : b.d1).getMonth(); if(m!==lastM){ lastM = m; if(at(i)-lastX >= 34){ out.push({i, t:MON_N[m]}); lastX = at(i); } } });
     return out;
   }
   const step = Math.max(1, Math.ceil(n/Math.max(2, Math.floor(pw/(n<=7 ? 52 : 60)))));
-  for(let i=n-1;i>=0;i-=step){ const d = x[i].d0; out.push({i, t: n<=7 ? `${WD_S[d.getDay()]}, ${d.getDate()}` : `${d.getDate()} ${MON_S[d.getMonth()]}`}); }
+  for(let i=n-1;i>=0;i-=step){ const d = x[i].d0; out.push({i, t: n<=7 && g==='d' ? `${WD_S[d.getDay()]}, ${d.getDate()}` : `${d.getDate()} ${MON_S[d.getMonth()]}`}); }
   return out;
 }
 function pjXTip(b){
@@ -4291,39 +4762,70 @@ function pjXTip(b){
   if(a===z) return `${WD_S[a.getDay()]}, ${pjDM(a)} ${a.getFullYear()}`;
   return a.getMonth()===z.getMonth() ? `${a.getDate()}–${z.getDate()} ${MON_G[z.getMonth()]}` : `${pjDM(a)} – ${pjDM(z)}`;
 }
+/* монотонная кубическая кривая (Фритч–Карлсон): плавно и без выбросов за пределы данных */
+function pjCurve(P){
+  const n = P.length, f = v=>v.toFixed(1), seg = [];
+  if(n < 2) return seg;
+  if(n === 2) return [`L${f(P[1][0])},${f(P[1][1])}`];
+  const dx = [], m = [], t = [];
+  for(let i=0;i<n-1;i++){ dx[i] = P[i+1][0]-P[i][0]; m[i] = (P[i+1][1]-P[i][1])/dx[i]; }
+  t[0] = m[0]; t[n-1] = m[n-2];
+  for(let i=1;i<n-1;i++) t[i] = m[i-1]*m[i] <= 0 ? 0 : 3*(dx[i-1]+dx[i])/((2*dx[i]+dx[i-1])/m[i-1] + (dx[i]+2*dx[i-1])/m[i]);
+  for(let i=0;i<n-1;i++){ const k = dx[i]/3;
+    seg.push(`C${f(P[i][0]+k)},${f(P[i][1]+t[i]*k)} ${f(P[i+1][0]-k)},${f(P[i+1][1]-t[i+1]*k)} ${f(P[i+1][0])},${f(P[i+1][1])}`); }
+  return seg;
+}
 function pjDraw(el){
-  const C = PJ_CH[el.dataset.ch]; if(!C) return;
+  const id = el.dataset.ch, C = PJ_CH[id]; if(!C) return;
   const W = el.clientWidth, H = el.clientHeight; if(!W || !H) return;
   el.__w = W;
-  const off = C.mod ? PJ.off[C.mod] : null;
-  const S = C.series.filter(s=>!off || !off.has(s.key)), n = C.x.length;
+  const S = C.series, n = C.x.length, f = v=>v.toFixed(1);
   const all = S.flatMap(s=>s.v);
   let lo = C.fit ? Math.min(...all) : 0, hi = Math.max(...all, 0);
+  (C.guides||[]).forEach(gd=>{ if(gd.inc){ hi = Math.max(hi, gd.v); lo = Math.min(lo, gd.v); } }); /* порог «хорошо» всегда в кадре */
   if(C.fit){ const pad = (hi-lo)*.15 || Math.max(1, hi*.05); lo = Math.max(0, lo-pad); hi += pad; }
+  if(C.span && hi - lo < C.span){ const m = (hi + lo)/2; lo = m - C.span/2; hi = m + C.span/2; } /* плоский ряд не раздувать в «пилу» */
+  if(C.dom){ lo = C.dom[0]; hi = C.dom[1]; }
+  if(C.cap!=null && hi > C.cap){ lo -= hi - C.cap; hi = C.cap; }
+  if(C.fit) lo = Math.max(0, lo);
   const tk = pjNice(lo, hi, 4), ticks = [];
   for(let v=tk.min; v<=tk.max + tk.step/2; v+=tk.step) ticks.push(v);
   const labels = ticks.map(C.ax);
-  const L = 12 + Math.max(...labels.map(s=>s.length))*6.4, R = 8, T = 8, B = 22, pw = W-L-R, ph = H-T-B;
+  const mini = !!C.mini; /* мини-график: без осей и подписей, только линия, порог и тултип */
+  const L = mini ? 2 : 12 + Math.max(...labels.map(s=>s.length))*6.4, R = mini ? 2 : 8, T = mini ? 5 : 8, B = mini ? 3 : 22, pw = W-L-R, ph = H-T-B;
   const X = i => L + (n<2 ? pw/2 : i*pw/(n-1));
   const Y = v => { const k = (v-tk.min)/(tk.max-tk.min); return C.inv ? T + k*ph : T + ph - k*ph; };
-  let g = '';
-  ticks.forEach((v,j)=>{ const y = Y(v).toFixed(1);
-    g += `<line class="gl${!C.fit && j===0 ? ' base' : ''}" x1="${L}" x2="${W-R}" y1="${y}" y2="${y}"/><text class="tl" x="${(L-8).toFixed(1)}" y="${(+y+3.8).toFixed(1)}" text-anchor="end">${labels[j]}</text>`; });
-  pjXLabels(C.x, pw).forEach(o=>{ g += `<text class="tl" x="${X(o.i).toFixed(1)}" y="${H-5}" text-anchor="${o.i===n-1 ? 'end' : o.i===0 ? 'start' : 'middle'}">${o.t}</text>`; });
-  S.forEach(s=>{
-    const pts = s.v.map((v,i)=>`${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join(' L');
-    if(s.area && !C.inv) g += `<path class="ar" style="fill:var(${s.c})" d="M${X(0).toFixed(1)},${Y(tk.min).toFixed(1)} L${pts} L${X(n-1).toFixed(1)},${Y(tk.min).toFixed(1)} Z"/>`;
-    g += `<path class="ln" style="stroke:var(${s.c})" d="M${pts}"/>`;
+  let g = '', defs = '';
+  if(!mini) ticks.forEach((v,j)=>{ const y = f(Y(v));
+    g += `<line class="gl${!C.fit && j===0 ? ' base' : ''}" x1="${L}" x2="${W-R}" y1="${y}" y2="${y}"/><text class="tl" x="${f(L-8)}" y="${f(+y+3.8)}" text-anchor="end">${labels[j]}</text>`; });
+  (C.guides||[]).forEach(gd=>{ if(gd.v < tk.min || gd.v > tk.max) return; const y = f(Y(gd.v));
+    g += `<line class="gd" x1="${L}" x2="${W-R}" y1="${y}" y2="${y}"/>` + (mini ? '' : `<text class="gdl" x="${f(W-R-2)}" y="${f(+y-4)}" text-anchor="end">${gd.t}</text>`); });
+  if(!mini) pjXLabels(C.x, pw).forEach(o=>{ g += `<text class="tl" x="${f(X(o.i))}" y="${H-5}" text-anchor="${o.i===n-1 && n>1 ? 'end' : o.i===0 && n>1 ? 'start' : 'middle'}">${o.t}</text>`; });
+  const notes = C.notes || [];
+  notes.forEach(nt=>{ const x = f(X(nt.i)); g += `<line class="nl" x1="${x}" x2="${x}" y1="${T}" y2="${f(T+ph)}"/>`; });
+  S.forEach((s,si)=>{
+    const P = s.v.map((v,i)=>[X(i), Y(v)]), seg = pjCurve(P), head = `M${f(P[0][0])},${f(P[0][1])}`;
+    const part = C.partial && n > 2;
+    if(s.area && !C.inv){
+      const gid = `pjg-${id}-${si}`;
+      defs += `<linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(${s.c});stop-opacity:.2"/><stop offset="1" style="stop-color:var(${s.c});stop-opacity:0"/></linearGradient>`;
+      g += `<path class="ar" fill="url(#${gid})" d="${head} ${seg.join(' ')} L${f(X(n-1))},${f(Y(tk.min))} L${f(X(0))},${f(Y(tk.min))} Z"/>`;
+    }
+    g += `<path class="ln" style="stroke:var(${s.c})" d="${head} ${(part ? seg.slice(0,-1) : seg).join(' ')}"/>`;
+    if(part) g += `<path class="ln dash" style="stroke:var(${s.c})" d="M${f(P[n-2][0])},${f(P[n-2][1])} ${seg[n-2]}"/>`;
   });
-  g += `<g class="hv" style="display:none"><line class="xh" y1="${T}" y2="${T+ph}"/>${S.map(s=>`<circle class="pt" r="4" style="fill:var(${s.c})"/>`).join('')}</g><rect class="hit" x="${L}" y="0" width="${pw}" height="${T+ph}"/>`;
-  el.innerHTML = `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" aria-hidden="true">${g}</svg><div class="pj-tip"></div>`;
+  notes.forEach(nt=>{ g += `<circle class="nm" cx="${f(X(nt.i))}" cy="${f(T+ph)}" r="4"/>`; });
+  g += `<g class="hv" style="display:none"><line class="xh" y1="${T}" y2="${T+ph}"/>${S.map(s=>`<circle class="pt" r="4" style="fill:var(${s.c})"/>`).join('')}</g><rect class="hit" x="${L}" y="0" width="${pw}" height="${T+ph+6}"/>`;
+  el.innerHTML = `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" aria-hidden="true"><defs>${defs}</defs>${g}</svg><div class="pj-tip"></div>`;
   const hv = el.querySelector('.hv'), tip = el.querySelector('.pj-tip'), xh = hv.querySelector('.xh'), dots = hv.querySelectorAll('.pt');
   const showI = i=>{
     i = Math.max(0, Math.min(n-1, i)); el.__i = i;
-    const x = X(i).toFixed(1);
+    const x = f(X(i));
     hv.style.display = ''; xh.setAttribute('x1', x); xh.setAttribute('x2', x);
-    S.forEach((s,j)=>{ dots[j].setAttribute('cx', x); dots[j].setAttribute('cy', Y(s.v[i]).toFixed(1)); });
-    tip.innerHTML = `<div class="tt-d">${pjXTip(C.x[i])}</div>` + S.map(s=>`<div class="tt-r"><span class="sw" style="--c:var(${s.c})"></span>${s.name}<b>${C.fmt(s.v[i])}</b></div>`).join('');
+    S.forEach((s,j)=>{ dots[j].setAttribute('cx', x); dots[j].setAttribute('cy', f(Y(s.v[i]))); });
+    tip.innerHTML = `<div class="tt-d">${pjXTip(C.x[i])}</div>` + S.map(s=>`<div class="tt-r"><span class="sw" style="--c:var(${s.c})"></span>${s.name}<b>${C.fmt(s.v[i])}</b></div>`).join('')
+      + (C.partial && i===n-1 && n>1 ? `<div class="tt-p">Период не закончился — данные неполные</div>` : '')
+      + notes.filter(nt=>nt.i===i).map(nt=>`<div class="tt-n">${PJ_I.note}<span><b>${esc(nt.who)}</b> · ${esc(nt.t)}</span></div>`).join('');
     tip.classList.add('on');
     const tw = tip.offsetWidth; let tx = +x + 14; if(tx + tw > W) tx = +x - 14 - tw;
     tip.style.left = Math.max(0, tx)+'px';
@@ -4344,63 +4846,116 @@ function pjObserve(){
   if(!PJ_RO) PJ_RO = new ResizeObserver(es=> es.forEach(e=>{ const el = e.target; if(el.isConnected && Math.abs(el.clientWidth - (el.__w||0)) > 1) pjDraw(el); }));
   app.querySelectorAll('.pj-chart').forEach(el=>{ if(!el.__obs){ el.__obs = 1; PJ_RO.observe(el); } });
 }
-/* плавающая подсказка для сегментов полос (распределение позиций, источники) */
+/* плавающая подсказка для элементов с data-ptip */
 function pjFloatTip(){
   let t = document.getElementById('pjFTip');
   if(!t){ t = document.createElement('div'); t.id = 'pjFTip'; t.className = 'pj-tip pj-ftip'; t.setAttribute('role','tooltip'); document.body.appendChild(t); }
   return t;
 }
+function pjTipBind(w, ft){
+  w.addEventListener('pointerover', e=>{ const t = e.target.closest('[data-ptip]'); if(t){ ft.textContent = t.dataset.ptip; ft.classList.add('on'); } });
+  w.addEventListener('pointermove', e=>{
+    if(!ft.classList.contains('on')) return;
+    if(!e.target.closest('[data-ptip]')){ ft.classList.remove('on'); return; }
+    ft.style.left = Math.max(8, Math.min(innerWidth - ft.offsetWidth - 8, e.clientX + 12))+'px';
+    ft.style.top = (e.clientY + 18)+'px';
+  });
+  w.addEventListener('pointerleave', ()=> ft.classList.remove('on'));
+}
+/* Карточки в ряду растягиваются до общей высоты. Чтобы внутри не оставалось пустоты, таблица внизу виджета
+   (.wg-fill) занимает весь остаток и показывает столько строк, сколько целиком помещается; лента лога (.ev-list)
+   занимает высоту соседней колонки и прокручивается. Пересчёт — при отрисовке и при изменении размеров. */
+let PJ_FO = null;
+function pjFitTbl(w){
+  const rows = w.querySelectorAll('tbody tr'), wb = w.getBoundingClientRect();
+  rows.forEach(r=>r.classList.remove('fh'));
+  let cut = false;
+  rows.forEach(r=>{ if(!cut && r.getBoundingClientRect().bottom > wb.bottom + .5) cut = true; if(cut) r.classList.add('fh'); });
+}
+function pjLogState(l){
+  const box = l.parentElement;
+  const over = l.scrollHeight > l.clientHeight + 2, rest = l.scrollHeight - l.clientHeight - l.scrollTop > 4;
+  box.classList.toggle('more', over && rest);
+}
+function pjAfter(root){
+  root.querySelectorAll('.pj-chart').forEach(pjDraw);
+  pjObserve();
+  if(!PJ_FO && 'ResizeObserver' in window) PJ_FO = new ResizeObserver(es=> es.forEach(e=>{ const el = e.target; if(!el.isConnected) return;
+    if(el.classList.contains('wg-fill')) pjFitTbl(el); else pjLogState(el); }));
+  root.querySelectorAll('.wg-fill').forEach(w=>{ pjFitTbl(w); if(PJ_FO && !w.__fo){ w.__fo = 1; PJ_FO.observe(w); } });
+  root.querySelectorAll('.ev-list').forEach(l=>{ pjLogState(l); l.onscroll = ()=> pjLogState(l); if(PJ_FO && !l.__fo){ l.__fo = 1; PJ_FO.observe(l); } });
+}
+/* замена секции: графики перерисовываются, фокус возвращается на нажатый элемент */
+function pjSwap(old, html, focusSel){
+  if(PJ_RO) old.querySelectorAll('.pj-chart').forEach(c=>PJ_RO.unobserve(c));
+  if(PJ_FO) old.querySelectorAll('.wg-fill, .ev-list').forEach(c=>PJ_FO.unobserve(c));
+  const id = old.id; old.outerHTML = html;
+  const el = document.getElementById(id);
+  pjAfter(el);
+  if(focusSel){ const f = el.querySelector(focusSel); if(f) f.focus(); }
+}
 
-/* ---------- страница ---------- */
-const PJ_MODS = {mons:pjMonsHtml, metrika:pjMetrikaHtml, ga:pjGaHtml, gsc:pjGscHtml, wm:pjWmHtml, log:pjLogHtml, team:pjTeamHtml};
+/* ---------- страница дашборда ---------- */
+const PJ_MODS = {psi:pjPsiHtml, mons:pjMonsHtml, metrika:pjMetrikaHtml, ga:pjGaHtml, gsc:pjGscHtml, wm:pjWmHtml, log:pjLogHtml, team:pjTeamHtml};
 function pjRenderMod(key, focusSel){
   const old = document.getElementById('pjm-'+key); if(!old) return;
-  if(PJ_RO) old.querySelectorAll('.pj-chart').forEach(c=>PJ_RO.unobserve(c));
-  old.outerHTML = PJ_MODS[key](pjModel(CUR_PROJ));
-  const el = document.getElementById('pjm-'+key);
-  el.querySelectorAll('.pj-chart').forEach(pjDraw);
-  pjObserve();
-  if(focusSel){ const f = el.querySelector(focusSel); if(f) f.focus(); }
+  pjSwap(old, PJ_MODS[key](pjModel(CUR_PROJ)), focusSel);
+}
+/* перерисовать виджет источника там, где он сейчас открыт: на дашборде или на подробной странице */
+function pjRerender(src, focusSel){ if(PAGE==='src') sdRender('chart', focusSel); else pjRenderMod(src, focusSel); }
+/* общие действия виджетов и подробных страниц: пилюли, заметки, опрос API */
+function pjCommon(b, d){
+  if(d.kpi){ const [src, key] = d.kpi.split(':'); PJ.kpi[src] = key; pjRerender(src, `[data-kpi="${d.kpi}"]`); return true; }
+  if(d.notes){ PJ.notes[d.notes] = !PJ.notes[d.notes]; pjRerender(d.notes, `[data-notes="${d.notes}"]`); return true; }
+  if(d.poll){
+    if(b.classList.contains('busy')) return true;
+    b.classList.add('busy'); b.setAttribute('aria-busy', 'true');
+    setTimeout(()=>{ PJ.polled[d.poll] = true; pjRerender(d.poll, `[data-poll="${d.poll}"]`); }, 900);
+    return true;
+  }
+  if(d.connect) return true; /* подключение, настройки, доступы — в прототипе без действия */
+  return false;
 }
 function pjSidenav(p){
   const fly = `<div class="flyout" role="menu"><div class="fly-title">Позиции · мониторинги</div>${p.mons.map(m=>`<button class="fly-item" data-pid="${p.id}" data-mid="${m.id}"><span class="eng ${m.eng}">${m.eng==='ya'?I.ya:I.go}</span>${esc(m.name)}</button>`).join('')}</div>`;
   return `<nav class="sidenav">
-    <button class="nav-item active" title="Проект" aria-current="page">${I.home}Проект</button>
+    <button class="nav-item active" data-nav="proj" title="Проект" aria-current="page">${I.home}Проект</button>
     <div class="nav-fly"><button class="nav-item" id="pjNavPos" title="Позиции">${I.pos}Позиции</button>${fly}</div>
     <button class="nav-item" title="Видимость">${I.eye}Видимость</button>
     <button class="nav-item" title="Настройки">${I.gear}Настройки</button>
   </nav>`;
+}
+function pjBindNav(p){
+  app.querySelectorAll('.sidenav .fly-item[data-mid]').forEach(b=> b.onclick = ()=> goMon(b.dataset.pid, b.dataset.mid));
+  const np = document.getElementById('pjNavPos');
+  if(np) np.onclick = ()=>{ const m = p.mons[0]; if(m) goMon(p.id, m.id); };
+  app.querySelectorAll('.sidenav [data-nav="proj"], .crumb-pj').forEach(b=> b.onclick = e=>{ e.preventDefault(); if(PAGE==='proj') window.scrollTo({top:0, behavior:'smooth'}); else goProj(p.id); });
 }
 function renderProject(){
   const p = CUR_PROJ || ALL_PROJECTS[0];
   CUR_PROJ = p; PAGE = 'proj';
   const M = pjModel(p), T = M.team;
   if(PJ_RO) PJ_RO.disconnect();
+  if(PJ_FO) PJ_FO.disconnect();
   pjFloatTip().classList.remove('on');
   app.className = 'proj-page chrome-darkframe';
-  const dr = 34 + hashStr(p.dom)%56, nKeys = sumA(p.mons.map(m=>m.keys));
   const swList = [...HOME.map(g=>({g:g.group, ps:g.projects})), {g:'Проекты без групп', ps:HOME_UNGROUPED}]
     .map(s=>`<div class="sw-g">${esc(s.g)}</div>` + s.ps.map(q=>`<button class="dd-item ${q===p?'active':''}" data-proj="${q.id}" role="menuitem">${pjFavHtml(q.dom)}${esc(q.name)}</button>`).join('')).join('');
-  const per = PJ_PERIODS.map(([d,l])=>`<button class="${PJ.period===d?'active':''}" data-period="${d}" aria-pressed="${PJ.period===d}">${l}</button>`).join('');
+  /* Яндекс слева, Google справа: подключённые идут парами (Метрика | GA4, Вебмастер | GSC); оставшийся без пары — на всю ширину */
+  const ORD = ['metrika','ga','wm','gsc'], on = ORD.filter(k=>M.src[k]==='ok'), off = ORD.filter(k=>M.src[k]!=='ok');
+  PJ.wide = new Set(on.length % 2 ? [on[on.length-1]] : []);
   app.innerHTML = `
   ${buildTopbar('std')}
   <div class="shell">
     ${pjSidenav(p)}
     <main class="main">
-      <div class="page-crumbs"><nav class="crumbs"><a href="#" class="crumb-home">Проекты</a><span class="sep">/</span><span class="cur">${esc(p.dom)}</span></nav></div>
+      <div class="page-crumbs"><nav class="crumbs"><a href="#" class="crumb-home">Проекты</a><span class="sep">/</span>${crumbGrp(p)}<span class="cur">${esc(p.dom)}</span></nav></div>
       <div class="page-head">
         <div class="ph-left">
           <div class="ph-title">
             ${pjFavHtml(p.dom, 'pj-fav')}
             <span class="dd-wrap" id="pjSw"><h1><button class="pj-h1" aria-haspopup="menu" title="Переключить проект">${esc(p.name)}<span class="car">▼</span></button></h1><div class="dd-panel pj-sw-pop" role="menu">${swList}</div></span>
             <a class="pj-ext" href="https://${p.dom}" target="_blank" rel="noopener" title="Открыть ${p.dom} в новой вкладке" aria-label="Открыть сайт ${p.dom}">${I.link}</a>
-          </div>
-          <div class="pj-meta">
-            <span>Группа <b>${esc(M.group || 'без группы')}</b></span>
-            <span>Владелец <b>${esc(T.owner)}</b></span>
-            <span>Мониторингов <b>${p.mons.length}</b> · ключей <b>${fN(nKeys)}</b></span>
-            <span data-tip="Domain Rating домена (Ahrefs)">DR <b>${dr}</b></span>
-            <span>PageSpeed ${psBadge(p.ps)}</span>
           </div>
         </div>
         <div class="ph-actions">
@@ -4409,31 +4964,23 @@ function renderProject(){
         </div>
       </div>
       <div class="pj-wrap" id="pjWrap">
-        ${pjMonsHtml(M)}
-        <div class="pj-sec"><h2>Трафик и поиск</h2><span class="pj-sec-sub">Изменения — к предыдущему периоду такой же длины</span><span class="spacer"></span>
-          <div class="pj-seg" role="group" aria-label="Период графиков">${per}</div></div>
-        <div class="pj-grid2">
-          ${pjMetrikaHtml(M)}
-          ${pjGaHtml(M)}
-          ${pjWmHtml(M)}
-          ${pjGscHtml(M)}
-        </div>
-        <div class="pj-sec"><h2>Команда и активность</h2></div>
-        <div class="pj-grid-tl">
+        ${pjPsiHtml(M)}
+        <div class="pj-top">
+          <div class="pj-col">${pjMonsHtml(M)}${pjTeamHtml(M)}</div>
           ${pjLogHtml(M)}
-          ${pjTeamHtml(M)}
         </div>
+        ${off.length ? pjConnHtml(M, off) : ''}
+        ${on.length ? `<div class="pj-grid2">${on.map(k=>PJ_MODS[k](M)).join('')}</div>` : ''}
       </div>
     </main>
   </div>`;
   applyTheme();
   bindChrome();
   pjBind();
-  app.querySelectorAll('.pj-chart').forEach(pjDraw);
-  pjObserve();
+  pjAfter(app);
 }
 function pjBind(){
-  const w = document.getElementById('pjWrap'), ft = pjFloatTip();
+  const w = document.getElementById('pjWrap'), ft = pjFloatTip(), p = CUR_PROJ;
   /* переключатель проекта в H1 */
   const sw = document.getElementById('pjSw');
   sw.querySelector('.pj-h1').onclick = e=>{
@@ -4443,44 +4990,195 @@ function pjBind(){
     if(!was){ sw.classList.add('open'); const a = sw.querySelector('.dd-item.active'); if(a) a.scrollIntoView({block:'nearest'}); }
   };
   sw.querySelectorAll('[data-proj]').forEach(b=> b.onclick = ()=> goProj(b.dataset.proj));
-  /* сайднав: «Позиции» → первый мониторинг, flyout → выбранный */
-  app.querySelectorAll('.sidenav .fly-item[data-mid]').forEach(b=> b.onclick = ()=> goMon(b.dataset.pid, b.dataset.mid));
-  const np = document.getElementById('pjNavPos');
-  if(np) np.onclick = ()=>{ const m = CUR_PROJ.mons[0]; if(m) goMon(CUR_PROJ.id, m.id); };
+  pjBindNav(p);
   /* клики внутри модулей — делегирование (модули перерисовываются по отдельности) */
   w.addEventListener('click', e=>{
     ft.classList.remove('on');
-    const b = e.target.closest('button, a.ent, tr[data-mid]'); if(!b || !w.contains(b)) return;
+    const b = e.target.closest('button, a.ent, tr[data-mid]'); if(!b || !w.contains(b) || b.disabled) return;
     const d = b.dataset;
-    if(d.period){
-      PJ.period = +d.period;
-      w.querySelectorAll('[data-period]').forEach(x=>{ const on = +x.dataset.period===PJ.period; x.classList.toggle('active', on); x.setAttribute('aria-pressed', on); });
-      ['metrika','ga','wm','gsc'].forEach(k=>pjRenderMod(k));
+    if(pjCommon(b, d)) return;
+    if(d.drill){ goSrc(p.id, d.drill, d.dtab); return; }
+    if(b.classList.contains('pj-dd-btn')){ /* выпадающие списки внутри блоков: страница PageSpeed, период */
+      const wr = b.parentElement, was = wr.classList.contains('open');
+      document.querySelectorAll('.dd-wrap.open, .search-wrap.open').forEach(x=>x.classList.remove('open'));
+      wr.classList.toggle('open', !was); b.setAttribute('aria-expanded', !was);
+      if(!was){ const a = wr.querySelector('.dd-item.active'); if(a){ a.scrollIntoView({block:'nearest'}); a.focus(); } }
       return;
     }
-    if(d.lg){ /* серию можно скрыть, если на графике останется хотя бы одна */
-      const [mod, key] = d.lg.split(':'), off = PJ.off[mod];
-      if(off.has(key)) off.delete(key); else if(off.size < PJ_CH[mod].series.length-1) off.add(key); else return;
-      pjRenderMod(mod, `[data-lg="${d.lg}"]`); return;
-    }
-    if(d.kpi){ const [mod, key] = d.kpi.split(':'); PJ[mod] = key; pjRenderMod(mod, `[data-kpi="${d.kpi}"]`); return; }
-    if(d.qtab){ const [mod, t] = d.qtab.split(':'); PJ.qtab[mod] = t; pjRenderMod(mod, `[data-qtab="${d.qtab}"]`); return; }
+    if(d.psipage!=null){ PJ.psi.page = d.psipage; pjRenderMod('psi', '.psi-pg-btn'); return; }
+    if(d.per){ const [src, v] = d.per.split(':'); pjSetPer(+v);
+      ['psi','metrika','ga','wm','gsc'].filter(k=>k!==src).forEach(k=>pjRenderMod(k)); pjRenderMod(src, '.pj-per-btn'); return; }
+    if(d.psidev){ PJ.psi.dev = d.psidev; pjRenderMod('psi', `[data-psidev="${d.psidev}"]`); return; }
+    if(d.fav){ const m = p.mons.find(x=>String(x.id)===d.fav); if(m){ m.fav = !m.fav; pjRenderMod('mons', `[data-fav="${d.fav}"]`); } return; }
+    if(d.mset) return; /* настройки мониторинга — в прототипе без действия */
+    if(d.sev){ PJ.wmSev = PJ.wmSev===d.sev ? null : d.sev; pjRenderMod('wm', `[data-sev="${d.sev}"]`); return; }
+    if(d.wmk){ PJ.wmK = d.wmk; pjRenderMod('wm', `[data-wmk="${d.wmk}"]`); return; }
     if(d.logf){ PJ.logF = d.logf; PJ.logAll = false; pjRenderMod('log', `[data-logf="${d.logf}"]`); return; }
-    if(d.more){ PJ.logAll = !PJ.logAll; pjRenderMod('log', '#evMore'); return; }
     if(d.mid){ e.preventDefault(); goMon(d.pid, d.mid); return; }
   });
   w.addEventListener('keydown', e=>{
     const t = e.target.closest('tr[data-mid], a.ent[data-mid]');
-    if(t && (e.key==='Enter' || (e.key===' ' && t.tagName==='TR'))){ e.preventDefault(); goMon(t.dataset.pid, t.dataset.mid); }
+    if(t && e.target===t && (e.key==='Enter' || (e.key===' ' && t.tagName==='TR'))){ e.preventDefault(); goMon(t.dataset.pid, t.dataset.mid); }
   });
-  w.addEventListener('pointerover', e=>{ const t = e.target.closest('[data-ptip]'); if(t){ ft.textContent = t.dataset.ptip; ft.classList.add('on'); } });
-  w.addEventListener('pointermove', e=>{
-    if(!ft.classList.contains('on')) return;
-    if(!e.target.closest('[data-ptip]')){ ft.classList.remove('on'); return; }
-    ft.style.left = Math.max(8, Math.min(innerWidth - ft.offsetWidth - 8, e.clientX + 12))+'px';
-    ft.style.top = (e.clientY + 18)+'px';
+  pjTipBind(w, ft);
+}
+
+/* ================= ПОДРОБНАЯ СТРАНИЦА ИСТОЧНИКА =================
+   <base>/projects/<ID_PROJECT>/(gsc|metrika|ga): период, шаг графика Д/Н/М, экспорт CSV текущей вкладки,
+   KPI-пилюли и график (общие с виджетом: выбранная метрика, заметки), вкладки с сортируемыми таблицами;
+   у GSC ещё «Проверка URL» и «Sitemap-файлы». */
+function goSrc(pid, src, tab){
+  const p = findProj(pid);
+  if(!p || !PJ_TABS[src]){ goProj(pid); return; }
+  if(tab) PJ.tab[src] = tab;
+  CUR_MON = null; CUR_PROJ = p; CUR_SRC = src; PAGE = 'src';
+  if(CAN_ROUTE && location.pathname !== srcPath(p.id, src)) history.pushState({}, '', srcPath(p.id, src));
+  renderSrc();
+  window.scrollTo(0,0);
+}
+function sdRows(M, src, tab){
+  if(!PJ_TABS[src].some(t=>t[0]===tab) || (src==='gsc' && (tab==='u' || tab==='s'))) return null;
+  const s = PJ.sort[src+':'+tab] || {k:PJ_COLS[src][0][0], dir:-1};
+  return PJ_ROWS[src](M, tab).sort((a,b)=> (a[s.k]-b[s.k])*s.dir);
+}
+function sdChartHtml(M, src){
+  const D = M[src], gran = pjGran(1), {K, sel, nNotes} = pjChartCfg(M, src, 'd-'+src, gran), on = !!PJ.notes[src];
+  const per = PJ_PERIODS.map(([d,l])=>`<button class="${PJ.period===d?'active':''}" data-period="${d}" aria-pressed="${PJ.period===d}">${l}</button>`).join('');
+  const gr = PJ_GRANS.map(([g,l,t,min])=>{ const a = gran===g, dis = PJ.period < min;
+    return `<button class="${a?'active':''}" data-gran="${g}" aria-pressed="${a}" title="${t}${dis ? ' — нужен период длиннее' : ''}" aria-label="${t}" ${dis?'disabled':''}>${l}</button>`; }).join('');
+  return `<section class="pj-card sd-card" id="sdm-chart">
+    <div class="sd-tb">
+      <span class="sd-range">${I.cal}${pjRangeTxt(D.lag, 1)}</span>
+      <div class="pj-seg" role="group" aria-label="Период">${per}</div>
+      <span class="wg-upd">Обновлено ${pjUpd(src, M)}${pjLagTxt(D.lag)}</span>
+      <span class="spacer"></span>
+      <button class="wg-act" data-poll="${src}" title="${src==='psi' ? 'Запустить проверку PageSpeed сейчас' : 'Запросить свежие данные из API'}">${I.refresh}${src==='psi' ? 'Проверить' : 'Опросить'}</button>
+      <button class="wg-act ${on?'on':''}" data-notes="${src}" aria-pressed="${on}">${PJ_I.note}Заметки${nNotes ? ` <b>${nNotes}</b>` : ''}</button>
+      <button class="btn secondary sm" data-export="1" title="Скачать текущую вкладку в CSV">${I.dl} Экспорт</button>
+      <div class="pj-seg sd-gran" role="group" aria-label="Шаг графика">${gr}</div>
+    </div>
+    ${swPills(src, K, 1)}
+    ${pjChartHtml('d-'+src, `${sel.l} — ${PJ_SRC[src].t}, ${pjRangeTxt(D.lag, 1)}${sel.inv ? ' (ось перевёрнута: выше — лучше)' : ''}`, 1)}
+  </section>`;
+}
+function sdTableHtml(M, src, tab){
+  const rows = sdRows(M, src, tab), cols = PJ_COLS[src], s = PJ.sort[src+':'+tab] || {k:cols[0][0], dir:-1};
+  const nameL = (src!=='gsc' && tab==='p') ? 'Страница входа' : PJ_TABN[tab];
+  return `<div class="sd-scroll"><table class="sd-tbl">
+    <thead><tr><th class="c-n">#</th><th class="c-name">${nameL}</th>${cols.map(([k,l])=>{ const on = s.k===k;
+      return `<th class="num" ${on ? `aria-sort="${s.dir<0?'descending':'ascending'}"` : ''}><button class="sd-sort${on?' on':''}" data-sort="${k}" title="Сортировать">${l}${on ? `<span aria-hidden="true">${s.dir<0?'↓':'↑'}</span>` : ''}</button></th>`; }).join('')}</tr></thead>
+    <tbody>${rows.map((r,i)=>`<tr><td class="c-n">${i+1}</td><td class="c-name" title="${aiA(r.n)}">${esc(r.n)}</td>${cols.map(([k,,fm])=>`<td class="num">${fm(r[k])}</td>`).join('')}</tr>`).join('')}</tbody>
+  </table></div>`;
+}
+function sdUrlHtml(M){
+  const dom = M.p.dom, u = PJ.url[M.p.id] || M.pages[1] || '/', hh = hashStr(dom+u), r = pjRng(hh), ok = hh%5 !== 0;
+  const crawl = pjAgo(1 + Math.floor(r()*12)); crawl.setHours(Math.floor(r()*24), Math.floor(r()*60));
+  const row = (k, v) => `<dt>${k}</dt><dd>${v}</dd>`;
+  return `<div class="ui-wrap">
+    <form class="ui-form" id="uiForm"><label class="ui-in"><span>https://${esc(dom)}</span><input id="uiPath" value="${aiA(u)}" aria-label="Путь страницы на сайте" spellcheck="false" autocomplete="off"></label><button class="btn primary" type="submit">Проверить</button></form>
+    <div class="ui-res ${ok?'ok':'warn'}">
+      <div class="ui-h">${ok ? PJ_I.okc : PJ_I.warn}<div><b>${ok ? 'URL есть в индексе Google' : 'URL нет в индексе Google'}</b><span>${ok ? 'Страница может показываться в результатах поиска' : 'Страница обнаружена, но пока не проиндексирована'}</span></div></div>
+      <dl class="ui-dl">
+        ${row('Последнее сканирование', ok ? `${pjDMY(crawl)}, ${p2(crawl.getHours())}:${p2(crawl.getMinutes())}` : 'Не сканировалась')}
+        ${row('Робот', 'Googlebot для смартфонов')}
+        ${row('Сканирование разрешено', 'Да')}
+        ${row('Индексирование разрешено', 'Да')}
+        ${row('Каноническая страница (Google)', ok ? esc(`https://${dom}${u}`) : '—')}
+        ${row('Найдена в Sitemap', ok || r()<.5 ? esc(`https://${dom}/sitemap.xml`) : 'Нет')}
+      </dl>
+    </div>
+  </div>`;
+}
+function sdSitemapHtml(M){
+  const dom = M.p.dom, r = pjRng(hashStr('sm|'+dom)), tot = M.gsc.indexed + M.gsc.notIdx, bad = M.h%2===0;
+  const parts = [['/sitemap-pages.xml', .32], ['/sitemap-posts.xml', .58], ['/sitemap-images.xml', .1]];
+  const sent = pjAgo(120 + M.h%200);
+  const rows = [['/sitemap.xml', 'Индекс файлов Sitemap', tot, false], ...parts.map(([f,s],i)=>[f, 'Sitemap', Math.round(tot*s), bad && i===1])];
+  return `<div class="sd-scroll"><table class="sd-tbl">
+    <thead><tr><th class="c-name">Файл</th><th class="c-name">Тип</th><th class="num">Отправлен</th><th class="num">Последнее чтение</th><th class="c-name">Статус</th><th class="num">Обнаружено URL</th></tr></thead>
+    <tbody>${rows.map(([f, t, n, err])=>`<tr><td class="c-name" title="${aiA('https://'+dom+f)}">${esc(f)}</td><td class="c-name">${t}</td><td class="num">${pjDMY(sent)}</td><td class="num">${pjDMY(pjAgo(1 + Math.floor(r()*6)))}</td>
+      <td class="c-name"><span class="sm-st ${err?'warn':'ok'}">${err ? PJ_I.warn+'Ошибки: 2' : PJ_I.okc+'Успешно'}</span></td><td class="num">${fN(n)}</td></tr>`).join('')}</tbody>
+  </table></div>`;
+}
+function sdTabsHtml(M, src){
+  const t = PJ.tab[src];
+  const tabs = PJ_TABS[src].map(([k,l])=>{ const rows = sdRows(M, src, k), a = k===t;
+    return `<button class="sd-tab ${a?'active':''}" role="tab" aria-selected="${a}" data-dtab="${k}">${l}${rows ? ` <span>${rows.length}</span>` : ''}</button>`; }).join('');
+  const body = src==='gsc' && t==='u' ? sdUrlHtml(M) : src==='gsc' && t==='s' ? sdSitemapHtml(M) : sdTableHtml(M, src, t);
+  return `<section class="pj-card sd-card" id="sdm-tabs"><div class="sd-tabs" role="tablist">${tabs}</div>${body}</section>`;
+}
+function sdRender(part, focusSel){
+  const old = document.getElementById('sdm-'+part); if(!old) return;
+  pjPer(CUR_SRC);
+  const M = pjModel(CUR_PROJ);
+  pjSwap(old, part==='chart' ? sdChartHtml(M, CUR_SRC) : sdTabsHtml(M, CUR_SRC), focusSel);
+}
+function sdCsv(){
+  pjPer(CUR_SRC);
+  const M = pjModel(CUR_PROJ), src = CUR_SRC, tab = PJ.tab[src], rows = sdRows(M, src, tab); if(!rows) return;
+  const cols = PJ_COLS[src];
+  const out = [[PJ_TABN[tab], ...cols.map(c=>c[1])], ...rows.map(r=>[r.n, ...cols.map(([k,,fm])=>fm(r[k]))])];
+  const csv = '﻿' + out.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(';')).join('\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], {type:'text/csv;charset=utf-8'}));
+  a.download = `${src}_${M.p.dom}_${tab}_${PJ.period}d.csv`;
+  a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href), 1000);
+}
+function renderSrc(){
+  pjPer(CUR_SRC);
+  const p = CUR_PROJ, src = CUR_SRC, M = pjModel(p), S = PJ_SRC[src], D = M[src], ok = M.src[src]==='ok';
+  if(PJ_RO) PJ_RO.disconnect();
+  if(PJ_FO) PJ_FO.disconnect();
+  pjFloatTip().classList.remove('on');
+  app.className = 'proj-page src-page chrome-darkframe';
+  app.innerHTML = `
+  ${buildTopbar('std')}
+  <div class="shell">
+    ${pjSidenav(p)}
+    <main class="main">
+      <div class="page-crumbs"><nav class="crumbs"><a href="#" class="crumb-home">Проекты</a><span class="sep">/</span>${crumbGrp(p)}<a href="#" class="crumb-pj">${esc(p.dom)}</a><span class="sep">/</span><span class="cur">${S.t}</span></nav></div>
+      <div class="page-head">
+        <div class="ph-left">
+          <div class="ph-title"><span class="src-ico">${S.ico()}</span><h1>${S.t}</h1>${ok ? `<span class="sd-ok">${PJ_I.shield}Подключено</span>` : ''}</div>
+          <div class="pj-meta"><span>${esc(S.res(M))}</span><span>Аккаунт <b>${esc(S.acc(M))}</b></span>${D.lag ? `<span>Данные с задержкой ${D.lag} ${aiPl(D.lag, ['день','дня','дней'])}</span>` : ''}</div>
+        </div>
+        <div class="ph-actions">
+          <button class="btn secondary" data-connect="srcset">${I.gear.replace('<svg','<svg width="13" height="13"')} Настройки подключения</button>
+          <a class="btn secondary" href="${S.url(M)}" target="_blank" rel="noopener">Открыть в ${S.short} ${I.link}</a>
+        </div>
+      </div>
+      <div class="sd-wrap" id="sdWrap">${ok ? sdChartHtml(M, src) + sdTabsHtml(M, src) : pjEmptyHtml(src, M)}</div>
+    </main>
+  </div>`;
+  applyTheme();
+  bindChrome();
+  sdBind();
+  pjAfter(app);
+}
+function sdBind(){
+  const w = document.getElementById('sdWrap'), p = CUR_PROJ, src = CUR_SRC, ft = pjFloatTip();
+  pjBindNav(p);
+  app.querySelectorAll('.ph-actions [data-connect]').forEach(b=> b.onclick = ()=>{}); /* настройки подключения — в прототипе без действия */
+  w.addEventListener('click', e=>{
+    ft.classList.remove('on');
+    const b = e.target.closest('button'); if(!b || !w.contains(b) || b.disabled) return;
+    const d = b.dataset;
+    if(d.period){ pjSetPer(+d.period); sdRender('chart', `[data-period="${d.period}"]`); sdRender('tabs'); return; }
+    if(d.gran){ PJ.gran = d.gran; sdRender('chart', `[data-gran="${d.gran}"]`); return; }
+    if(pjCommon(b, d)) return;
+    if(d.dtab){ PJ.tab[src] = d.dtab; sdRender('tabs', `[data-dtab="${d.dtab}"]`); return; }
+    if(d.sort){ const k = src+':'+PJ.tab[src], s = PJ.sort[k]; PJ.sort[k] = {k:d.sort, dir: s && s.k===d.sort ? -s.dir : -1}; sdRender('tabs', `[data-sort="${d.sort}"]`); return; }
+    if(d.export){ sdCsv(); return; }
   });
-  w.addEventListener('pointerleave', ()=> ft.classList.remove('on'));
+  w.addEventListener('submit', e=>{
+    if(e.target.id!=='uiForm') return;
+    e.preventDefault();
+    let v = (document.getElementById('uiPath').value || '/').trim().replace(/^https?:\/\/[^/]+/i, '');
+    if(!v.startsWith('/')) v = '/' + v;
+    PJ.url[p.id] = v; sdRender('tabs', '#uiPath');
+  });
+  pjTipBind(w, ft);
 }
 
 /* ================= SWITCHER / THEME ================= */
